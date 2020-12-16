@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catzonaeconomica', {
+    return sequelize.define('cattiponomina', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -10,21 +10,24 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        porcentaje: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        state: {
-            type: DataTypes.CHAR(1),
-            allowNull: true,
-            defaultValue: "A"
-        },
         descripcion: {
             type: DataTypes.STRING,
             allowNull: true
         },
-        id_usuarios_r: {
+        abrev: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        id_fondopresup: {
             type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        descripcion2: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        state: {
+            type: DataTypes.STRING,
             allowNull: true
         },
         created_at: {
@@ -35,9 +38,13 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true
         },
+        id_usuarios_r: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        }
     }, {
         sequelize,
-        tableName: 'catzonaeconomica',
+        tableName: 'cattiponomina',
         schema: 'public',
         //timestamps: false
 

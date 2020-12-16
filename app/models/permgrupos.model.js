@@ -1,31 +1,30 @@
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catzonaeconomica', {
+    return sequelize.define('permgrupos', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        clave: {
-            type: DataTypes.INTEGER,
-            allowNull: true
+        icode: {
+            type: DataTypes.STRING(5),
+            allowNull: false,
+            defaultValue: ""
         },
-        porcentaje: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        state: {
-            type: DataTypes.CHAR(1),
-            allowNull: true,
-            defaultValue: "A"
-        },
-        descripcion: {
-            type: DataTypes.STRING,
-            allowNull: true
+        idesc: {
+            type: DataTypes.STRING(300),
+            allowNull: false,
+            defaultValue: ""
         },
         id_usuarios_r: {
             type: DataTypes.INTEGER,
-            allowNull: true
+            allowNull: false,
+            defaultValue: 0
+        },
+        state: {
+            type: DataTypes.CHAR(1),
+            allowNull: false,
+            defaultValue: "A"
         },
         created_at: {
             type: DataTypes.DATE,
@@ -34,10 +33,10 @@ module.exports = function(sequelize, DataTypes) {
         updated_at: {
             type: DataTypes.DATE,
             allowNull: true
-        },
+        }
     }, {
         sequelize,
-        tableName: 'catzonaeconomica',
+        tableName: 'permgrupos',
         schema: 'public',
         //timestamps: false
 

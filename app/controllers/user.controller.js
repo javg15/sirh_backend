@@ -52,8 +52,8 @@ exports.getAdmin = async(req, res) => {
 
     respuesta = {
             draw: 1,
-            recordsTotal: (datos.length > 0 ? datos[0].total_count : 0),
-            recordsFiltered: datos.length,
+            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            recordsFiltered: parseInt(datos[0].total_count),
             data: datos,
             columnNames: columnNames
         }
@@ -84,7 +84,7 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.setRecord = async(req, res) => {
-
+    //console.log(req.body.actionForm);
 
     let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
 
@@ -96,8 +96,12 @@ exports.setRecord = async(req, res) => {
         pass: { type: "string", min: 8, max: 50, pattern: passwordPattern },
         username: { type: "string", min: 5 },
     };
-    //console.log(req.body.dataPack)
-    var vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+
+    var vres = true;
+    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
+        req.body.actionForm.toUpperCase() == "EDITAR") {
+        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+    }
 
     /* validation failed */
     if (!(vres === true)) {

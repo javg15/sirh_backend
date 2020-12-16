@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/catzonaeconomica.controller");
+const controller = require("../controllers/cattiponomina.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,15 +10,15 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/catzonaeconomica/getCatalogo", [authJwt.verifyToken],
+        "/api/cattiponomina/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
     app.post(
-        "/api/catzonaeconomica/getAdmin", [authJwt.verifyToken],
+        "/api/cattiponomina/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/catzonaeconomica/getRecord", [authJwt.verifyToken],
+        "/api/cattiponomina/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
 };

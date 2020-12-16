@@ -1,30 +1,29 @@
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catzonaeconomica', {
+    return sequelize.define('ministraciones', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        clave: {
+        ejercicio: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        porcentaje: {
+        mes: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        state: {
-            type: DataTypes.CHAR(1),
-            allowNull: true,
-            defaultValue: "A"
-        },
-        descripcion: {
-            type: DataTypes.STRING,
+        capitulo: {
+            type: DataTypes.STRING(4),
             allowNull: true
         },
-        id_usuarios_r: {
+        fuentef: {
             type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        importe: {
+            type: DataTypes.DECIMAL(19, 4),
             allowNull: true
         },
         created_at: {
@@ -35,9 +34,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true
         },
+        state: {
+            type: DataTypes.CHAR(1),
+            allowNull: false,
+            defaultValue: "A"
+        },
+        id_usuarios_r: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        }
     }, {
         sequelize,
-        tableName: 'catzonaeconomica',
+        tableName: 'ministraciones',
         schema: 'public',
         //timestamps: false
 

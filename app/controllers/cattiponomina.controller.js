@@ -1,7 +1,7 @@
 const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
-const Catzonaeconomica = db.catzonaeconomica;
+const Cattiponomina = db.cattiponomina;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -16,7 +16,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catzonaeconomica_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_cattiponomina_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -24,7 +24,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catzonaeconomica_mgr('" +
+        query = "SELECT * FROM s_cattiponomina_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -81,17 +81,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catzonaeconomica.findOne({
+    Cattiponomina.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catzonaeconomica => {
-            if (!catzonaeconomica) {
-                return res.status(404).send({ message: "Catzonaeconomica Not found." });
+        .then(cattiponomina => {
+            if (!cattiponomina) {
+                return res.status(404).send({ message: "Cattiponomina Not found." });
             }
 
-            res.status(200).send(catzonaeconomica);
+            res.status(200).send(cattiponomina);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -100,17 +100,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Catzonaeconomica.findAll({
+    Cattiponomina.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(catzonaeconomica => {
-            if (!catzonaeconomica) {
-                return res.status(404).send({ message: "Catzonaeconomica Not found." });
+        }).then(cattiponomina => {
+            if (!cattiponomina) {
+                return res.status(404).send({ message: "Cattiponomina Not found." });
             }
 
-            res.status(200).send(catzonaeconomica);
+            res.status(200).send(cattiponomina);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -125,8 +125,8 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        descripcion: { type: "string", min: 5 },
+        clave: { type: "string" },
+        nombreplantel: { type: "string", min: 5 },
     };
 
     var vres = true;
@@ -157,8 +157,9 @@ exports.setRecord = async(req, res) => {
         };*/
     }
 
+
     //buscar si existe el registro
-    Catzonaeconomica.findOne({
+    Cattiponomina.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -167,15 +168,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(catzonaeconomica => {
-            if (!catzonaeconomica) {
+        .then(cattiponomina => {
+            if (!cattiponomina) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Catzonaeconomica.create(
+                Cattiponomina.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -189,7 +190,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                catzonaeconomica.update(req.body.dataPack).then((self) => {
+                cattiponomina.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

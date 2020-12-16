@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catzonaeconomica', {
+    return sequelize.define('catlocalidades', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -10,21 +10,20 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        porcentaje: {
-            type: DataTypes.INTEGER,
+        state: {
+            type: DataTypes.STRING,
             allowNull: true
         },
-        state: {
-            type: DataTypes.CHAR(1),
-            allowNull: true,
-            defaultValue: "A"
+        id_catmunicipios: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         },
         descripcion: {
             type: DataTypes.STRING,
             allowNull: true
         },
-        id_usuarios_r: {
-            type: DataTypes.INTEGER,
+        ambito: {
+            type: DataTypes.STRING,
             allowNull: true
         },
         created_at: {
@@ -35,9 +34,13 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true
         },
+        id_usuarios_r: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        }
     }, {
         sequelize,
-        tableName: 'catzonaeconomica',
+        tableName: 'catlocalidades',
         schema: 'public',
         //timestamps: false
 

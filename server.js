@@ -60,6 +60,25 @@ app.get("/", (req, res) => {
 // routes
 require('./app/routes/auth.routes')(app);
 require('./app/routes/user.routes')(app);
+require('./app/routes/catestatusplaza.routes')(app);
+require('./app/routes/categorias.routes')(app);
+require('./app/routes/catplanteles.routes')(app);
+require('./app/routes/catzonaeconomica.routes')(app);
+require('./app/routes/catcentrostrabajo.routes')(app);
+require('./app/routes/catfuentef.routes')(app);
+require('./app/routes/catlocalidades.routes')(app);
+require('./app/routes/catmunicipios.routes')(app);
+require('./app/routes/catestados.routes')(app);
+require('./app/routes/catregiones.routes')(app);
+require('./app/routes/cattipocategoria.routes')(app);
+require('./app/routes/cattiponomina.routes')(app);
+require('./app/routes/catzonageografica.routes')(app);
+require('./app/routes/ejercicioreal.routes')(app);
+require('./app/routes/estudios.routes')(app);
+require('./app/routes/horas.routes')(app);
+require('./app/routes/ministraciones.routes')(app);
+require('./app/routes/presupuesto.routes')(app);
+require('./app/routes/rhnominas.routes')(app);
 require('./app/routes/shared.routes')(app);
 
 
