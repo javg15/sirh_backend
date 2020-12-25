@@ -34,11 +34,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
-        id_qnaini: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_qnafin: {
+        aniocreacion: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -66,24 +62,24 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        bachenarte: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        participaenprogramauna: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        comentarios: {
+        telefono: {
             type: DataTypes.STRING,
             allowNull: true
         },
-        fechaultmod: {
+        email: {
             type: DataTypes.STRING,
             allowNull: true
         },
-        permiteplazasrp: {
-            type: DataTypes.INTEGER,
+        domicilio: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        latitud: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        longitud: {
+            type: DataTypes.STRING,
             allowNull: true
         },
         emsad: {

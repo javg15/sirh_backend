@@ -10,6 +10,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(100),
             allowNull: true
         },
+        clave: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
         id_estatussig: {
             type: DataTypes.STRING(100),
             allowNull: true

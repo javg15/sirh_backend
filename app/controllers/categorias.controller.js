@@ -126,7 +126,7 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 5 },
+        clave: { type: "string", max: 3 },
         denominacion: { type: "string", min: 5 },
         nivelsalarial: { type: "string", max: 5 },
     };

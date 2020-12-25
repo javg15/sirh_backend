@@ -1,7 +1,9 @@
+/* jshint indent: 2 */
+
+const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catregiones', {
+    return sequelize.define('cattipocentrotrabajo', {
         id: {
-            autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
@@ -10,17 +12,12 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
-        clave: {
-            type: DataTypes.STRING,
+        habilitado: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         state: {
-            type: DataTypes.CHAR(1),
-            allowNull: true,
-            defaultValue: "A"
-        },
-        id_usuarios_r: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: true
         },
         created_at: {
@@ -31,13 +28,14 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true
         },
+        id_usuarios_r: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        }
     }, {
         sequelize,
-        tableName: 'catregiones',
+        tableName: 'cattipocentrotrabajo',
         schema: 'public',
-        //timestamps: false
-
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        timestamps: false
     });
 };

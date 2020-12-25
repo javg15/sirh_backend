@@ -1,5 +1,8 @@
+/* jshint indent: 2 */
+
+const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catcentrostrabajo', {
+    return sequelize.define('categoriassueldos', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -7,52 +10,46 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true
         },
         clave: {
+            type: DataTypes.STRING(5),
+            allowNull: true
+        },
+        id_categorias: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        descripcion: {
-            type: DataTypes.STRING,
+        importe: {
+            type: DataTypes.DECIMAL(19, 4),
             allowNull: true
         },
-        zona: {
+        id_catquincena_inicio: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_cattipoct: {
+        id_catquincena_fin: {
             type: DataTypes.INTEGER,
             allowNull: true
+        },
+        totalplazaaut: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        totalhorasaut: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catzonaeconomica: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_usuarios_r: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         },
         state: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        id_catplanteles: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_qnaini: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_qnafin: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_ctant: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        titular: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        id_categoriaasoc: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        ficticia: {
-            type: DataTypes.INTEGER,
-            allowNull: true
+            type: DataTypes.CHAR(1),
+            allowNull: false,
+            defaultValue: "A"
         },
         created_at: {
             type: DataTypes.DATE,
@@ -61,18 +58,18 @@ module.exports = function(sequelize, DataTypes) {
         updated_at: {
             type: DataTypes.DATE,
             allowNull: true
-        },
-        id_usuarios_r: {
-            type: DataTypes.INTEGER,
-            allowNull: true
         }
     }, {
         sequelize,
-        tableName: 'catcentrostrabajo',
+        tableName: 'categoriassueldos',
         schema: 'public',
-        //timestamps: false
-
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        timestamps: false,
+        indexes: [{
+            name: "categoriasautorizadas_pkey",
+            unique: true,
+            fields: [
+                { name: "id" },
+            ]
+        }, ]
     });
 };

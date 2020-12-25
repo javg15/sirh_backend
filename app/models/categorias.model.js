@@ -7,7 +7,12 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true
         },
         clave: {
-            type: DataTypes.STRING(5),
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+
+        codigo: {
+            type: DataTypes.STRING(100),
             allowNull: true
         },
         denominacion: {
@@ -18,8 +23,8 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(5),
             allowNull: true
         },
-        tipo: {
-            type: DataTypes.STRING(2),
+        id_tipocategoria: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         id_tiponomina: {

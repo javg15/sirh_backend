@@ -1,8 +1,8 @@
 const db = require("../models");
 const { Op } = require("sequelize");
-const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Catplanteles = db.catplanteles;
+const mensajesValidacion = require("../config/validate.config");
+const Categoriassueldos = db.categoriassueldos;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -14,10 +14,13 @@ let dataValidator = new Validator({
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
-        query = "";
+        query = "",
+        params = req.body.dataTablesParameters;
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catplanteles_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        params = req.body;
+
+        query = "SELECT * FROM s_categoriassueldos_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -25,12 +28,11 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catplanteles_mgr('" +
-            "&modo=0&id_usuario=:id_usuario" +
+        query = "SELECT * FROM s_categoriassueldos_mgr('" +
+            "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
-            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir + "')";
+            "&fkey=" + params.opcionesAdicionales.fkey +
+            "&fkeyvalue=:fkeyvalue')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -40,10 +42,13 @@ exports.getAdmin = async(req, res) => {
 
             replacements: {
                 id_usuario: req.userId,
-                start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
-                length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
-                scampo: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.campo) : 0),
-                soperador: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.operador) : 0),
+                modo: params.opcionesAdicionales.modo,
+                fkeyvalue: params.opcionesAdicionales.fkeyvalue,
+                start: (typeof params.start !== typeof undefined ? params.start : 0),
+                length: (typeof params.start !== typeof undefined ? params.length : 1),
+                /*scampo: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.campo) : 0),
+                soperador: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.operador) : 0),
+                sdato: (typeof params.start !== typeof undefined ? params.opcionesAdicionales.datosBusqueda.valor.toString() : 0),*/
             },
             // If plain is true, then sequelize will only return the first
             // record of the result set. In case of false it will return all records.
@@ -67,13 +72,13 @@ exports.getAdmin = async(req, res) => {
     }
 
     respuesta = {
-            draw: req.body.opcionesAdicionales.raw,
-            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
-            recordsFiltered: parseInt(datos[0].total_count),
-            data: datos,
-            columnNames: columnNames
-        }
-        //console.log(JSON.stringify(respuesta));
+        draw: params.opcionesAdicionales.raw,
+        recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+        recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+        data: datos,
+        columnNames: columnNames
+    }
+
     res.status(200).send(respuesta);
     //return res.status(200).json(data);
     // res.status(500).send({ message: err.message });
@@ -82,17 +87,36 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catplanteles.findOne({
+    Categoriassueldos.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
+        .then(categoriassueldos => {
+            if (!categoriassueldos) {
+                return res.status(404).send({ message: "Categoriassueldos Not found." });
             }
 
-            res.status(200).send(catplanteles);
+            res.status(200).send(categoriassueldos);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getCatalogo = async(req, res) => {
+
+    Categoriassueldos.findAll({
+            attributes: ['id', 'descripcion'],
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(categoriassueldos => {
+            if (!categoriassueldos) {
+                return res.status(404).send({ message: "Categoriassueldos Not found." });
+            }
+
+            res.status(200).send(categoriassueldos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -108,7 +132,8 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         clave: { type: "string", max: 3 },
-        nombreplantel: { type: "string", min: 5 },
+        id_catquincena_inicio: { type: "string" },
+        id_catquincena_fin: { type: "string" },
     };
 
     var vres = true;
@@ -140,7 +165,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Catplanteles.findOne({
+    Categoriassueldos.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -149,15 +174,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(catplanteles => {
-            if (!catplanteles) {
+        .then(categoriassueldos => {
+            if (!categoriassueldos) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Catplanteles.create(
+                Categoriassueldos.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -171,32 +196,13 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                catplanteles.update(req.body.dataPack).then((self) => {
+                categoriassueldos.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
             }
 
 
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.getCatalogo = async(req, res) => {
-
-    Catplanteles.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
-            }
-
-            res.status(200).send(catplanteles);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
