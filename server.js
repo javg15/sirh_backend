@@ -73,11 +73,11 @@ jasper = require('node-jasper')({
     },
     conns: {
         dbserver1: {
-            host: 'localhost',
+            host: '54.184.232.181',
             port: 5432,
-            dbname: 'sirhcobnomina',
+            dbname: 'testreport',
             user: 'postgres',
-            pass: 'jaime15',
+            pass: 'RH23021312',
             driver: 'pg'
         }
     },
