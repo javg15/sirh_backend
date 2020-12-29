@@ -58,7 +58,7 @@ var java = require("java");
 java.classpath.push(path.resolve("."));*/
 //reportes
 jasper = require('node-jasper')({
-    path: 'lib/jasperreports-6.12.2',
+    path: 'lib/jasperreports-6.16.0',
     reports: {
         hw: {
             jasper: 'reports/Factura2.jasper'
