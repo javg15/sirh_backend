@@ -14,10 +14,11 @@ var corsOptions = {
 app.use((req, res, next) => {
     const allowedOrigins = ['http://localhost:8081', 'http://localhost:4200', 'http://127.0.0.1:8080', 'https://app.visorplus.mx/'];
     const origin = req.headers.origin;
+
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    //res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:8020');
+    //res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', true);
@@ -51,10 +52,57 @@ db.sequelize.authenticate()
         console.error('Unable to connect to the database:', err);
     });
 
+/*const path = require('path');
+console.log(path.resolve("."));
+var java = require("java");
+java.classpath.push(path.resolve("."));*/
+//reportes
+jasper = require('node-jasper')({
+    path: 'lib/jasperreports-6.12.2',
+    reports: {
+        hw: {
+            jasper: 'reports/Factura2.jasper'
+        }
+    },
+    drivers: {
+        pg: {
+            path: 'lib/postgresql-42.2.18.jar',
+            class: 'org.postgresql.Driver',
+            type: 'postgresql'
+        }
+    },
+    conns: {
+        dbserver1: {
+            host: 'localhost',
+            port: 5432,
+            dbname: 'sirhcobnomina',
+            user: 'postgres',
+            pass: 'jaime15',
+            driver: 'pg'
+        }
+    },
+    defaultConn: 'dbserver1'
+});
+
+app.get('/report', function(req, res, next) {
+    let report = {
+        report: 'hw',
+        //parametros
+        data: {
+            name: 'Jaime'
+        }
+    };
+    let pdf = jasper.pdf(report);
+    res.set({
+        'Content-type': 'application/pdf',
+        'Content-Length': pdf.length
+    });
+    res.send(pdf);
+});
 
 // simple route
 app.get("/", (req, res) => {
-    res.json({ message: "Welcome to bezkoder application." });
+    res.json({ message: "Welcome to bezkoder application.", });
 });
 
 // routes

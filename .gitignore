@@ -102,3 +102,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+#jasper
+.lib/jasperreports-6.2.0/
+.lib/jasperreports-6.12.2/
+.lib/jasperreports-6.16.0/

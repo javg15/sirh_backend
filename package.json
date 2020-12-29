@@ -21,7 +21,9 @@
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "fastest-validator": "^1.9.0",
+        "java": "^0.12.1",
         "jsonwebtoken": "^8.5.1",
+        "node-jasper": "^0.2.5",
         "pg": "^8.5.1",
         "pg-hstore": "^2.3.3",
         "sequelize": "^6.3.5"
