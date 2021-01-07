@@ -56,12 +56,13 @@ db.sequelize.authenticate()
 console.log(path.resolve("."));
 var java = require("java");
 java.classpath.push(path.resolve("."));*/
+/*
 //reportes
 jasper = require('node-jasper')({
     path: 'lib/jasperreports-6.16.0',
     reports: {
         hw: {
-            jasper: 'reports/Factura2.jasper'
+            jasper: 'reports/categorias.jasper'
         }
     },
     drivers: {
@@ -75,7 +76,7 @@ jasper = require('node-jasper')({
         dbserver1: {
             host: '54.184.232.181',
             port: 5432,
-            dbname: 'testreport',
+            dbname: 'controlplazas',
             user: 'postgres',
             pass: 'RH23021312',
             driver: 'pg'
@@ -84,12 +85,12 @@ jasper = require('node-jasper')({
     defaultConn: 'dbserver1'
 });
 
-app.get('/report', function(req, res, next) {
+app.get('/api/report', function(req, res, next) {
     let report = {
         report: 'hw',
         //parametros
         data: {
-            name: 'Jaime'
+            id_ze: 2
         }
     };
     let pdf = jasper.pdf(report);
@@ -98,7 +99,7 @@ app.get('/report', function(req, res, next) {
         'Content-Length': pdf.length
     });
     res.send(pdf);
-});
+});*/
 
 // simple route
 app.get("/", (req, res) => {
@@ -131,6 +132,7 @@ require('./app/routes/ministraciones.routes')(app);
 require('./app/routes/presupuesto.routes')(app);
 require('./app/routes/rhnominas.routes')(app);
 require('./app/routes/shared.routes')(app);
+require('./app/routes/reportes.routes')(app);
 
 
 /*app.listen(PORT, () => {

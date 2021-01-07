@@ -108,7 +108,7 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         clave: { type: "string", max: 3 },
-        nombreplantel: { type: "string", min: 5 },
+        ubicacion: { type: "string", min: 5 },
     };
 
     var vres = true;
