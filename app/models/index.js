@@ -37,6 +37,7 @@ db.catmunicipios = require("../models/catmunicipios.model.js")(sequelize, Sequel
 db.catregiones = require("../models/catregiones.model.js")(sequelize, Sequelize);
 db.catestados = require("../models/catestados.model.js")(sequelize, Sequelize);
 db.cattipocentrotrabajo = require("../models/cattipocentrotrabajo.model.js")(sequelize, Sequelize);
+db.catturnos = require("../models/catturnos.model.js")(sequelize, Sequelize);
 db.cattipocategoria = require("../models/cattipocategoria.model.js")(sequelize, Sequelize);
 db.cattiponomina = require("../models/cattiponomina.model.js")(sequelize, Sequelize);
 db.catzonageografica = require("./catzonageografica.model.js")(sequelize, Sequelize);

@@ -21,12 +21,12 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DECIMAL(19, 4),
             allowNull: true
         },
-        id_catquincena_inicio: {
-            type: DataTypes.INTEGER,
+        fecha_inicio: {
+            type: DataTypes.DATE,
             allowNull: true
         },
-        id_catquincena_fin: {
-            type: DataTypes.INTEGER,
+        fecha_fin: {
+            type: DataTypes.DATE,
             allowNull: true
         },
         totalplazaaut: {

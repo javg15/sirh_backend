@@ -58,7 +58,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
-        id_turno: {
+        id_catturnos: {
             type: DataTypes.INTEGER,
             allowNull: true
         },

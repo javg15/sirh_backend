@@ -132,8 +132,8 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         clave: { type: "string", max: 3 },
-        id_catquincena_inicio: { type: "string" },
-        id_catquincena_fin: { type: "string" },
+        fecha_inicio: { type: "string" },
+        fecha_fin: { type: "string" },
     };
 
     var vres = true;

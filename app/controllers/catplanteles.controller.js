@@ -187,7 +187,7 @@ exports.setRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catplanteles.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion'],
+            attributes: ['id', 'descripcion', 'ubicacion', 'clave'],
             order: [
                 ['descripcion', 'ASC'],
             ]

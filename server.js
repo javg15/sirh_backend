@@ -122,6 +122,7 @@ require('./app/routes/catquincena.routes')(app);
 require('./app/routes/catestados.routes')(app);
 require('./app/routes/catregiones.routes')(app);
 require('./app/routes/cattipocentrotrabajo.routes')(app);
+require('./app/routes/catturnos.routes')(app);
 require('./app/routes/cattipocategoria.routes')(app);
 require('./app/routes/cattiponomina.routes')(app);
 require('./app/routes/catzonageografica.routes')(app);
