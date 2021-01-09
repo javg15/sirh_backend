@@ -39,13 +39,8 @@ module.exports = function(sequelize, DataTypes) {
         sequelize,
         tableName: 'catquincena',
         schema: 'public',
-        timestamps: false,
-        indexes: [{
-            name: "catquincena_pkey",
-            unique: true,
-            fields: [
-                { name: "id" },
-            ]
-        }, ]
+        //timestamps: false,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     });
 };

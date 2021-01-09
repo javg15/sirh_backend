@@ -36,6 +36,8 @@ module.exports = function(sequelize, DataTypes) {
         sequelize,
         tableName: 'catturnos',
         schema: 'public',
-        timestamps: false
+        //timestamps: false
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     });
 };

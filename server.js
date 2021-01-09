@@ -134,6 +134,7 @@ require('./app/routes/presupuesto.routes')(app);
 require('./app/routes/rhnominas.routes')(app);
 require('./app/routes/shared.routes')(app);
 require('./app/routes/reportes.routes')(app);
+require('./app/routes/plazas.routes')(app);
 
 
 /*app.listen(PORT, () => {

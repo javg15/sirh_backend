@@ -13,6 +13,7 @@ module.exports = function(app) {
         "/api/cattipocentrotrabajo/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
+
     app.post(
         "/api/cattipocentrotrabajo/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
@@ -20,5 +21,13 @@ module.exports = function(app) {
     app.post(
         "/api/cattipocentrotrabajo/getRecord", [authJwt.verifyToken],
         controller.getRecord
+    );
+    app.post(
+        "/api/cattipocentrotrabajo/getCatalogoAdministrativo", [authJwt.verifyToken],
+        controller.getCatalogoAdministrativo
+    );
+    app.post(
+        "/api/cattipocentrotrabajo/getCatalogoAdministrativoTipos", [authJwt.verifyToken],
+        controller.getCatalogoAdministrativoTipos
     );
 };

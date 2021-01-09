@@ -2,38 +2,26 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('categoriassueldos', {
+    return sequelize.define('plazas', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        clave: {
-            type: DataTypes.STRING(5),
-            allowNull: true
-        },
         id_categorias: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        importe: {
-            type: DataTypes.DECIMAL(19, 4),
-            allowNull: true
-        },
-        fecha_inicio: {
-            type: DataTypes.DATE,
-            allowNull: true
-        },
-        fecha_fin: {
-            type: DataTypes.DATE,
-            allowNull: true
-        },
-        totalplazaaut: {
+        consecutivo: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        totalhorasaut: {
+        id_catplanteles: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catcentrostrabajo: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -41,15 +29,37 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_usuarios_r: {
+        id_catzonageografica: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
+            allowNull: true
+        },
+        fecha_creacion: {
+            type: DataTypes.DATEONLY,
+            allowNull: true
+        },
+        fecha_fin: {
+            type: DataTypes.DATEONLY,
+            allowNull: true
+        },
+        id_catestatusplaza: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        statussicodes: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_puesto: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_sindicato: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         },
         state: {
-            type: DataTypes.CHAR(1),
-            allowNull: false,
-            defaultValue: "A"
+            type: DataTypes.STRING,
+            allowNull: true
         },
         created_at: {
             type: DataTypes.DATE,
@@ -58,10 +68,14 @@ module.exports = function(sequelize, DataTypes) {
         updated_at: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        id_usuarios_r: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
     }, {
         sequelize,
-        tableName: 'categoriassueldos',
+        tableName: 'plazas',
         schema: 'public',
         //timestamps: false,
         createdAt: 'created_at',

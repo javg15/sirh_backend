@@ -101,7 +101,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catcentrostrabajo.findAll({
-            attributes: ['id', 'descripcion'],
+            attributes: ['id', 'clave', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
@@ -116,6 +116,29 @@ exports.getCatalogo = async(req, res) => {
             res.status(500).send({ message: err.message });
         });
 }
+
+exports.getCatalogoSegunPlantel = async(req, res) => {
+
+    Catcentrostrabajo.findAll({
+            attributes: ['id', 'clave', 'descripcion'],
+            where: {
+                id_catplanteles: req.body.id_catplanteles
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(catcentrostrabajo => {
+            if (!catcentrostrabajo) {
+                return res.status(404).send({ message: "Catcentrostrabajo Not found." });
+            }
+
+            res.status(200).send(catcentrostrabajo);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 
 exports.setRecord = async(req, res) => {
     //console.log(req.body.actionForm);

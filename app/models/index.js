@@ -8,13 +8,13 @@ const sequelize = new Sequelize(
         host: config.HOST,
         dialect: config.dialect,
         operatorsAliases: config.operatorsAliases,
-
-        /*pool: {
-            max: config.pool.max,
-            min: config.pool.min,
-            acquire: config.pool.acquire,
-            idle: config.pool.idle
-        }*/
+        timezone: '-06:00'
+            /*pool: {
+                max: config.pool.max,
+                min: config.pool.min,
+                acquire: config.pool.acquire,
+                idle: config.pool.idle
+            }*/
     }
 );
 
@@ -47,6 +47,7 @@ db.horas = require("../models/horas.model.js")(sequelize, Sequelize);
 db.ministraciones = require("../models/ministraciones.model.js")(sequelize, Sequelize);
 db.presupuesto = require("../models/presupuesto.model.js")(sequelize, Sequelize);
 db.rhnominas = require("../models/rhnominas.model.js")(sequelize, Sequelize);
+db.plazas = require("../models/plazas.model.js")(sequelize, Sequelize);
 
 
 

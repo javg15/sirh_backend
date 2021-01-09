@@ -102,9 +102,9 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Categorias.findAll({
-            attributes: ['id', 'descripcion'],
+            attributes: ['id', 'clave', 'denominacion'],
             order: [
-                ['descripcion', 'ASC'],
+                ['denominacion', 'ASC'],
             ]
         }).then(categorias => {
             if (!categorias) {

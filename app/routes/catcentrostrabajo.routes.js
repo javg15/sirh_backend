@@ -25,4 +25,9 @@ module.exports = function(app) {
         "/api/catcentrostrabajo/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+    app.post(
+        "/api/catcentrostrabajo/getCatalogoSegunPlantel", [authJwt.verifyToken],
+        controller.getCatalogoSegunPlantel
+    );
+
 };

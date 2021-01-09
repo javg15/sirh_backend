@@ -99,7 +99,6 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
-
     Cattipocentrotrabajo.findAll({
             attributes: ['id', 'descripcion'],
             order: [
@@ -116,6 +115,59 @@ exports.getCatalogo = async(req, res) => {
             res.status(500).send({ message: err.message });
         });
 }
+
+exports.getCatalogoAdministrativo = async(req, res) => {
+    Cattipocentrotrabajo.findAll({
+            attributes: ['id', 'descripcion'],
+            where: {
+                id: {
+                    [Op.and]: {
+                        [Op.gte]: 2, //>=2
+                        [Op.lte]: 6 //<=6
+                    }
+                }
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(cattipocentrotrabajo => {
+            if (!cattipocentrotrabajo) {
+                return res.status(404).send({ message: "Cattipocentrotrabajo Not found." });
+            }
+
+            res.status(200).send(cattipocentrotrabajo);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getCatalogoAdministrativoTipos = async(req, res) => {
+    Cattipocentrotrabajo.findAll({
+            attributes: ['id', 'descripcion'],
+            where: {
+                id: {
+                    [Op.and]: {
+                        [Op.gte]: 1, //>=2
+                        [Op.lte]: 9 //<=6
+                    }
+                }
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(cattipocentrotrabajo => {
+            if (!cattipocentrotrabajo) {
+                return res.status(404).send({ message: "Cattipocentrotrabajo Not found." });
+            }
+
+            res.status(200).send(cattipocentrotrabajo);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 
 exports.setRecord = async(req, res) => {
     //console.log(req.body.actionForm);

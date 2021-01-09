@@ -2,12 +2,13 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Catplanteles = db.catplanteles;
+const Plazas = db.plazas;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 /* create an instance of the validator */
 let dataValidator = new Validator({
+    useNewCustomCheckerFunction: true, // using new version
     messages: mensajesValidacion
 });
 
@@ -17,7 +18,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catplanteles_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_plazas_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -25,7 +26,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catplanteles_mgr('" +
+        query = "SELECT * FROM s_plazas_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -69,7 +70,7 @@ exports.getAdmin = async(req, res) => {
     respuesta = {
             draw: req.body.opcionesAdicionales.raw,
             recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
-            recordsFiltered: parseInt(datos[0].total_count),
+            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             data: datos,
             columnNames: columnNames
         }
@@ -82,17 +83,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catplanteles.findOne({
+    Plazas.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
+        .then(plazas => {
+            if (!plazas) {
+                return res.status(404).send({ message: "Plazas Not found." });
             }
 
-            res.status(200).send(catplanteles);
+            res.status(200).send(plazas);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -107,9 +108,26 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        ubicacion: { type: "string", min: 5 },
+        id_categorias: { type: "number" },
+        id_catplanteles: { type: "number" },
+        id_catcentrostrabajo: { type: "number" },
+        /*id_catzonaeconomica: { type: "number" },
+        id_catzonageografica: { type: "number" },*/
+        id_catestatusplaza: { type: "number" },
+        statussicodes: { type: "string" },
+        fecha_creacion: {
+            type: "string",
+            custom(value, errors, schema) {
+                var date1 = new Date(value);
+                //315554400000 = 1/1/1980
+                if (date1.getTime() < 315554400000) errors.push({ type: "dateMin", expected: '1/1/1980', actual: value });
+                if (date1.getTime() > Date.parse(new Date())) errors.push({ type: "dateMax", expected: new Date(), actual: value });
+                return value
+            }
+        },
     };
+
+
 
     var vres = true;
     if (req.body.actionForm.toUpperCase() == "NUEVO" ||
@@ -140,7 +158,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Catplanteles.findOne({
+    Plazas.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -149,15 +167,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(catplanteles => {
-            if (!catplanteles) {
+        .then(plazas => {
+            if (!plazas) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Catplanteles.create(
+                Plazas.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -171,7 +189,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                catplanteles.update(req.body.dataPack).then((self) => {
+                plazas.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
@@ -186,17 +204,17 @@ exports.setRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Catplanteles.findAll({
+    Plazas.findAll({
             attributes: ['id', 'descripcion', 'ubicacion', 'clave'],
             order: [
-                ['clave', 'ASC'],
+                ['descripcion', 'ASC'],
             ]
-        }).then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
+        }).then(plazas => {
+            if (!plazas) {
+                return res.status(404).send({ message: "Plazas Not found." });
             }
 
-            res.status(200).send(catplanteles);
+            res.status(200).send(plazas);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
