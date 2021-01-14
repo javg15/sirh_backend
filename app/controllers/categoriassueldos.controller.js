@@ -124,7 +124,12 @@ exports.getCatalogo = async(req, res) => {
 }
 
 exports.setRecord = async(req, res) => {
-    //console.log(req.body.actionForm);
+    Object.keys(req.body.dataPack).forEach(function(key) {
+        if (key.indexOf("id_", 0) >= 0) {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+    })
 
     /* customer validator shema */
     const dataVSchema = {

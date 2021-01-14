@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/catmunicipios.controller");
+const controller = require("../controllers/catplantillas.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,19 +10,20 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/catmunicipios/getCatalogo", [authJwt.verifyToken],
+        "/api/catplantillas/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
     app.post(
-        "/api/catmunicipios/getAdmin", [authJwt.verifyToken],
+        "/api/catplantillas/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/catmunicipios/getRecord", [authJwt.verifyToken],
+        "/api/catplantillas/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
     app.post(
-        "/api/catmunicipios/getCatalogoSegunEntidad", [authJwt.verifyToken],
-        controller.getCatalogoSegunEntidad
+        "/api/catplantillas/getCatalogoSegunSexo", [authJwt.verifyToken],
+        controller.getCatalogoSegunSexo
     );
+
 };

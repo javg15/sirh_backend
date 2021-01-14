@@ -1,25 +1,27 @@
 const db = require("../models");
 const { Op } = require("sequelize");
-const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Plazas = db.plazas;
+const mensajesValidacion = require("../config/validate.config");
+const Plantillaspersonal = db.plantillaspersonal;
+const Personal = db.personal;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 /* create an instance of the validator */
 let dataValidator = new Validator({
-    useNewCustomCheckerFunction: true, // using new version
     messages: mensajesValidacion
-
 });
 
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
-        query = "";
+        query = "",
+        params = req.body.dataTablesParameters;
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_plazas_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        params = req.body;
+
+        query = "SELECT * FROM s_plantillaspersonal_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -27,12 +29,11 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_plazas_mgr('" +
-            "&modo=0&id_usuario=:id_usuario" +
+        query = "SELECT * FROM s_plantillaspersonal_mgr('" +
+            "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
-            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir + "')";
+            "&fkey=" + params.opcionesAdicionales.fkey +
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -42,10 +43,13 @@ exports.getAdmin = async(req, res) => {
 
             replacements: {
                 id_usuario: req.userId,
-                start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
-                length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
-                scampo: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.campo) : 0),
-                soperador: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.operador) : 0),
+                modo: params.opcionesAdicionales.modo,
+
+                start: (typeof params.start !== typeof undefined ? params.start : 0),
+                length: (typeof params.start !== typeof undefined ? params.length : 1),
+                /*scampo: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.campo) : 0),
+                soperador: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.operador) : 0),
+                sdato: (typeof params.start !== typeof undefined ? params.opcionesAdicionales.datosBusqueda.valor.toString() : 0),*/
             },
             // If plain is true, then sequelize will only return the first
             // record of the result set. In case of false it will return all records.
@@ -69,13 +73,13 @@ exports.getAdmin = async(req, res) => {
     }
 
     respuesta = {
-            draw: req.body.opcionesAdicionales.raw,
-            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
-            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
-            data: datos,
-            columnNames: columnNames
-        }
-        //console.log(JSON.stringify(respuesta));
+        draw: params.opcionesAdicionales.raw,
+        recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+        recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+        data: datos,
+        columnNames: columnNames
+    }
+
     res.status(200).send(respuesta);
     //return res.status(200).json(data);
     // res.status(500).send({ message: err.message });
@@ -84,17 +88,72 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Plazas.findOne({
+    Plantillaspersonal.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(plazas => {
-            if (!plazas) {
-                return res.status(404).send({ message: "Plazas Not found." });
+        .then(plantillaspersonal => {
+            if (!plantillaspersonal) {
+                return res.status(404).send({ message: "Plantillaspersonal Not found." });
             }
 
-            res.status(200).send(plazas);
+            res.status(200).send(plantillaspersonal);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getRecordPersonal = async(req, res) => {
+
+    Plantillaspersonal.findOne({
+            where: {
+                id: req.body.id
+            }
+        })
+        .then(plantillaspersonal => {
+            if (!plantillaspersonal) {
+                return res.status(404).send({ message: "Plantillaspersonal Not found." });
+            }
+            //Personal
+            Personal.findOne({
+                    where: {
+                        id: plantillaspersonal.id_personal
+                    }
+                })
+                .then(personal => {
+                    if (!personal) {
+                        return res.status(404).send({ message: "Personal Not found." });
+                    }
+
+                    res.status(200).send(personal);
+                })
+                .catch(err => {
+                    res.status(500).send({ message: err.message });
+                });
+
+            //res.status(200).send(plantillaspersonal);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+
+exports.getCatalogo = async(req, res) => {
+
+    Plantillaspersonal.findAll({
+            attributes: ['id', 'descripcion'],
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(plantillaspersonal => {
+            if (!plantillaspersonal) {
+                return res.status(404).send({ message: "Plantillaspersonal Not found." });
+            }
+
+            res.status(200).send(plantillaspersonal);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -114,49 +173,9 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        id_categorias: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_catplanteles: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_catcentrostrabajo: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        /*id_catplantelescobro: { type: "number" },
-        id_catzonageografica: { type: "number" },*/
-        id_catestatusplaza: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        fecha_creacion: {
-            type: "string",
-            custom(value, errors, schema) {
-                var date1 = new Date(value);
-                //315554400000 = 1/1/1980
-                if (date1.getTime() < 315554400000) errors.push({ type: "dateMin", expected: '1/1/1980', actual: value });
-                if (date1.getTime() > Date.parse(new Date())) errors.push({ type: "dateMax", expected: new Date(), actual: value });
-                return value
-            }
-        },
+        id_catplanteles: { type: "number", },
+        id_catplantillas: { type: "number" },
     };
-
-
 
     var vres = true;
     if (req.body.actionForm.toUpperCase() == "NUEVO" ||
@@ -187,7 +206,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Plazas.findOne({
+    Plantillaspersonal.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -196,15 +215,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(plazas => {
-            if (!plazas) {
+        .then(plantillaspersonal => {
+            if (!plantillaspersonal) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Plazas.create(
+                Plantillaspersonal.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -218,32 +237,13 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                plazas.update(req.body.dataPack).then((self) => {
+                plantillaspersonal.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
             }
 
 
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.getCatalogo = async(req, res) => {
-
-    Plazas.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion', 'clave'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(plazas => {
-            if (!plazas) {
-                return res.status(404).send({ message: "Plazas Not found." });
-            }
-
-            res.status(200).send(plazas);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });

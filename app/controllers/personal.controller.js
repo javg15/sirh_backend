@@ -1,40 +1,67 @@
 const db = require("../models");
-const User = db.user;
+const { Op } = require("sequelize");
+const mensajesValidacion = require("../config/validate.config");
+const globales = require("../config/global.config");
+const Personal = db.personal;
+const Request = require("request");
 
 const { QueryTypes } = require('sequelize');
+let Validator = require('fastest-validator');
+/* create an instance of the validator */
+let dataValidator = new Validator({
+    useNewCustomCheckerFunction: true, // using new version
+    messages: mensajesValidacion
+});
+
 
 exports.getAdmin = async(req, res) => {
+    let datos = "",
+        query = "";
 
-    const query = "SELECT * FROM s_usuarios_mgr('" +
-        "&modo=0&id_usuario=:id_usuario" +
-        "&inicio=:start&largo=:length" +
-        "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-        "&ordensentido=" + req.body.order[0].dir + "')";
+    if (req.body.solocabeceras == 1) {
+        query = "SELECT * FROM s_personal_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
-    const datos = await db.sequelize.query(query, {
-        // A function (or false) for logging your queries
-        // Will get called for every SQL query that gets sent
-        // to the server.
-        logging: console.log,
+        datos = await db.sequelize.query(query, {
+            plain: false,
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    } else {
+        query = "SELECT * FROM s_personal_mgr('" +
+            "&modo=0&id_usuario=:id_usuario" +
+            "&inicio=:start&largo=:length" +
+            "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
+            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
+            "&ordensentido=" + req.body.order[0].dir + "')";
 
-        replacements: {
-            id_usuario: req.userId,
-            start: req.body.start,
-            length: req.body.length,
-        },
-        // If plain is true, then sequelize will only return the first
-        // record of the result set. In case of false it will return all records.
-        plain: false,
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
 
-        // Set this to true if you don't have a model definition for your query.
-        raw: true,
-        type: QueryTypes.SELECT
-    });
+            replacements: {
+                id_usuario: req.userId,
+                start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
+                length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
+                scampo: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.campo) : 0),
+                soperador: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.operador) : 0),
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
 
-    var columnNames = Object.keys(datos[0]).map(function(key) {
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
+
+    var columnNames = (datos.length > 0 ? Object.keys(datos[0]).map(function(key) {
         return key;
-    });
+    }) : []);
     var quitarKeys = false;
+
     for (var i = 0; i < columnNames.length; i++) {
         if (columnNames[i] == "total_count") quitarKeys = true;
         if (quitarKeys)
@@ -42,9 +69,9 @@ exports.getAdmin = async(req, res) => {
     }
 
     respuesta = {
-            draw: 1,
-            recordsTotal: datos[0].total_count,
-            recordsFiltered: datos.length,
+            draw: req.body.opcionesAdicionales.raw,
+            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             data: datos,
             columnNames: columnNames
         }
@@ -57,17 +84,217 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    User.findOne({
+    Personal.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(user => {
-            if (!user) {
-                return res.status(404).send({ message: "User Not found." });
+        .then(personal => {
+            if (!personal) {
+                return res.status(404).send({ message: "Personal Not found." });
             }
 
-            res.status(200).send(user);
+            res.status(200).send(personal);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.setRecord = async(req, res) => {
+    Object.keys(req.body.dataPack).forEach(function(key) {
+        if (key.indexOf("id_", 0) >= 0) {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+    })
+
+    let curpValido = await checkCurp(req.body.dataPack.curp);
+    //let curpValido = false;
+    //console.log(JSON.parse(curpValido).Response)
+    /* customer validator shema */
+    const dataVSchema = {
+        /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
+
+        id: { type: "number" },
+        nombre: { type: "string", empty: false },
+        apellidopaterno: { type: "string", empty: false },
+        apellidomaterno: { type: "string", empty: false },
+        curp: {
+            type: "string",
+            min: 18,
+            max: 18,
+            pattern: /^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/,
+            /*custom(value, errors, schema) {
+
+                if (JSON.parse(curpValido).Response.toUpperCase() == "ERROR") {
+                    errors.push({ type: "curp" });
+                }
+                return value
+            }*/
+        },
+        rfc: { type: "string", max: 10, pattern: /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01]))$/ },
+        homoclave: { type: "string", optional: true, pattern: /^|([A-Z\d]{2})([A\d])$/ },
+        email: { type: "email", empty: true },
+        telefono: {
+            type: "string",
+            custom(value, errors, schema) {
+                if (value.length != 10) {
+                    errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                }
+                return value
+            }
+        },
+    };
+
+
+
+    var vres = true;
+    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
+        req.body.actionForm.toUpperCase() == "EDITAR") {
+        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+    }
+
+    /* validation failed */
+    if (!(vres === true)) {
+        let errors = {},
+            item;
+
+        for (const index in vres) {
+            item = vres[index];
+
+            errors[item.field] = item.message;
+        }
+
+        res.status(200).send({
+            error: true,
+            message: errors
+        });
+        return;
+        /*throw {
+            name: "ValidationError",
+            message: errors
+        };*/
+    }
+
+    //buscar si existe el registro
+    Personal.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, {
+                    id: {
+                        [Op.gt]: 0
+                    }
+                }],
+            }
+        })
+        .then(personal => {
+            if (!personal) {
+                delete req.body.dataPack.id;
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                Personal.create(
+                    req.body.dataPack
+                ).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    res.status(500).send({ message: err.message });
+                });
+            } else {
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                personal.update(req.body.dataPack).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                });
+            }
+
+
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+
+}
+
+function checkCurp(curp) {
+
+    return new Promise(function(resolve, reject) {
+        Request.get("https://conectame.ddns.net/rest/api.php?m=curp&user=prueba&pass=sC}9pW1Q]c&val=" + curp, (error, response, body) => {
+            //console.log("; error:", error)
+            if (!error) {
+                resolve(body);
+            } else {
+                reject(error);
+            }
+        });
+
+    });
+}
+
+exports.getCatalogo = async(req, res) => {
+
+    Personal.findAll({
+            attributes: ['id', 'descripcion', 'ubicacion', 'clave'],
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(personal => {
+            if (!personal) {
+                return res.status(404).send({ message: "Personal Not found." });
+            }
+
+            res.status(200).send(personal);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getCatalogoSegunBusqueda = async(req, res) => {
+
+    Personal.findAll({
+            attributes: [
+                [db.sequelize.literal("nombre || ' ' || apellidopaterno || ' ' || apellidomaterno || ' -- ' || curp || ' -- ' || id"), "full_name"]
+            ],
+            where: {
+                [Op.or]: [{
+                        nombre: {
+                            [Op.like]: '%' + req.body.query + '%'
+                        }
+                    },
+                    {
+                        apellidopaterno: {
+                            [Op.like]: '%' + req.body.query + '%'
+                        }
+                    },
+                    {
+                        apellidomaterno: {
+                            [Op.like]: '%' + req.body.query + '%'
+                        }
+                    },
+                    {
+                        curp: {
+                            [Op.like]: '%' + req.body.query + '%'
+                        }
+                    },
+                ]
+            },
+            order: [
+                ['nombre', 'ASC'],
+            ]
+        }).then(personal => {
+            if (!personal) {
+                return res.status(404).send({ message: "Personal Not found." });
+            }
+
+            res.status(200).send(personal);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });

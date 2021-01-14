@@ -26,6 +26,7 @@
         "node-jasper": "^0.2.5",
         "pg": "^8.5.1",
         "pg-hstore": "^2.3.3",
+        "request": "^2.88.2",
         "sequelize": "^6.3.5"
     }
 }

@@ -48,10 +48,9 @@ db.ministraciones = require("../models/ministraciones.model.js")(sequelize, Sequ
 db.presupuesto = require("../models/presupuesto.model.js")(sequelize, Sequelize);
 db.rhnominas = require("../models/rhnominas.model.js")(sequelize, Sequelize);
 db.plazas = require("../models/plazas.model.js")(sequelize, Sequelize);
-
-
-
-
-
+db.personal = require("../models/personal.model.js")(sequelize, Sequelize);
+db.catestadocivil = require("../models/catestadocivil.model.js")(sequelize, Sequelize);
+db.plantillaspersonal = require("../models/plantillaspersonal.model.js")(sequelize, Sequelize);
+db.catplantillas = require("../models/catplantillas.model.js")(sequelize, Sequelize);
 
 module.exports = db;

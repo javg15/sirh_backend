@@ -135,6 +135,11 @@ require('./app/routes/rhnominas.routes')(app);
 require('./app/routes/shared.routes')(app);
 require('./app/routes/reportes.routes')(app);
 require('./app/routes/plazas.routes')(app);
+require('./app/routes/personal.routes')(app);
+require('./app/routes/catestadocivil.routes')(app);
+require('./app/routes/plantillaspersonal.routes')(app);
+require('./app/routes/plantillas.routes')(app);
+require('./app/routes/catplantillas.routes')(app);
 
 
 /*app.listen(PORT, () => {

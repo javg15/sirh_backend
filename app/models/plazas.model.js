@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_catzonaeconomica: {
+        id_catplantelescobro: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
