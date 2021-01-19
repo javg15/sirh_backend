@@ -8,6 +8,7 @@ const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 /* create an instance of the validator */
 let dataValidator = new Validator({
+    useNewCustomCheckerFunction: true, // using new version
     messages: mensajesValidacion
 });
 

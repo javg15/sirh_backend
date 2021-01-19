@@ -138,9 +138,9 @@ require('./app/routes/plazas.routes')(app);
 require('./app/routes/personal.routes')(app);
 require('./app/routes/catestadocivil.routes')(app);
 require('./app/routes/plantillaspersonal.routes')(app);
-require('./app/routes/plantillas.routes')(app);
+require('./app/routes/plantillaspersonaldocs.routes')(app);
 require('./app/routes/catplantillas.routes')(app);
-
+require('./app/routes/archivos.routes')(app);
 
 /*app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);

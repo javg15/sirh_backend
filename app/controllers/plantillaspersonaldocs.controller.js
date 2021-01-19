@@ -2,10 +2,11 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Categoriassueldos = db.categoriassueldos;
+const Plantillaspersonaldocs = db.plantillaspersonaldocs;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
+
 /* create an instance of the validator */
 let dataValidator = new Validator({
     useNewCustomCheckerFunction: true, // using new version
@@ -21,7 +22,7 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_categoriassueldos_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_plantillaspersonaldocs_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -29,11 +30,12 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_categoriassueldos_mgr('" +
+
+        query = "SELECT * FROM s_plantillaspersonaldocs_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&fkey=" + params.opcionesAdicionales.fkey +
-            "&fkeyvalue=:fkeyvalue')";
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue + "')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -44,7 +46,7 @@ exports.getAdmin = async(req, res) => {
             replacements: {
                 id_usuario: req.userId,
                 modo: params.opcionesAdicionales.modo,
-                fkeyvalue: params.opcionesAdicionales.fkeyvalue,
+
                 start: (typeof params.start !== typeof undefined ? params.start : 0),
                 length: (typeof params.start !== typeof undefined ? params.length : 1),
                 /*scampo: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.campo) : 0),
@@ -88,36 +90,97 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Categoriassueldos.findOne({
+    Plantillaspersonaldocs.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        .then(plantillaspersonaldocs => {
+            if (!plantillaspersonaldocs) {
+                return res.status(404).send({ message: "Plantillaspersonaldocs Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(plantillaspersonaldocs);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
 
+exports.getRecordPersonal = async(req, res) => {
+
+    Plantillaspersonaldocs.findOne({
+            where: {
+                id: req.body.id
+            }
+        })
+        .then(plantillaspersonaldocs => {
+            if (!plantillaspersonaldocs) {
+                return res.status(404).send({ message: "Plantillaspersonaldocs Not found." });
+            }
+            //Personal
+            Personal.findOne({
+                    where: {
+                        id: plantillaspersonaldocs.id_personal
+                    }
+                })
+                .then(personal => {
+                    if (!personal) {
+                        return res.status(404).send({ message: "Personal Not found." });
+                    }
+
+                    res.status(200).send(personal);
+                })
+                .catch(err => {
+                    res.status(500).send({ message: err.message });
+                });
+
+            //res.status(200).send(plantillaspersonaldocs);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+
 exports.getCatalogo = async(req, res) => {
 
-    Categoriassueldos.findAll({
+    Plantillaspersonaldocs.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        }).then(plantillaspersonaldocs => {
+            if (!plantillaspersonaldocs) {
+                return res.status(404).send({ message: "Plantillaspersonaldocs Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(plantillaspersonaldocs);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getConsecutivo = async(req, res) => {
+
+    Plantillaspersonaldocs.max('consecutivo', {
+            where: {
+                [Op.and]: [{
+                        id_catplanteles: req.body.idCatplanteles
+                    },
+                    {
+                        id_catplantillas: req.body.idCatplantillas
+                    }
+                ]
+            }
+        })
+        .then(max => {
+            if (!max) {
+                return res.status(200).send("1");
+            }
+
+            res.status(200).send((max + 1).toString());
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -126,20 +189,63 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("tipodoc", 0) >= 0 ||
+            key.indexOf("ultimogradoestudios", 0) >= 0 || key.indexOf("areacarrera", 0) >= 0 ||
+            key.indexOf("carrera", 0) >= 0 || key.indexOf("estatus", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
     })
-
+    console.log(req.body.dataPack);
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        fecha_inicio: { type: "string" },
-        fecha_fin: { type: "string" },
+        id_plantillaspersonal: { type: "number" },
+        tipodoc: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        ultimogradoestudios: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        areacarrera: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        carrera: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        estatus: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_archivos: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        fechaexpedicion: { type: "string" }
     };
 
     var vres = true;
@@ -171,7 +277,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Categoriassueldos.findOne({
+    Plantillaspersonaldocs.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -180,15 +286,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
+        .then(plantillaspersonaldocs => {
+            if (!plantillaspersonaldocs) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Categoriassueldos.create(
+                Plantillaspersonaldocs.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -202,7 +308,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuario_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                categoriassueldos.update(req.body.dataPack).then((self) => {
+                plantillaspersonaldocs.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

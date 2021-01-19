@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/plantillaspersonal.controller");
+const controller = require("../controllers/plantillaspersonaldocs.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,28 +10,28 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/plantillaspersonal/getCatalogo", [authJwt.verifyToken],
+        "/api/plantillaspersonaldocs/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
     app.post(
-        "/api/plantillaspersonal/getAdmin", [authJwt.verifyToken],
+        "/api/plantillaspersonaldocs/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/plantillaspersonal/getRecord", [authJwt.verifyToken],
+        "/api/plantillaspersonaldocs/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
     app.post(
-        "/api/plantillaspersonal/getRecordPersonal", [authJwt.verifyToken],
+        "/api/plantillaspersonaldocs/getRecordPersonal", [authJwt.verifyToken],
         controller.getRecordPersonal
     );
     app.post(
-        "/api/plantillaspersonal/getConsecutivo", [authJwt.verifyToken],
+        "/api/plantillaspersonaldocs/getConsecutivo", [authJwt.verifyToken],
         controller.getConsecutivo
     );
 
     app.post(
-        "/api/plantillaspersonal/setRecord", [authJwt.verifyToken],
+        "/api/plantillaspersonaldocs/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
 };

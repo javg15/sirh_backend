@@ -54,5 +54,8 @@ module.exports = {
     mac: "'{field}' debe ser valid MAC address",
     luhn: "'{field}' debe ser valid checksum luhn",
     selection: "Selecciona un elemento de '{field}'",
+    /*custom*/
     curp: "CURP inválida",
+    personalPlantillaAsignado: "El personal requerido ya se encuentra en la plantilla: '{actual}', del plantel: '{expected}'",
+    file: "Archivo '{expected}', aun no ha sido cargado",
 };

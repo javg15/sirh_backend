@@ -3,12 +3,16 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Plantillaspersonal = db.plantillaspersonal;
+const Catplanteles = db.catplanteles;
+const Catplantillas = db.catplantillas;
 const Personal = db.personal;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
+const { catplanteles } = require("../models");
 /* create an instance of the validator */
 let dataValidator = new Validator({
+    useNewCustomCheckerFunction: true, // using new version
     messages: mensajesValidacion
 });
 
@@ -16,7 +20,7 @@ let dataValidator = new Validator({
 exports.getAdmin = async(req, res) => {
     let datos = "",
         query = "",
-        params = req.body.dataTablesParameters;
+        params = req.body;
 
     if (req.body.solocabeceras == 1) {
         params = req.body;
@@ -29,6 +33,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
+
         query = "SELECT * FROM s_plantillaspersonal_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
@@ -160,6 +165,31 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getConsecutivo = async(req, res) => {
+
+    Plantillaspersonal.max('consecutivo', {
+            where: {
+                [Op.and]: [{
+                        id_catplanteles: req.body.idCatplanteles
+                    },
+                    {
+                        id_catplantillas: req.body.idCatplantillas
+                    }
+                ]
+            }
+        })
+        .then(max => {
+            if (!max) {
+                return res.status(200).send("1");
+            }
+
+            res.status(200).send((max + 1).toString());
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
@@ -167,14 +197,72 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
     })
+    let recordAsignado,
+        personalAsignado = false,
+        plantelAsignado = '',
+        plantillaAsignada = '';
 
+    //revisar si el personal está activo en otra plantilla
+    await Plantillaspersonal.findOne({
+            where: {
+                [Op.and]: [{ id_personal: req.body.dataPack.id_personal },
+                    { state: 'A' }
+                ],
+            }
+        })
+        .then(plantillaspersonal => {
+            if (plantillaspersonal) {
+                recordAsignado = plantillaspersonal;
+                personalAsignado = true;
+            }
+        });
+
+    if (personalAsignado) {
+        await Catplanteles.findOne({
+                where: { id: recordAsignado.id_catplanteles },
+            })
+            .then(catplanteles => {
+                if (catplanteles) {
+                    plantelAsignado = catplanteles.descripcion;
+                }
+            });
+
+        await Catplantillas.findOne({
+                where: { id: recordAsignado.id_catplantillas },
+            })
+            .then(catplantillas => {
+                if (catplantillas) {
+                    plantillaAsignada = catplantillas.descripcion;
+                }
+            });
+    }
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        id_catplanteles: { type: "number", },
-        id_catplantillas: { type: "number" },
+        id_catplanteles: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catplantillas: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_personal: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                if (personalAsignado) errors.push({ type: "personalPlantillaAsignado", expected: plantelAsignado, actual: plantillaAsignada })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
     };
 
     var vres = true;

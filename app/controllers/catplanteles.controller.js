@@ -8,6 +8,7 @@ const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 /* create an instance of the validator */
 let dataValidator = new Validator({
+    useNewCustomCheckerFunction: true, // using new version
     messages: mensajesValidacion
 });
 
@@ -192,7 +193,7 @@ exports.setRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catplanteles.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion', 'clave'],
+            attributes: ['id', 'descripcion', 'ubicacion', 'clave', [db.sequelize.literal("clave || ' - ' || COALESCE(descripcion, '.') || ' - ' || ubicacion"), "text"]],
             order: [
                 ['clave', 'ASC'],
             ]

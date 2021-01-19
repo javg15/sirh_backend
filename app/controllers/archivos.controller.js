@@ -1,6 +1,8 @@
 const db = require("../models");
+const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
-const Estudios = db.estudios;
+var stream = require('stream');
+const Archivos = db.archivos;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -16,7 +18,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_estudios_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_catcentrostrabajo_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -24,7 +26,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_estudios_mgr('" +
+        query = "SELECT * FROM s_catcentrostrabajo_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -79,87 +81,75 @@ exports.getAdmin = async(req, res) => {
 }
 
 
-exports.getRecord = async(req, res) => {
-
-    Estudios.findOne({
+exports.download = async(req, res) => {
+    Archivos.findOne({
             where: {
-                id: req.body.id
+                id: req.params.id,
             }
         })
-        .then(estudios => {
-            if (!estudios) {
-                return res.status(404).send({ message: "Estudios Not found." });
-            }
+        .then(file => {
+            var fileContents = Buffer.from(file.datos, "base64");
+            var readStream = new stream.PassThrough();
+            readStream.end(fileContents);
 
-            res.status(200).send(estudios);
+            res.set('Content-disposition', 'attachment; filename=' + file.nombre);
+            res.set('Content-Type', file.tipo);
+
+            readStream.pipe(res);
+
+        }).catch(err => {
+            console.log(err);
+            res.json({ msg: 'Error', detail: err });
+        });
+}
+
+exports.upload = async(req, res) => {
+    //buscar si existe el registro
+    Archivos.findOne({
+            where: {
+                id: req.body.idFile
+            }
+        })
+        .then(archivos => {
+            if (!archivos) {
+                Archivos.create({
+                    tipo: req.file.mimetype,
+                    nombre: req.file.originalname,
+                    datos: req.file.buffer
+                }).then(self => {
+                    res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    console.log(err);
+                    res.status(500).send({ message: err.message });
+                });
+            } else {
+                archivos.update({
+                    tipo: req.file.mimetype,
+                    nombre: req.file.originalname,
+                    datos: req.file.buffer
+                }).then(self => {
+                    res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    console.log(err);
+                    res.status(500).send({ message: err.message });
+                });
+            }
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
 
-exports.getCatalogo = async(req, res) => {
-
-    Estudios.findAll({
-            attributes: ['id', 'descripcion'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(estudios => {
-            if (!estudios) {
-                return res.status(404).send({ message: "Estudios Not found." });
-            }
-
-            res.status(200).send(estudios);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.setRecord = async(req, res) => {
-    Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
-            if (req.body.dataPack[key] != '')
-                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+exports.listFiles = async(req, res) => {
+    Archivos.findAll({
+        attributes: ['id', 'nombre'],
+        where: {
+            id: req.params.id,
         }
-    })
-
-    /* customer validator shema */
-    const dataVSchema = {
-        /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
-
-        id: { type: "number" },
-        clave: { type: "string" },
-        nombreplantel: { type: "string", min: 5 },
-    };
-
-    var vres = true;
-    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
-        req.body.actionForm.toUpperCase() == "EDITAR") {
-        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
-    }
-
-    /* validation failed */
-    if (!(vres === true)) {
-        let errors = {},
-            item;
-
-        for (const index in vres) {
-            item = vres[index];
-
-            errors[item.field] = item.message;
-        }
-
-        res.status(200).send({
-            error: true,
-            message: errors
-        });
-        return;
-        /*throw {
-            name: "ValidationError",
-            message: errors
-        };*/
-    }
-    res.status(200).send("Created");
+    }).then(files => {
+        res.json(files);
+    }).catch(err => {
+        console.log(err);
+        res.json({ msg: 'Error', detail: err });
+    });
 }
