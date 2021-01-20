@@ -123,7 +123,9 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
     Catcentrostrabajo.findAll({
             attributes: ['id', 'clave', 'descripcion'],
             where: {
-                id_catplanteles: req.body.id_catplanteles
+                [Op.and]: [{ id_catplanteles: req.body.id_catplanteles }, {
+                    state: 'A'
+                }],
             },
             order: [
                 ['descripcion', 'ASC'],
