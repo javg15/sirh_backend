@@ -1,3 +1,5 @@
+const config = require("../config/db.config.js");
+
 jasper = require('node-jasper')({
     path: '../../lib/jasperreports-6.16.0',
     reports: {
@@ -14,11 +16,11 @@ jasper = require('node-jasper')({
     },
     conns: {
         dbserver1: {
-            host: '54.184.232.181',
+            host: config.HOST,
             port: 5432,
-            dbname: 'controlplazas',
-            user: 'postgres',
-            pass: 'RH23021312',
+            dbname: config.DB,
+            user: config.USER,
+            pass: config.PASSWORD,
             driver: 'pg'
         }
     },
