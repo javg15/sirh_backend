@@ -107,3 +107,6 @@ dist
 lib/jasperreports-6.2.0/
 lib/jasperreports-6.12.2/
 lib/jasperreports-6.16.0/
+
+#configuration
+app/config/db.config.js
