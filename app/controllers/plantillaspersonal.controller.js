@@ -174,7 +174,10 @@ exports.getConsecutivo = async(req, res) => {
                     },
                     {
                         id_catplantillas: req.body.idCatplantillas
-                    }
+                    },
+                    {
+                        state: 'A'
+                    },
                 ]
             }
         })

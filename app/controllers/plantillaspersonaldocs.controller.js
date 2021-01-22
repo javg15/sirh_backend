@@ -196,7 +196,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
     })
-    console.log(req.body.dataPack);
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/

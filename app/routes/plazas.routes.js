@@ -27,4 +27,16 @@ module.exports = function(app) {
         "/api/plazas/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
+
+    app.post(
+        "/api/plazas/getRecordPlazasInfo", [authJwt.verifyToken],
+        controller.getRecordPlazasInfo
+    );
+
+    app.post(
+        "/api/plazas/getConsecutivo", [authJwt.verifyToken],
+        controller.getConsecutivo
+    );
+
+
 };

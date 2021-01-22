@@ -193,7 +193,7 @@ exports.setRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catplanteles.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion', 'clave', [db.sequelize.literal("clave || ' - ' || COALESCE(descripcion, '.') || ' - ' || ubicacion"), "text"]],
+            attributes: ['id', 'descripcion', 'ubicacion', 'clave', [db.sequelize.literal("clave || ' - ' || ubicacion"), "text"]],
             order: [
                 ['clave', 'ASC'],
             ]

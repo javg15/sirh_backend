@@ -100,12 +100,14 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+
+
 exports.getCatalogo = async(req, res) => {
 
     Categorias.findAll({
             attributes: ['id', 'clave', 'denominacion', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
             order: [
-                ['denominacion', 'ASC'],
+                ['clave', 'ASC'],
             ]
         }).then(categorias => {
             if (!categorias) {

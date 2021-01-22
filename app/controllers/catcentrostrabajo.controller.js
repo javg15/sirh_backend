@@ -1,6 +1,7 @@
 const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
+const globales = require("../config/global.config");
 const Catcentrostrabajo = db.catcentrostrabajo;
 
 const { QueryTypes } = require('sequelize');
@@ -149,6 +150,12 @@ exports.setRecord = async(req, res) => {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
+        if (key.indexOf("clave", 0) >= 0) {
+            req.body.dataPack[key] = req.body.dataPack[key].toString();
+        }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
     })
 
     /* customer validator shema */
@@ -156,8 +163,8 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", min: 2, max: 2 },
-        nombreplantel: { type: "string", min: 5, max: 100 },
+        clave: { type: "string", min: 1, max: 9999 },
+        descripcion: { type: "string", min: 5, max: 100 },
     };
 
     var vres = true;
@@ -216,10 +223,11 @@ exports.setRecord = async(req, res) => {
                     res.status(500).send({ message: err.message });
                 });
             } else {
+                //console.log("req.body.dataPack=>", req.body.dataPack)
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuario_r = req.userId;
-                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+                //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 catcentrostrabajo.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated

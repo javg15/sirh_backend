@@ -119,7 +119,7 @@ exports.getCatalogo = async(req, res) => {
 }
 
 exports.getCatalogoSegunSexo = async(req, res) => {
-    console.log("req.body.id_sexo=", req.body.id_sexo)
+    //console.log("req.body.id_sexo=", req.body.id_sexo)
     Catplantillas.findAll({
             attributes: ['id', 'descripcion'],
             where: {

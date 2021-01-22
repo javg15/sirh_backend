@@ -58,4 +58,5 @@ module.exports = {
     curp: "CURP inválida",
     personalPlantillaAsignado: "El personal requerido ya se encuentra en la plantilla: '{actual}', del plantel: '{expected}'",
     file: "Archivo '{expected}', aun no ha sido cargado",
+    totalplazasdisponibles: "No existen plazas disponibles para la categoría y plantel seleccionados, disponibles: '{actual}'",
 };

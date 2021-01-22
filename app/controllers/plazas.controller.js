@@ -10,9 +10,7 @@ let Validator = require('fastest-validator');
 let dataValidator = new Validator({
     useNewCustomCheckerFunction: true, // using new version
     messages: mensajesValidacion
-
 });
-
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
@@ -101,13 +99,102 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.getConsecutivo = async(req, res) => {
+
+    Plazas.max('consecutivo', {
+            where: {
+                [Op.and]: [{
+                        id_categorias: req.body.idCategorias
+                    },
+                    {
+                        state: 'A'
+                    },
+                ]
+            }
+        })
+        .then(max => {
+            if (!max) {
+                return res.status(200).send("1");
+            }
+
+            res.status(200).send((max + 1).toString());
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+
+exports.getRecordPlazasInfo = async(req, res) => {
+    let datos = "",
+        query = "";
+
+    query = "SELECT * FROM fn_plazas_disponibles(" +
+        ":id_categorias," +
+        ":id_catplanteles)";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.id_categorias,
+            id_catplanteles: req.body.id_catplanteles,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+
+    //console.log(JSON.stringify(respuesta));
+    res.status(200).send(datos);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
-    })
+    });
+
+    /*verificar plazas disponibles*/
+    let datos = "",
+        query = "",
+        totalplazasdisponibles = 0;
+
+    query = "SELECT * FROM fn_plazas_disponibles(" +
+        ":id_categorias," +
+        ":id_catplanteles)";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.dataPack["id_categorias"],
+            id_catplanteles: req.body.dataPack["id_catplanteles"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    totalplazasdisponibles = datos[0].fn_plazas_disponibles.totalplazasdisponibles;
 
     /* customer validator shema */
     const dataVSchema = {
@@ -117,6 +204,8 @@ exports.setRecord = async(req, res) => {
         id_categorias: {
             type: "number",
             custom(value, errors) {
+
+                if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
