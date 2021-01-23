@@ -54,7 +54,7 @@ exports.getAdmin = async(req, res) => {
     respuesta = {
             draw: 1,
             recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
-            recordsFiltered: parseInt(datos[0].total_count),
+            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             data: datos,
             columnNames: columnNames
         }
