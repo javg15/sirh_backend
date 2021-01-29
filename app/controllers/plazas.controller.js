@@ -170,6 +170,7 @@ exports.setRecord = async(req, res) => {
     /*verificar plazas disponibles*/
     let datos = "",
         query = "",
+        totalplazasautorizadas = 0,
         totalplazasdisponibles = 0;
 
     query = "SELECT * FROM fn_plazas_disponibles(" +
@@ -194,7 +195,9 @@ exports.setRecord = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
+    totalplazasautorizadas = datos[0].fn_plazas_disponibles.totalplazasautorizadas;
     totalplazasdisponibles = datos[0].fn_plazas_disponibles.totalplazasdisponibles;
+
 
     /* customer validator shema */
     const dataVSchema = {
@@ -204,7 +207,10 @@ exports.setRecord = async(req, res) => {
         id_categorias: {
             type: "number",
             custom(value, errors) {
+                //al ser edición , entonces, se considera una plaza disponible más
+                if (req.body.dataPack["id"] > 0) totalplazasdisponibles++;
 
+                if (totalplazasautorizadas <= 0) errors.push({ type: "totalplazasautorizadas", actual: datos[0].fn_plazas_disponibles.totalplazasautorizadas })
                 if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
