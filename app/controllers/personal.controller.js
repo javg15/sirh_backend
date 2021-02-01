@@ -266,22 +266,22 @@ exports.getCatalogoSegunBusqueda = async(req, res) => {
             where: {
                 [Op.or]: [{
                         nombre: {
-                            [Op.like]: '%' + req.body.query + '%'
+                            [Op.iLike]: '%' + req.body.query + '%'
                         }
                     },
                     {
                         apellidopaterno: {
-                            [Op.like]: '%' + req.body.query + '%'
+                            [Op.iLike]: '%' + req.body.query + '%'
                         }
                     },
                     {
                         apellidomaterno: {
-                            [Op.like]: '%' + req.body.query + '%'
+                            [Op.iLike]: '%' + req.body.query + '%'
                         }
                     },
                     {
                         curp: {
-                            [Op.like]: '%' + req.body.query + '%'
+                            [Op.iLike]: '%' + req.body.query + '%'
                         }
                     },
                 ]

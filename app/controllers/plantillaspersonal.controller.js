@@ -195,7 +195,9 @@ exports.getConsecutivo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 ||
+            key.indexOf("consecutivo", 0) >= 0
+        ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -209,7 +211,12 @@ exports.setRecord = async(req, res) => {
     await Plantillaspersonal.findOne({
             where: {
                 [Op.and]: [{ id_personal: req.body.dataPack.id_personal },
-                    { state: 'A' }
+                    { state: 'A' },
+                    {
+                        [Op.not]: [
+                            { id: req.body.dataPack.id }
+                        ]
+                    }
                 ],
             }
         })
@@ -226,7 +233,7 @@ exports.setRecord = async(req, res) => {
             })
             .then(catplanteles => {
                 if (catplanteles) {
-                    plantelAsignado = catplanteles.descripcion;
+                    plantelAsignado = catplanteles.ubicacion;
                 }
             });
 
@@ -266,6 +273,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
+        consecutivo: { type: "number" },
     };
 
     var vres = true;
