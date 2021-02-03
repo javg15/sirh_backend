@@ -14,6 +14,16 @@ module.exports = function(app) {
         "/api/archivos/upload", [authJwt.verifyToken],
         upload.single("file"), controller.upload
     );
+
+    app.post(
+        "/api/archivos/getRecordReferencia", [authJwt.verifyToken],
+        controller.getRecordReferencia
+    );
+    app.post(
+        "/api/archivos/setRecordReferencia", [authJwt.verifyToken],
+        controller.setRecordReferencia
+    );
+
     app.get(
         "/api/archivos/info/:id", [authJwt.verifyToken],
         controller.listFiles

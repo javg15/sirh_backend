@@ -104,7 +104,8 @@ exports.download = async(req, res) => {
 }
 
 exports.upload = async(req, res) => {
-    //buscar si existe el registro
+    console.log("cargado!!!!!!!!!!!!!!!!!!!!!!")
+        //buscar si existe el registro
     Archivos.findOne({
             where: {
                 id: req.body.idFile
@@ -141,15 +142,62 @@ exports.upload = async(req, res) => {
 }
 
 exports.listFiles = async(req, res) => {
+        Archivos.findAll({
+            attributes: ['id', 'nombre', 'tipo'],
+            where: {
+                id: req.params.id,
+            }
+        }).then(files => {
+            res.json(files);
+        }).catch(err => {
+            console.log(err);
+            res.json({ msg: 'Error', detail: err });
+        });
+    }
+    //obtiene solo los campos de referencia externa
+exports.getRecordReferencia = async(req, res) => {
+
     Archivos.findAll({
-        attributes: ['id', 'nombre'],
-        where: {
-            id: req.params.id,
-        }
-    }).then(files => {
-        res.json(files);
-    }).catch(err => {
-        console.log(err);
-        res.json({ msg: 'Error', detail: err });
-    });
+            attributes: ['id', 'tabla', 'id_tabla'],
+            where: {
+                id: req.body.id,
+            }
+        }).then(archivo => {
+            if (!archivo) {
+                return res.status(404).send({ message: "archivo Not found." });
+            }
+
+            res.status(200).send(archivo);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+//Actualiza solo los campos de referencia externa
+exports.setRecordReferencia = async(req, res) => {
+    //buscar si existe el registro
+    Archivos.findOne({
+            where: {
+                id: req.body.dataPack.id
+            }
+        })
+        .then(archivos => {
+            if (archivos) {
+
+                archivos.update({
+                        tabla: req.body.dataPack.tabla,
+                        id_tabla: req.body.dataPack.id_tabla,
+                    }, )
+                    .then((self) => {
+                        // here self is your instance, but updated
+                        res.status(200).send({ message: "success", id: self.id });
+                    });
+            }
+
+
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
 }
