@@ -104,7 +104,6 @@ exports.download = async(req, res) => {
 }
 
 exports.upload = async(req, res) => {
-    console.log("cargado!!!!!!!!!!!!!!!!!!!!!!")
         //buscar si existe el registro
     Archivos.findOne({
             where: {
