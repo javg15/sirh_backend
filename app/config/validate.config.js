@@ -60,5 +60,5 @@ module.exports = {
     file: "Archivo '{expected}', aun no ha sido cargado",
     totalplazasdisponibles: "No existen plazas disponibles para la categoría y plantel seleccionados, disponibles: '{actual}'",
     totalplazasautorizadas: "No existen plazas autorizadas para la categoría y plantel seleccionados, autorizadas: '{actual}'",
-
+    confirmPass: "La confirmación de contraseña no coincide con el campo contraseña"
 };

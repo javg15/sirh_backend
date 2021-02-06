@@ -20,10 +20,13 @@ module.exports = function(app) {
         controller.getRecordReferencia
     );
     app.post(
+        "/api/archivos/getAvatar", [authJwt.verifyToken],
+        controller.getAvatar
+    );
+    app.post(
         "/api/archivos/setRecordReferencia", [authJwt.verifyToken],
         controller.setRecordReferencia
     );
-
     app.get(
         "/api/archivos/info/:id", [authJwt.verifyToken],
         controller.listFiles

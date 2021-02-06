@@ -104,7 +104,7 @@ exports.download = async(req, res) => {
 }
 
 exports.upload = async(req, res) => {
-        //buscar si existe el registro
+    //buscar si existe el registro
     Archivos.findOne({
             where: {
                 id: req.body.idFile
@@ -171,6 +171,35 @@ exports.getRecordReferencia = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+}
+
+//Obtener el avatar
+exports.getAvatar = async(req, res) => {
+    query = "SELECT id, encode(datos, 'base64') as datos FROM archivos " +
+        "WHERE (id_tabla = :id_tabla AND tabla = 'usuarios');";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_tabla: req.body.id,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    if (datos.length > 0)
+        res.status(200).send(datos);
+    else
+        return res.status(404).send({ message: "Avatar no encontrado." });
 }
 
 //Actualiza solo los campos de referencia externa

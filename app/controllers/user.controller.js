@@ -1,9 +1,12 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
 const User = db.user;
+const Op = db.Sequelize.Op;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
+
+var bcrypt = require("bcryptjs");
 /* create an instance of the validator */
 let dataValidator = new Validator({
     useNewCustomCheckerFunction: true, // using new version
@@ -11,40 +14,53 @@ let dataValidator = new Validator({
 });
 
 exports.getAdmin = async(req, res) => {
-    //console.log(req.body.opcionesAdicionales)
-    const query = "SELECT * FROM s_usuarios_mgr('" +
-        "&modo=0&id_usuario=:id_usuario" +
-        "&inicio=:start&largo=:length" +
-        "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
-        "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-        "&ordensentido=" + req.body.order[0].dir + "')";
+    let datos = "",
+        query = "";
 
-    const datos = await db.sequelize.query(query, {
-        // A function (or false) for logging your queries
-        // Will get called for every SQL query that gets sent
-        // to the server.
-        logging: console.log,
+    if (req.body.solocabeceras == 1) {
+        query = "SELECT * FROM s_usuarios_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
-        replacements: {
-            id_usuario: req.userId,
-            start: req.body.start,
-            length: req.body.length,
-            scampo: parseInt(req.body.opcionesAdicionales.datosBusqueda.campo),
-            soperador: parseInt(req.body.opcionesAdicionales.datosBusqueda.operador),
-        },
-        // If plain is true, then sequelize will only return the first
-        // record of the result set. In case of false it will return all records.
-        plain: false,
+        datos = await db.sequelize.query(query, {
+            plain: false,
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    } else {
+        query = "SELECT * FROM s_usuarios_mgr('" +
+            "&modo=0&id_usuario=:id_usuario" +
+            "&inicio=:start&largo=:length" +
+            "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
+            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
+            "&ordensentido=" + req.body.order[0].dir + "')";
 
-        // Set this to true if you don't have a model definition for your query.
-        raw: true,
-        type: QueryTypes.SELECT
-    });
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_usuario: req.userId,
+                start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
+                length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
+                scampo: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.campo) : 0),
+                soperador: (typeof req.body.start !== typeof undefined ? parseInt(req.body.opcionesAdicionales.datosBusqueda.operador) : 0),
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
 
     var columnNames = (datos.length > 0 ? Object.keys(datos[0]).map(function(key) {
         return key;
     }) : []);
     var quitarKeys = false;
+
     for (var i = 0; i < columnNames.length; i++) {
         if (columnNames[i] == "total_count") quitarKeys = true;
         if (quitarKeys)
@@ -52,7 +68,7 @@ exports.getAdmin = async(req, res) => {
     }
 
     respuesta = {
-            draw: 1,
+            draw: req.body.opcionesAdicionales.raw,
             recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             data: datos,
@@ -84,7 +100,13 @@ exports.getRecord = async(req, res) => {
         });
 }
 
-exports.setRecord = async(req, res) => {
+//La creacion del usuario está en el controlador auth.controller
+/*exports.setRecord = async(req, res) => {
+    
+}*/
+
+exports.setPerfil = async(req, res) => {
+    req.body.dataPack["passConfirm"] = req.body.passConfirm;
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
             if (req.body.dataPack[key] != '')
@@ -92,22 +114,41 @@ exports.setRecord = async(req, res) => {
         }
     })
 
-    let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+    //let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
 
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        pass: { type: "string", min: 8, max: 50, pattern: passwordPattern },
-        username: { type: "string", min: 5 },
+        pass: {
+            type: "string",
+            /*min: 8,
+            max: 50,*/
+            //, pattern: passwordPattern
+            optional: true,
+            custom(value, errors) {
+
+                if (value.toString().length > 0 && value.toString().length < 6) errors.push({ type: "stringMin", expected: 6, actual: value.toString().length })
+                if (value.toString().length > 0 && value.toString().length > 50) errors.push({ type: "stringMax", expected: 50, actual: value.toString().length })
+                if (req.body.passActual.length > 0 && value.toString().length == 0) errors.push({ type: "required" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        //username: { type: "string", min: 5 },
+        passConfirm: {
+            type: "string",
+            custom(value, errors) {
+                if ((value.toString().length > 0 || req.body.dataPack["pass"]) &&
+                    value != req.body.dataPack["pass"]) errors.push({ type: "confirmPass" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
     };
 
     var vres = true;
-    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
-        req.body.actionForm.toUpperCase() == "EDITAR") {
-        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
-    }
+
+    vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
 
     /* validation failed */
     if (!(vres === true)) {
@@ -130,5 +171,58 @@ exports.setRecord = async(req, res) => {
             message: errors
         };*/
     }
-    res.status(200).send("Created");
+
+    //buscar si existe el registro
+    User.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, {
+                    id: {
+                        [Op.gt]: 0
+                    }
+                }],
+            }
+        })
+        .then(user => {
+            if (user) {
+
+                if (req.body.dataPack.pass.length > 0) {
+                    var passwordIsValid = bcrypt.compareSync(
+                        req.body.passActual,
+                        user.pass
+                    );
+
+                    if (!passwordIsValid) {
+                        res.status(200).send({
+                            error: true,
+                            message: {
+                                "passActual": "La 'contraseña' actual es inválida"
+                            }
+                        });
+                    }
+
+                    delete req.body.dataPack.created_at;
+                    delete req.body.dataPack.updated_at;
+                    delete req.body.dataPack.passConfirm;
+                    req.body.dataPack.id_usuario_r = req.userId;
+                    //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+
+                    user.update({
+                        pass: bcrypt.hashSync(req.body.dataPack.pass, 8),
+                    }).then(self => {
+                        res.status(200).send({ message: "success", id: self.id });
+                    }).catch(err => {
+                        console.log(err);
+                        res.status(500).send({ message: err.message });
+                    });
+                } else {
+                    res.status(200).send({ message: "success", id: req.body.dataPack.id });
+                }
+            }
+
+
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
 }
