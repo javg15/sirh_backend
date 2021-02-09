@@ -58,7 +58,8 @@ module.exports = {
     curp: "CURP inválida",
     personalPlantillaAsignado: "El personal requerido ya se encuentra en la plantilla: '{actual}', del plantel: '{expected}'",
     file: "Archivo '{expected}', aun no ha sido cargado",
-    totalplazasdisponibles: "No existen plazas disponibles para la categoría y plantel seleccionados, disponibles: '{actual}'",
-    totalplazasautorizadas: "No existen plazas autorizadas para la categoría y plantel seleccionados, autorizadas: '{actual}'",
+    totalplazasdisponibles: "No existen vacantes, según la categoría y plantel seleccionados, vacantes: '{actual}'",
+    totalautorizadasalplantel: "No existen vacantes para el plantel, según la categoría seleccionada, vacantes: '{actual}'",
+    totalplazasautorizadas: "No existen plazas autorizadas en la zona, según la categoría y plantel seleccionados, autorizadas: '{actual}'",
     confirmPass: "La confirmación de contraseña no coincide con el campo contraseña"
 };

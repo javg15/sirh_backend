@@ -111,6 +111,7 @@ require('./app/routes/auth.routes')(app);
 require('./app/routes/user.routes')(app);
 require('./app/routes/catestatusplaza.routes')(app);
 require('./app/routes/categorias.routes')(app);
+require('./app/routes/categoriastabular.routes')(app);
 require('./app/routes/categoriassueldos.routes')(app);
 require('./app/routes/catplanteles.routes')(app);
 require('./app/routes/catzonaeconomica.routes')(app);

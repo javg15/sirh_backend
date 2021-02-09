@@ -26,6 +26,7 @@ db.sequelize = sequelize;
 db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.catestatusplaza = require("../models/catestatusplaza.model.js")(sequelize, Sequelize);
 db.categorias = require("../models/categorias.model.js")(sequelize, Sequelize);
+db.categoriastabular = require("../models/categoriastabular.model.js")(sequelize, Sequelize);
 db.catquincena = require("../models/catquincena.model.js")(sequelize, Sequelize);
 db.categoriassueldos = require("../models/categoriassueldos.model.js")(sequelize, Sequelize);
 db.catzonaeconomica = require("../models/catzonaeconomica.model.js")(sequelize, Sequelize);
