@@ -123,7 +123,7 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("aplicaa", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -137,6 +137,9 @@ exports.setRecord = async(req, res) => {
         clave: { type: "string", max: 3 },
         denominacion: { type: "string", min: 5 },
         nivelsalarial: { type: "string", max: 5 },
+        aplicaa: { type: "number" },
+        id_tipocategoria: { type: "number" },
+        id_tiponomina: { type: "number" },
     };
 
     var vres = true;
