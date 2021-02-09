@@ -141,12 +141,48 @@ exports.setRecord = async(req, res) => {
         }
     })
 
+    //validar que no se repita la combinación categoria y tipoplantel
+    let existeCombinacion = false;
+    query = "SELECT * FROM categoriastabular " +
+        "WHERE id_categorias=:id_categorias " +
+        "AND tipoplantel=:tipoplantel "
+    "AND id<>:id ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id: req.body.dataPack["id"],
+            id_categorias: req.body.dataPack["id_categorias"],
+            tipoplantel: req.body.dataPack["tipoplantel"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    existeCombinacion = datos.length > 0 ? true : false;
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
-        id: { type: "number" },
-        id_categorias: { type: "number" },
+        id: {
+            type: "number"
+        },
+        id_categorias: {
+            type: "number",
+            custom(value, errors) {
+                if (existeCombinacion) errors.push({ type: "existeCombinacionCategoriastabular" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         tipoplantel: { type: "string" },
         cantidad: { type: "number" },
     };

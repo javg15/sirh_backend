@@ -61,5 +61,6 @@ module.exports = {
     totalplazasdisponibles: "No existen vacantes, según la categoría y plantel seleccionados, vacantes: '{actual}'",
     totalautorizadasalplantel: "No existen vacantes para el plantel, según la categoría seleccionada, vacantes: '{actual}'",
     totalplazasautorizadas: "No existen plazas autorizadas en la zona, según la categoría y plantel seleccionados, autorizadas: '{actual}'",
-    confirmPass: "La confirmación de contraseña no coincide con el campo contraseña"
+    confirmPass: "La confirmación de contraseña no coincide con el campo contraseña",
+    existeCombinacionCategoriastabular: "Existe ya registro para la combinación Categoría y Tipo de plantel"
 };
