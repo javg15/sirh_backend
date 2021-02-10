@@ -121,6 +121,36 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getCatalogoSegunPlantel = async(req, res) => {
+
+    //Definir el valor a buscar segun el tipo de plantel
+    let aplicaa = [3];
+    if (req.body.tipoplantel == "A" || req.body.tipoplantel == "B" || req.body.tipoplantel == "C")
+        aplicaa.push(1)
+    else if (req.body.tipoplantel == "EMSAD")
+        aplicaa.push(2)
+
+    Categorias.findAll({
+            attributes: ['id', 'clave', 'denominacion', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
+            where: {
+                aplicaa: aplicaa,
+            },
+            order: [
+                ['clave', 'ASC'],
+            ]
+        }).then(categorias => {
+            if (!categorias) {
+                return res.status(404).send({ message: "Categorias Not found." });
+            }
+
+            res.status(200).send(categorias);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0 || key.indexOf("aplicaa", 0) >= 0) {
