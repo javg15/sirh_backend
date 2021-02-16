@@ -80,6 +80,24 @@ exports.getAdmin = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
+exports.getCatalogo = async(req, res) => {
+
+    User.findAll({
+            attributes: ['id', ['username', 'text']],
+            order: [
+                ['username', 'ASC'],
+            ]
+        }).then(user => {
+            if (!user) {
+                return res.status(404).send({ message: "User Not found." });
+            }
+
+            res.status(200).send(user);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
 
 exports.getRecord = async(req, res) => {
 

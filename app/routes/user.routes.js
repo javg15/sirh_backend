@@ -18,7 +18,10 @@ module.exports = function(app) {
         controller.getRecord
     );
 
-
+    app.post(
+        "/api/user/getCatalogo", [authJwt.verifyToken],
+        controller.getCatalogo
+    );
     app.post(
         "/api/user/setPerfil", [authJwt.verifyToken],
         controller.setPerfil

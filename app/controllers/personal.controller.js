@@ -113,6 +113,44 @@ exports.setRecord = async(req, res) => {
     })
 
     let curpValido = await checkCurp(req.body.dataPack.curp);
+
+    /*verificar si el usuario no está ya asignado*/
+    let datos = "",
+        query = "",
+        personalConUsuario = "",
+        usuarioConPersonal = "";
+    if (req.body.dataPack.id_usuarios_sistema > 0) {
+
+
+        query = "SELECT p.curp,u.username " +
+            "FROM personal AS p " +
+            " LEFT JOIN usuarios AS u ON p.id_usuarios_sistema=u.id" +
+            " WHERE p.id_usuarios_sistema=:id_usuarios_sistema" +
+            " AND p.id<>:id" +
+            " AND p.state IN ('A','B')";
+
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_usuarios_sistema: req.body.dataPack["id_usuarios_sistema"],
+                id: req.body.dataPack["id"],
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+        personalConUsuario = datos.length > 0 ? datos[0].curp : "";
+        usuarioConPersonal = datos.length > 0 ? datos[0].username : "";
+    }
+
     //let curpValido = false;
     //console.log(JSON.parse(curpValido).Response)
     /* customer validator shema */
@@ -144,6 +182,15 @@ exports.setRecord = async(req, res) => {
             custom(value, errors, schema) {
                 if (value.length != 10) {
                     errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                }
+                return value
+            }
+        },
+        id_usuarios_sistema: {
+            type: "number",
+            custom(value, errors, schema) {
+                if (personalConUsuario != "") {
+                    errors.push({ type: "usuarioLibre", expected: usuarioConPersonal, actual: personalConUsuario });
                 }
                 return value
             }

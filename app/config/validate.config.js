@@ -62,5 +62,6 @@ module.exports = {
     totalautorizadasalplantel: "No existen vacantes para el plantel, según la categoría seleccionada, vacantes: '{actual}'",
     totalplazasautorizadas: "No existen plazas autorizadas en la zona, según la categoría y plantel seleccionados, autorizadas: '{actual}'",
     confirmPass: "La confirmación de contraseña no coincide con el campo contraseña",
-    existeCombinacionCategoriastabular: "Existe ya registro para la combinación Categoría y Tipo de plantel"
+    existeCombinacionCategoriastabular: "Existe ya registro para la combinación Categoría y Tipo de plantel",
+    usuarioLibre: "La personal con el CURP '{actual}', ya tiene asignado el usuario de sistema '{expected}' "
 };
