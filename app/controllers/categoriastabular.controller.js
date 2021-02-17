@@ -144,9 +144,10 @@ exports.setRecord = async(req, res) => {
     //validar que no se repita la combinación categoria y tipoplantel
     let existeCombinacion = false;
     query = "SELECT * FROM categoriastabular " +
-        "WHERE id_categorias=:id_categorias " +
-        "AND tipoplantel=:tipoplantel "
-    "AND id<>:id ";
+        " WHERE id_categorias=:id_categorias " +
+        " AND tipoplantel=:tipoplantel " +
+        " AND id<>:id " +
+        " AND state IN ('A','B')";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

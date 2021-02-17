@@ -53,6 +53,9 @@ db.personal = require("../models/personal.model.js")(sequelize, Sequelize);
 db.catestadocivil = require("../models/catestadocivil.model.js")(sequelize, Sequelize);
 db.plantillaspersonal = require("../models/plantillaspersonal.model.js")(sequelize, Sequelize);
 db.plantillaspersonaldocs = require("../models/plantillaspersonaldocs.model.js")(sequelize, Sequelize);
+db.plantillasdocsprofesional = require("../models/plantillasdocsprofesional.model.js")(sequelize, Sequelize);
+db.plantillasdocsfamiliares = require("../models/plantillasdocsfamiliares.model.js")(sequelize, Sequelize);
+db.plantillasdocsnombramiento = require("../models/plantillasdocsnombramiento.model.js")(sequelize, Sequelize);
 db.catplantillas = require("../models/catplantillas.model.js")(sequelize, Sequelize);
 db.archivos = require("../models/archivos.model.js")(sequelize, Sequelize);
 

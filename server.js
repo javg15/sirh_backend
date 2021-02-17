@@ -140,6 +140,9 @@ require('./app/routes/personal.routes')(app);
 require('./app/routes/catestadocivil.routes')(app);
 require('./app/routes/plantillaspersonal.routes')(app);
 require('./app/routes/plantillaspersonaldocs.routes')(app);
+require('./app/routes/plantillasdocsfamiliares.routes')(app);
+require('./app/routes/plantillasdocsnombramiento.routes')(app);
+require('./app/routes/plantillasdocsprofesional.routes')(app);
 require('./app/routes/catplantillas.routes')(app);
 require('./app/routes/archivos.routes')(app);
 
