@@ -226,13 +226,13 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        id_catcentrostrabajo: {
+        /*id_catcentrostrabajo: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
+        },*/
         /*id_catplantelescobro: { type: "number" },
         id_catzonageografica: { type: "number" },*/
         id_catestatusplaza: {
