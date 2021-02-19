@@ -126,9 +126,9 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
     //Definir el valor a buscar segun el tipo de plantel
     let aplicaa = [3];
     if (req.body.tipoplantel == "A" || req.body.tipoplantel == "B" || req.body.tipoplantel == "C")
-        aplicaa.push(1)
-    else if (req.body.tipoplantel == "EMSAD")
         aplicaa.push(2)
+    else if (req.body.tipoplantel == "EMSAD")
+        aplicaa.push(1)
 
     Categorias.findAll({
             attributes: ['id', 'clave', 'denominacion', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
