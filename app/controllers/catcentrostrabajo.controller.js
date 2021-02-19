@@ -129,7 +129,7 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
                 }],
             },
             order: [
-                ['descripcion', 'ASC'],
+                ['clave', 'ASC'],
             ]
         }).then(catcentrostrabajo => {
             if (!catcentrostrabajo) {
