@@ -191,9 +191,7 @@ exports.getConsecutivo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0 || key.indexOf("tipodoc", 0) >= 0 ||
-            key.indexOf("ultimogradoestudios", 0) >= 0 || key.indexOf("areacarrera", 0) >= 0 ||
-            key.indexOf("carrera", 0) >= 0 || key.indexOf("estatus", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("tipo", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -205,35 +203,24 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         id_plantillaspersonal: { type: "number" },
-        tipodoc: {
+        fechaexpedicion: { type: "string" },
+        fechaini: { type: "string" },
+        fechafin: { type: "string" },
+        /*id_categorias: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },*/
+        id_personal_titular: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        ultimogradoestudios: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        areacarrera: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        carrera: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        estatus: {
+        tipo: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
@@ -247,7 +234,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        fechaexpedicion: { type: "string" }
+
     };
 
     var vres = true;

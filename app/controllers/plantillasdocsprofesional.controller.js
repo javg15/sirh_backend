@@ -205,13 +205,6 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         id_plantillaspersonal: { type: "number" },
-        tipodoc: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
         ultimogradoestudios: {
             type: "number",
             custom(value, errors) {

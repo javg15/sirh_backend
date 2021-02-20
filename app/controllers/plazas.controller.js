@@ -212,9 +212,9 @@ exports.setRecord = async(req, res) => {
                 //al ser edición , entonces, se considera una plaza disponible más
                 if (req.body.dataPack["id"] > 0) totalplazasdisponibles++;
 
-                if (totalplazasautorizadas <= 0) errors.push({ type: "totalplazasautorizadas", actual: datos[0].fn_plazas_disponibles.totalplazasautorizadas })
+                /*if (totalplazasautorizadas <= 0) errors.push({ type: "totalplazasautorizadas", actual: datos[0].fn_plazas_disponibles.totalplazasautorizadas })
                 if (totalautorizadasalplantel <= 0) errors.push({ type: "totalautorizadasalplantel", actual: datos[0].fn_plazas_disponibles.totalautorizadasalplantel })
-                if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })
+                if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })*/
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }

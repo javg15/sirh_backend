@@ -204,42 +204,24 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        id_plantillaspersonal: { type: "number" },
-        tipodoc: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
+        nombre: { type: "string", empty: false },
+        apellidopaterno: { type: "string", empty: false },
+        apellidomaterno: { type: "string", empty: false },
+        curp: {
+            type: "string",
+            min: 18,
+            max: 18,
+            pattern: /^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/,
+            /*custom(value, errors, schema) {
+
+                if (JSON.parse(curpValido).Response.toUpperCase() == "ERROR") {
+                    errors.push({ type: "curp" });
+                }
+                return value
+            }*/
         },
-        ultimogradoestudios: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        areacarrera: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        carrera: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        estatus: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
+        rfc: { type: "string", max: 10, pattern: /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01]))$/ },
+        homoclave: { type: "string", optional: true, pattern: /^|([A-Z\d]{2})([A\d])$/ },
         id_archivos: {
             type: "number",
             custom(value, errors) {
@@ -247,7 +229,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        fechaexpedicion: { type: "string" }
+        fechanacimiento: { type: "string" }
     };
 
     var vres = true;
