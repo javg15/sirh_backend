@@ -81,6 +81,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(1000),
             allowNull: true
         },
+        numeemp: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: false,
