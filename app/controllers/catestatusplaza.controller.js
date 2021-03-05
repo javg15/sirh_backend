@@ -103,6 +103,10 @@ exports.getCatalogo = async(req, res) => {
 
     Catestatusplaza.findAll({
             attributes: ['id', 'descripcion'],
+            where: {
+                id: {
+                    [Op.notIn]: [1, 2, 7, 8] }
+            },
             order: [
                 ['descripcion', 'ASC'],
             ]

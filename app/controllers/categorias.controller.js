@@ -151,6 +151,33 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
 }
 
 
+exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
+
+    let query = "select c.id, c.clave, c.denominacion, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+        " from categorias as c " +
+        " where (fn_categorias_disponibles_plantillas(:id_catplanteles,c.id,:id_plazas)->>'plazas_disponibles')::integer>0";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_catplanteles: req.body.id_catplanteles,
+            id_plazas: req.body.id_plazas, //cuando quiero desplegar tambien el de la plaza buscada
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0 || key.indexOf("aplicaa", 0) >= 0) {

@@ -18,6 +18,11 @@ module.exports = function(app) {
         controller.getCatalogoSegunPlantel
     );
     app.post(
+        "/api/categorias/getCatalogoDisponibleEnPlantilla", [authJwt.verifyToken],
+        controller.getCatalogoDisponibleEnPlantilla
+    );
+
+    app.post(
         "/api/categorias/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );

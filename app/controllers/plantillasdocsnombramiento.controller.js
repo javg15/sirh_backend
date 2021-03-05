@@ -191,46 +191,56 @@ exports.getConsecutivo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0 || key.indexOf("tipo", 0) >= 0) {
-            if (req.body.dataPack[key] != '')
-                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
-        }
-    })
-
-    /* customer validator shema */
+            if (key.indexOf("id_", 0) >= 0) {
+                if (req.body.dataPack[key] != '')
+                    req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+                if (isNaN(req.body.dataPack[key]))
+                    req.body.dataPack[key] = 0;
+            }
+        })
+        /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
-
         id: { type: "number" },
         id_plantillaspersonal: { type: "number" },
         fechaexpedicion: { type: "string" },
         fechaini: { type: "string" },
-        fechafin: { type: "string" },
-        /*id_categorias: {
-            type: "number",
+        fechafin: {
+            type: "string",
+            optional: (req.body.dataPack.id_catestatusplaza == 3 ? true : false),
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },*/
-        id_personal_titular: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                let date = new Date(value)
+
+                if (req.body.dataPack.id_catestatusplaza != 3 && isNaN(date.getMonth()) == false)
+                    errors.push({ type: "date" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        tipo: {
+        id_categorias: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (req.body.dataPack.id_catestatusplaza == 3 && value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_plazas: {
+            type: "number",
+            custom(value, errors) {
+                if (req.body.dataPack.id_catestatusplaza == 3 && value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_personal_titular: {
+            type: "number",
+            custom(value, errors) {
+                if (req.body.dataPack.id_catestatusplaza != 3 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_archivos: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
+                if (req.body.dataPack.id_catestatusplaza != 3 && value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

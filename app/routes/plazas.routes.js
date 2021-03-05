@@ -38,5 +38,9 @@ module.exports = function(app) {
         controller.getConsecutivo
     );
 
+    app.post(
+        "/api/plazas/getCatalogoDisponibleSegunCategoria", [authJwt.verifyToken],
+        controller.getCatalogoDisponibleSegunCategoria
+    );
 
 };

@@ -347,3 +347,32 @@ exports.getCatalogo = async(req, res) => {
             res.status(500).send({ message: err.message });
         });
 }
+
+exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
+
+    let query = "select  p.id, fn_plaza_clave(p.id) as text " +
+        "from plazas as p " +
+        "left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A') " +
+        "where p.id_categorias =:id_categorias " +
+        "   and (pn.id is null or pn.id_plazas =:id_plazas)";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.id_categorias,
+            id_plazas: req.body.id_plazas, //cuando quiero desplegar tambien el de la plaza buscada
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}

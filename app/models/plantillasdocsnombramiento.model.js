@@ -22,7 +22,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATEONLY,
             allowNull: true
         },
-        tipo: {
+        id_catestatusplaza: {
+            type: DataTypes.SMALLINT,
+            allowNull: true
+        },
+        id_plazas: {
             type: DataTypes.SMALLINT,
             allowNull: true
         },
