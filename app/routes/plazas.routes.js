@@ -39,6 +39,11 @@ module.exports = function(app) {
     );
 
     app.post(
+        "/api/plazas/getClave", [authJwt.verifyToken],
+        controller.getClave
+    );
+
+    app.post(
         "/api/plazas/getCatalogoDisponibleSegunCategoria", [authJwt.verifyToken],
         controller.getCatalogoDisponibleSegunCategoria
     );

@@ -26,6 +26,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(100),
             allowNull: true
         },
+        convigencia: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        conlicencia: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        esinterina: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: true

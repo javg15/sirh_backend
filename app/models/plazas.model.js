@@ -57,6 +57,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        estatus: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         state: {
             type: DataTypes.STRING,
             allowNull: true
