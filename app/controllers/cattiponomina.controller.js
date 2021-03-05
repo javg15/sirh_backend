@@ -1,6 +1,7 @@
 const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
+const globales = require("../config/global.config");
 const Cattiponomina = db.cattiponomina;
 
 const { QueryTypes } = require('sequelize');

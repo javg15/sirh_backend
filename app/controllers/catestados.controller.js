@@ -1,5 +1,6 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
+const globales = require("../config/global.config");
 const Catestados = db.catestados;
 
 const { QueryTypes } = require('sequelize');
