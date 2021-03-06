@@ -38,6 +38,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        esnombramiento: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: true
