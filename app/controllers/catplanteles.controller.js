@@ -160,7 +160,7 @@ exports.setRecord = async(req, res) => {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 Catplanteles.create(
@@ -174,7 +174,7 @@ exports.setRecord = async(req, res) => {
             } else {
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 catplanteles.update(req.body.dataPack).then((self) => {

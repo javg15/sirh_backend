@@ -104,6 +104,36 @@ exports.getClave = async(req, res) => {
     res.status(200).send(datos);
 };
 
+exports.getPlazaSegunPersonal = async(req, res) => {
+    let query = "select p.*,fn_plaza_clave(p.id) as clave " +
+        "from plazas as p " +
+        " left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas " +
+        " left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  " +
+        "where pp.id_personal = :id_personal " +
+        "and pp.state in ('A','B') " +
+        " and pn.state in ('A') ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+};
+
 exports.getRecord = async(req, res) => {
 
     Plazas.findOne({
@@ -323,7 +353,7 @@ exports.setRecord = async(req, res) => {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 Plazas.create(
@@ -337,7 +367,7 @@ exports.setRecord = async(req, res) => {
             } else {
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 plazas.update(req.body.dataPack).then((self) => {

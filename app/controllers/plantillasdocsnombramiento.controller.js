@@ -190,15 +190,31 @@ exports.getConsecutivo = async(req, res) => {
 }
 
 exports.setRecord = async(req, res) => {
+
     Object.keys(req.body.dataPack).forEach(function(key) {
-            if (key.indexOf("id_", 0) >= 0) {
-                if (req.body.dataPack[key] != '')
-                    req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
-                if (isNaN(req.body.dataPack[key]))
-                    req.body.dataPack[key] = 0;
-            }
-        })
-        /* customer validator shema */
+        if (key.indexOf("id_", 0) >= 0) {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+            if (isNaN(req.body.dataPack[key]))
+                req.body.dataPack[key] = 0;
+        }
+    });
+    //obtener datos de catestatusplaza
+    let datosCatestatusplaza = null;
+    if (req.body.dataPack.id_catestatusplaza > 0) {
+        query = "SELECT * FROM catestatusplaza WHERE id=:id_catestatusplaza"; //el modo no existe, solo es para obtener un registro
+
+        datosCatestatusplaza = await db.sequelize.query(query, {
+            plain: false,
+            replacements: {
+                id_catestatusplaza: req.body.dataPack.id_catestatusplaza,
+            },
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
+
+    /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
         id: { type: "number" },
@@ -207,12 +223,17 @@ exports.setRecord = async(req, res) => {
         fechaini: { type: "string" },
         fechafin: {
             type: "string",
-            optional: (req.body.dataPack.id_catestatusplaza == 3 ? true : false),
+            optional: (datosCatestatusplaza[0].convigencia == 0 ? true : false),
             custom(value, errors) {
-                let date = new Date(value)
+                let dateFin = new Date(value)
+                let dateIni = new Date(req.body.dataPack.fechaini)
 
-                if (req.body.dataPack.id_catestatusplaza != 3 && isNaN(date.getMonth()) == false)
+                if (isNaN(dateFin.getMonth()))
                     errors.push({ type: "date" })
+                if (isNaN(dateFin.getMonth()) == false && isNaN(dateIni.getMonth()) == false) {
+                    if (dateFin < dateIni)
+                        errors.push({ type: "dateMin", field: "fechafin", expected: dateIni.toISOString().split('T')[0] })
+                }
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -232,18 +253,19 @@ exports.setRecord = async(req, res) => {
         },
         id_personal_titular: {
             type: "number",
+            optional: (datosCatestatusplaza[0].esinterina == 0 ? true : false),
             custom(value, errors) {
-                if (req.body.dataPack.id_catestatusplaza != 3 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza[0].esinterina == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        id_archivos: {
+        /*id_archivos: {
             type: "number",
             custom(value, errors) {
                 if (req.body.dataPack.id_catestatusplaza != 3 && value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
+        },*/
 
     };
 
@@ -290,12 +312,25 @@ exports.setRecord = async(req, res) => {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 Plantillasdocsnombramiento.create(
                     req.body.dataPack
                 ).then((self) => {
+                    //Actualizar la plaza
+                    query = "SELECT fn_set_plazas_estatus(:id_plantillasdocsnombramiento_afectador,:id_plantillaspersonal)"; //el modo no existe, solo es para obtener un registro
+
+                    datos = db.sequelize.query(query, {
+                        plain: false,
+                        replacements: {
+                            id_plantillasdocsnombramiento_afectador: self.id,
+                            id_plantillaspersonal: req.body.dataPack.id_plantillaspersonal,
+                        },
+                        raw: true,
+                        type: QueryTypes.SELECT
+                    });
+
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
@@ -304,10 +339,23 @@ exports.setRecord = async(req, res) => {
             } else {
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuario_r = req.userId;
+                req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 plantillasdocsnombramiento.update(req.body.dataPack).then((self) => {
+                    //Actualizar la plaza
+                    query = "SELECT fn_set_plazas_estatus(:id_plantillasdocsnombramiento_afectador,:id_plantillaspersonal)"; //el modo no existe, solo es para obtener un registro
+
+                    datos = db.sequelize.query(query, {
+                        plain: false,
+                        replacements: {
+                            id_plantillasdocsnombramiento_afectador: self.id,
+                            id_plantillaspersonal: req.body.dataPack.id_plantillaspersonal,
+                        },
+                        raw: true,
+                        type: QueryTypes.SELECT
+                    });
+
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

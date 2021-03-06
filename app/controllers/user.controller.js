@@ -221,7 +221,7 @@ exports.setPerfil = async(req, res) => {
                     delete req.body.dataPack.created_at;
                     delete req.body.dataPack.updated_at;
                     delete req.body.dataPack.passConfirm;
-                    req.body.dataPack.id_usuario_r = req.userId;
+                    req.body.dataPack.id_usuarios_r = req.userId;
                     //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
 
