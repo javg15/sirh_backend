@@ -46,7 +46,10 @@ module.exports = function(app) {
         "/api/plazas/getPlazaSegunPersonal", [authJwt.verifyToken],
         controller.getPlazaSegunPersonal
     );
-
+    app.post(
+        "/api/plazas/getHistorial", [authJwt.verifyToken],
+        controller.getHistorial
+    );
 
 
     app.post(
