@@ -240,14 +240,14 @@ exports.setRecord = async(req, res) => {
         id_categorias: {
             type: "number",
             custom(value, errors) {
-                if (req.body.dataPack.id_catestatusplaza == 3 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_plazas: {
             type: "number",
             custom(value, errors) {
-                if (req.body.dataPack.id_catestatusplaza == 3 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
