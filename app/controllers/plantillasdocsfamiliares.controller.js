@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Plantillasdocsfamiliares = db.plantillasdocsfamiliares;
-
+var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 
@@ -229,7 +229,20 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        fechanacimiento: { type: "string" }
+        fechanacimiento: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechanacimiento", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
+        }
     };
 
     var vres = true;

@@ -22,11 +22,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         fecha_inicio: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         fecha_fin: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         totalplazaaut: {

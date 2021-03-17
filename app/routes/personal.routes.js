@@ -29,6 +29,11 @@ module.exports = function(app) {
     );
 
     app.post(
+        "/api/personal/getRecordSegunCURP", [authJwt.verifyToken],
+        controller.getRecordSegunCURP
+    );
+
+    app.post(
         "/api/personal/getCatalogoSegunBusqueda", [authJwt.verifyToken],
         controller.getCatalogoSegunBusqueda
     );

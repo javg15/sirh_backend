@@ -10,11 +10,11 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true
         },
         fechainicio: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         fechafin: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         id_usuarios_r: {

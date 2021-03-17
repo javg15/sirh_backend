@@ -36,7 +36,7 @@ module.exports = {
     tupleLength: "'{field}' must contain {expected} items",
     boolean: "'{field}' debe ser boolean",
     function: "'{field}' debe ser function",
-    date: "'{field}' debe ser Date",
+    date: "'{field}' debe ser una fecha válida",
     dateMin: "'{field}' debe ser mayor o igual a {expected}",
     dateMax: "'{field}' debe ser menor o igual a {expected}",
     forbidden: "'{field}' is forbidden",

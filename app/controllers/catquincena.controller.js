@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Catquincena = db.catquincena;
+var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');

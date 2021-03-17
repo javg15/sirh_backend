@@ -18,6 +18,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
+        clave_curp: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: true

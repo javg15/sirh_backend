@@ -99,10 +99,29 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.getRecordSegunClaveCurp = async(req, res) => {
+
+    Catestados.findOne({
+            where: {
+                id: req.body.id
+            }
+        })
+        .then(catestados => {
+            if (!catestados) {
+                return res.status(404).send({ message: "Catestados Not found." });
+            }
+
+            res.status(200).send(catestados);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.getCatalogo = async(req, res) => {
 
     Catestados.findAll({
-            attributes: ['id', 'descripcion'],
+            attributes: ['id', 'descripcion', 'clave_curp'],
             order: [
                 ['descripcion', 'ASC'],
             ]

@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
 const Plazas = db.plazas;
-
+var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 /* create an instance of the validator */
@@ -358,10 +358,18 @@ exports.setRecord = async(req, res) => {
         fecha_creacion: {
             type: "string",
             custom(value, errors, schema) {
-                var date1 = new Date(value);
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechaexpedicion", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+
                 //315554400000 = 1/1/1980
-                if (date1.getTime() < 315554400000) errors.push({ type: "dateMin", expected: '1/1/1980', actual: value });
-                if (date1.getTime() > Date.parse(new Date())) errors.push({ type: "dateMax", expected: new Date(), actual: value });
+                if (dateIni.getTime() < 315554400000) errors.push({ type: "dateMin", expected: '1/1/1980', actual: value });
+                if (dateIni.getTime() > Date.parse(new Date())) errors.push({ type: "dateMax", expected: new Date(), actual: value });
                 return value
             }
         },

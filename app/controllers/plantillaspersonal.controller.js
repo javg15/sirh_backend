@@ -6,6 +6,7 @@ const Plantillaspersonal = db.plantillaspersonal;
 const Catplanteles = db.catplanteles;
 const Catplantillas = db.catplantillas;
 const Personal = db.personal;
+var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -276,6 +277,20 @@ exports.setRecord = async(req, res) => {
             }
         },
         consecutivo: { type: "number" },
+        fechaingreso: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechaingreso", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
+        },
     };
 
     var vres = true;

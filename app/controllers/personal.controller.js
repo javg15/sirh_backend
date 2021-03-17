@@ -81,7 +81,6 @@ exports.getAdmin = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
-
 exports.getRecord = async(req, res) => {
 
     Personal.findOne({
@@ -101,24 +100,47 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.getRecordSegunCURP = async(req, res) => {
+
+    Personal.findOne({
+            where: {
+                curp: req.body.curp
+            }
+        })
+        .then(personal => {
+            if (!personal) {
+                return res.status(200).send();
+            }
+
+            res.status(200).send(personal);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        } else if (key == "nombre" || key == "apellidopaterno" || key == "apellidomaterno") {
+            req.body.dataPack[key] = req.body.dataPack[key].toUpperCase();
         }
+
         if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
             req.body.dataPack[key] = null;
         }
     })
 
-    let curpValido = await checkCurp(req.body.dataPack.curp);
+    //let curpValido = await checkCurp(req.body.dataPack.curp);
 
     /*verificar si el usuario no está ya asignado*/
     let datos = "",
         query = "",
         personalConUsuario = "",
         usuarioConPersonal = "";
+
     if (req.body.dataPack.id_usuarios_sistema > 0) {
 
 
@@ -251,7 +273,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(500).send({ message: err });
                 });
             } else {
                 delete req.body.dataPack.created_at;
@@ -260,7 +282,8 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 personal.update(req.body.dataPack).then((self) => {
-                    // here self is your instance, but updated
+                    console.log("self.id=>", self.id)
+                        // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
             }

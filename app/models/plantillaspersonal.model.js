@@ -34,7 +34,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         fechaingreso: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         id_usuarios_r: {
@@ -53,7 +53,7 @@ module.exports = function(sequelize, DataTypes) {
         },
         updated_at: {
             type: DataTypes.DATE,
-            allowNull: true
+            allowNull: true,
         }
     }, {
         sequelize,

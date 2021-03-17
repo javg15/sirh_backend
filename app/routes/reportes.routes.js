@@ -16,4 +16,8 @@ module.exports = function(app) {
         controller.getCategorias
     );
 
+    app.get("/api/reportes/plazas_listado", // [authJwt.verifyToken],
+        controller.getPlazasListado
+    );
+
 };

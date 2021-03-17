@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Categoriassueldos = db.categoriassueldos;
+var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -138,8 +139,34 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         clave: { type: "string", max: 3 },
-        fecha_inicio: { type: "string" },
-        fecha_fin: { type: "string" },
+        fecha_inicio: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fecha_inicio", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
+        },
+        fecha_fin: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fecha_fin", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
+        },
     };
 
     var vres = true;

@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Plantillasdocsnombramiento = db.plantillasdocsnombramiento;
-
+var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
 
@@ -219,17 +219,51 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
         id: { type: "number" },
         id_plantillaspersonal: { type: "number" },
-        fechaexpedicion: { type: "string" },
-        fechaini: { type: "string" },
+        fechaexpedicion: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechaexpedicion", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
+        },
+        fechaini: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechaini", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
+        },
         fechafin: {
             type: "string",
             optional: (datosCatestatusplaza[0].convigencia == 0 ? true : false),
             custom(value, errors) {
-                let dateFin = new Date(value)
-                let dateIni = new Date(req.body.dataPack.fechaini)
+                let dateIni = new Date(value)
+                let dateFin = new Date()
 
-                if (isNaN(dateFin.getMonth()))
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechafin", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
+
+                ///////////////
+                dateFin = new Date(value)
+                dateIni = new Date(req.body.dataPack.fechaini)
+
                 if (isNaN(dateFin.getMonth()) == false && isNaN(dateIni.getMonth()) == false) {
                     if (dateFin < dateIni)
                         errors.push({ type: "dateMin", field: "fechafin", expected: dateIni.toISOString().split('T')[0] })
