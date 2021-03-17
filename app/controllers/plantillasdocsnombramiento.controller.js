@@ -251,22 +251,24 @@ exports.setRecord = async(req, res) => {
             type: "string",
             optional: (datosCatestatusplaza[0].convigencia == 0 ? true : false),
             custom(value, errors) {
-                let dateIni = new Date(value)
-                let dateFin = new Date()
+                if (datosCatestatusplaza[0].convigencia == 1) {
+                    let dateIni = new Date(value)
+                    let dateFin = new Date()
 
-                if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fechafin", expected: dateFin.toISOString().split('T')[0] })
+                    if (dateIni > dateFin)
+                        errors.push({ type: "dateMax", field: "fechafin", expected: dateFin.toISOString().split('T')[0] })
 
-                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
-                    errors.push({ type: "date" })
+                    if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                        errors.push({ type: "date" })
 
-                ///////////////
-                dateFin = new Date(value)
-                dateIni = new Date(req.body.dataPack.fechaini)
+                    ///////////////
+                    dateFin = new Date(value)
+                    dateIni = new Date(req.body.dataPack.fechaini)
 
-                if (isNaN(dateFin.getMonth()) == false && isNaN(dateIni.getMonth()) == false) {
-                    if (dateFin < dateIni)
-                        errors.push({ type: "dateMin", field: "fechafin", expected: dateIni.toISOString().split('T')[0] })
+                    if (isNaN(dateFin.getMonth()) == false && isNaN(dateIni.getMonth()) == false) {
+                        if (dateFin < dateIni)
+                            errors.push({ type: "dateMin", field: "fechafin", expected: dateIni.toISOString().split('T')[0] })
+                    }
                 }
                 return value; // Sanitize: remove all special chars except numbers
             }
@@ -289,7 +291,9 @@ exports.setRecord = async(req, res) => {
             type: "number",
             optional: (datosCatestatusplaza[0].esinterina == 0 ? true : false),
             custom(value, errors) {
-                if (datosCatestatusplaza[0].esinterina == 1 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza[0].esinterina == 1) {
+                    if (value <= 0) errors.push({ type: "selection" })
+                }
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
