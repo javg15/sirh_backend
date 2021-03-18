@@ -57,6 +57,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        id_catestadosnaci: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        id_catmunicipiosnaci: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        id_catlocalidadesnaci: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         id_archivos_avatar: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -82,6 +94,42 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         numeemp: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        domicilio: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        colonia: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        cp: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        telefonomovil: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        numimss: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        numissste: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        otronombre: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        numotro: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        tipopension: {
             type: DataTypes.STRING(6),
             allowNull: true
         },
