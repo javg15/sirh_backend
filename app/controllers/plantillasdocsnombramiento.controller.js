@@ -251,6 +251,7 @@ exports.setRecord = async(req, res) => {
             type: "string",
             optional: (datosCatestatusplaza[0].convigencia == 0 ? true : false),
             custom(value, errors) {
+
                 if (datosCatestatusplaza[0].convigencia == 1) {
                     let dateIni = new Date(value)
                     let dateFin = new Date()
@@ -258,7 +259,7 @@ exports.setRecord = async(req, res) => {
                     if (dateIni > dateFin)
                         errors.push({ type: "dateMax", field: "fechafin", expected: dateFin.toISOString().split('T')[0] })
 
-                    if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
                         errors.push({ type: "date" })
 
                     ///////////////

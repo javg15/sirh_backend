@@ -103,7 +103,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catcentrostrabajo.findAll({
-            attributes: ['id', 'clave', 'descripcion'],
+            attributes: ['id', [db.sequelize.literal("COALESCE(clave, 0) || ' - ' || COALESCE(descripcion, '.')"), "text"]],
             order: [
                 ['descripcion', 'ASC'],
             ]

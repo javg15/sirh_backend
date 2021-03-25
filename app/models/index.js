@@ -57,7 +57,10 @@ db.plantillasdocsprofesional = require("../models/plantillasdocsprofesional.mode
 db.plantillasdocsfamiliares = require("../models/plantillasdocsfamiliares.model.js")(sequelize, Sequelize);
 db.plantillasdocslicencias = require("../models/plantillasdocslicencias.model.js")(sequelize, Sequelize);
 db.plantillasdocsnombramiento = require("../models/plantillasdocsnombramiento.model.js")(sequelize, Sequelize);
+db.plantillasdocssindicato = require("../models/plantillasdocssindicato.model.js")(sequelize, Sequelize);
 db.catplantillas = require("../models/catplantillas.model.js")(sequelize, Sequelize);
+db.catfuncionsecundaria = require("../models/catfuncionsecundaria.model.js")(sequelize, Sequelize);
+db.catsindicato = require("../models/catsindicato.model.js")(sequelize, Sequelize);
 db.archivos = require("../models/archivos.model.js")(sequelize, Sequelize);
 
 module.exports = db;

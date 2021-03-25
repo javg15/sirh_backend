@@ -206,7 +206,7 @@ exports.setRecord = async(req, res) => {
                 /*if (dateIni > dateFin)
                     errors.push({ type: "dateMax", field: "fechatermino", expected: dateFin.toISOString().split('T')[0] })*/
 
-                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
 
                 ///////////////

@@ -2,11 +2,11 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Categoriassueldos = db.categoriassueldos;
+const Plantillasdocssindicato = db.plantillasdocssindicato;
 var moment = require('moment');
-
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
+
 /* create an instance of the validator */
 let dataValidator = new Validator({
     useNewCustomCheckerFunction: true, // using new version
@@ -22,7 +22,7 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_categoriassueldos_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_plantillasdocssindicato_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -30,11 +30,14 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_categoriassueldos_mgr('" +
+
+        query = "SELECT * FROM s_plantillasdocssindicato_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
+            "&ordencampo=ID" +
+            "&ordensentido=ASC" +
             "&fkey=" + params.opcionesAdicionales.fkey +
-            "&fkeyvalue=:fkeyvalue')";
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -45,7 +48,7 @@ exports.getAdmin = async(req, res) => {
             replacements: {
                 id_usuario: req.userId,
                 modo: params.opcionesAdicionales.modo,
-                fkeyvalue: params.opcionesAdicionales.fkeyvalue,
+
                 start: (typeof params.start !== typeof undefined ? params.start : 0),
                 length: (typeof params.start !== typeof undefined ? params.length : 1),
                 /*scampo: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.campo) : 0),
@@ -89,45 +92,52 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Categoriassueldos.findOne({
+    Plantillasdocssindicato.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        .then(plantillasdocssindicato => {
+            if (!plantillasdocssindicato) {
+                return res.status(404).send({ message: "Plantillasdocssindicato Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(plantillasdocssindicato);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
 
+
+
+
 exports.getCatalogo = async(req, res) => {
 
-    Categoriassueldos.findAll({
+    Plantillasdocssindicato.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        }).then(plantillasdocssindicato => {
+            if (!plantillasdocssindicato) {
+                return res.status(404).send({ message: "Plantillasdocssindicato Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(plantillasdocssindicato);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
 
+
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("tipodoc", 0) >= 0 ||
+            key.indexOf("ultimogradoestudios", 0) >= 0 || key.indexOf("areacarrera", 0) >= 0 ||
+            key.indexOf("carrera", 0) >= 0 || key.indexOf("estatus", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -138,35 +148,28 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        fecha_inicio: {
+        id_catsindicato: { type: "number" },
+        /*id_archivos: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },*/
+        fechainscripcion: {
             type: "string",
             custom(value, errors) {
                 let dateIni = new Date(value)
                 let dateFin = new Date()
 
                 if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fecha_inicio", expected: dateFin.toISOString().split('T')[0] })
+                    errors.push({ type: "dateMax", field: "fechainscripcion", expected: dateFin.toISOString().split('T')[0] })
 
                 if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
                 return value;
             },
-        },
-        fecha_fin: {
-            type: "string",
-            custom(value, errors) {
-                let dateIni = new Date(value)
-                let dateFin = new Date()
-
-                if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fecha_fin", expected: dateFin.toISOString().split('T')[0] })
-
-                if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
-                    errors.push({ type: "date" })
-                return value;
-            },
-        },
+        }
     };
 
     var vres = true;
@@ -198,7 +201,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Categoriassueldos.findOne({
+    Plantillasdocssindicato.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -207,15 +210,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
+        .then(plantillasdocssindicato => {
+            if (!plantillasdocssindicato) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Categoriassueldos.create(
+                Plantillasdocssindicato.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -229,7 +232,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                categoriassueldos.update(req.body.dataPack).then((self) => {
+                plantillasdocssindicato.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

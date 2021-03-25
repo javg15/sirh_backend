@@ -141,12 +141,14 @@ require('./app/routes/catestadocivil.routes')(app);
 require('./app/routes/plantillaspersonal.routes')(app);
 require('./app/routes/plantillaspersonaldocs.routes')(app);
 require('./app/routes/plantillasdocsfamiliares.routes')(app);
+require('./app/routes/plantillasdocssindicato.routes')(app);
 require('./app/routes/plantillasdocsnombramiento.routes')(app);
 require('./app/routes/plantillasdocsprofesional.routes')(app);
 require('./app/routes/plantillasdocslicencias.routes')(app);
 require('./app/routes/catplantillas.routes')(app);
 require('./app/routes/archivos.routes')(app);
-
+require('./app/routes/catfuncionsecundaria.routes')(app);
+require('./app/routes/catsindicato.routes')(app);
 /*app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });*/

@@ -53,7 +53,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_sindicato: {
+        id_catsindicato: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
