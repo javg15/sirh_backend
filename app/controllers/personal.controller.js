@@ -332,44 +332,37 @@ exports.getCatalogo = async(req, res) => {
 
 exports.getCatalogoSegunBusqueda = async(req, res) => {
 
-    Personal.findAll({
-            attributes: [
-                [db.sequelize.literal("nombre || ' ' || apellidopaterno || ' ' || apellidomaterno || ' -- ' || curp || ' -- ' || id"), "full_name"]
-            ],
-            where: {
-                [Op.or]: [{
-                        nombre: {
+    if (req.body.query.length > 2) {
+        Personal.findAll({
+                attributes: [
+                    [db.sequelize.literal("nombre || ' ' || apellidopaterno || ' ' || apellidomaterno || ' -- ' || curp || ' -- ' || id"), "full_name"]
+                ],
+                where: {
+                    [Op.or]: [
+                        db.sequelize.where(db.sequelize.fn("concat", db.sequelize.col("nombre"), " ", db.sequelize.col("apellidopaterno"), " ", db.sequelize.col("apellidomaterno")), {
                             [Op.iLike]: '%' + req.body.query + '%'
-                        }
-                    },
-                    {
-                        apellidopaterno: {
-                            [Op.iLike]: '%' + req.body.query + '%'
-                        }
-                    },
-                    {
-                        apellidomaterno: {
-                            [Op.iLike]: '%' + req.body.query + '%'
-                        }
-                    },
-                    {
-                        curp: {
-                            [Op.iLike]: '%' + req.body.query + '%'
-                        }
-                    },
+                        }),
+                        {
+                            curp: {
+                                [Op.iLike]: '%' + req.body.query + '%'
+                            }
+                        },
+                    ]
+                },
+                order: [
+                    ['nombre', 'ASC'],
                 ]
-            },
-            order: [
-                ['nombre', 'ASC'],
-            ]
-        }).then(personal => {
-            if (!personal) {
-                return res.status(404).send({ message: "Personal Not found." });
-            }
+            }).then(personal => {
+                if (!personal) {
+                    return res.status(404).send({ message: "Personal Not found." });
+                }
 
-            res.status(200).send(personal);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
+                res.status(200).send(personal);
+            })
+            .catch(err => {
+                res.status(500).send({ message: err.message });
+            });
+    } else {
+        res.status(200).send(null);
+    }
 }
