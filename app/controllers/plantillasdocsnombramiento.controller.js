@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Plantillasdocsnombramiento = db.plantillasdocsnombramiento;
+const Categoriassueldos = db.categoriassueldos;
 var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -192,7 +193,7 @@ exports.getConsecutivo = async(req, res) => {
 exports.setRecord = async(req, res) => {
 
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("horas", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
             if (isNaN(req.body.dataPack[key]))
@@ -213,6 +214,27 @@ exports.setRecord = async(req, res) => {
             type: QueryTypes.SELECT
         });
     }
+
+    /* obtener si la categoria define horas */
+    let varAsignarHoras = false;
+    await Categoriassueldos.findAll({
+            limit: 1,
+            where: {
+                id_categorias: req.body.dataPack.id_categorias
+            },
+            order: [
+                ['created_at', 'DESC']
+            ]
+        })
+        .then(categoriassueldos => {
+
+            if (categoriassueldos.length > 0) {
+                if (categoriassueldos[0].dataValues.totalhorasaut > 0) {
+                    varAsignarHoras = true;
+                }
+            }
+        });
+
 
     /* customer validator shema */
     const dataVSchema = {
@@ -277,6 +299,7 @@ exports.setRecord = async(req, res) => {
         id_categorias: {
             type: "number",
             custom(value, errors) {
+
                 if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
@@ -298,6 +321,20 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
+        horas: {
+            type: "number",
+            custom(value, errors) {
+                if (datosCatestatusplaza[0].esnombramiento == 1 &&
+                    req.body.dataPack.id_categorias > 0 &&
+                    varAsignarHoras == true &&
+                    value == 0) {
+
+                    errors.push({ type: "required" })
+                }
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+
         /*id_archivos: {
             type: "number",
             custom(value, errors) {

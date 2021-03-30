@@ -22,6 +22,10 @@ module.exports = function(app) {
         controller.getRecord
     );
     app.post(
+        "/api/categoriassueldos/getRecordSegunCategoria", [authJwt.verifyToken],
+        controller.getRecordSegunCategoria
+    );
+    app.post(
         "/api/categoriassueldos/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );

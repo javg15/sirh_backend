@@ -86,13 +86,35 @@ exports.getAdmin = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
-
 exports.getRecord = async(req, res) => {
 
     Categoriassueldos.findOne({
             where: {
                 id: req.body.id
             }
+        })
+        .then(categoriassueldos => {
+            if (!categoriassueldos) {
+                return res.status(404).send({ message: "Categoriassueldos Not found." });
+            }
+
+            res.status(200).send(categoriassueldos);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getRecordSegunCategoria = async(req, res) => {
+
+    Categoriassueldos.findAll({
+            limit: 1,
+            where: {
+                id_categorias: req.body.id_categorias
+            },
+            order: [
+                ['created_at', 'DESC']
+            ]
         })
         .then(categoriassueldos => {
             if (!categoriassueldos) {
@@ -127,7 +149,11 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 ||
+            key.indexOf("totalplazaaut", 0) >= 0 ||
+            key.indexOf("totalhorasaut", 0) >= 0 ||
+            key.indexOf("importe", 0) >= 0
+        ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -139,14 +165,22 @@ exports.setRecord = async(req, res) => {
 
         id: { type: "number" },
         clave: { type: "string", max: 3 },
+        id_catzonaeconomica: {
+            type: "number",
+            custom(value, errors) {
+                if (value == 0)
+                    errors.push({ type: "required" })
+                return value;
+            },
+        },
         fecha_inicio: {
             type: "string",
             custom(value, errors) {
-                let dateIni = new Date(value)
+                /*let dateIni = new Date(value)
                 let dateFin = new Date()
 
                 if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fecha_inicio", expected: dateFin.toISOString().split('T')[0] })
+                    errors.push({ type: "dateMax", field: "fecha_inicio", expected: dateFin.toISOString().split('T')[0] })*/
 
                 if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
@@ -156,14 +190,38 @@ exports.setRecord = async(req, res) => {
         fecha_fin: {
             type: "string",
             custom(value, errors) {
-                let dateIni = new Date(value)
-                let dateFin = new Date()
+                let dateIni = new Date(req.body.dataPack["fecha_inicio"])
+                let dateFin = new Date(value)
 
                 if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fecha_fin", expected: dateFin.toISOString().split('T')[0] })
+                    errors.push({ type: "dateMax", field: "fecha_fin", expected: dateIni.toISOString().split('T')[0] })
 
                 if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
+                return value;
+            },
+        },
+        totalplazaaut: {
+            type: "number",
+            custom(value, errors) {
+                if (value == 0 && req.body.dataPack["totalhorasaut"] == 0)
+                    errors.push({ type: "horasPlazas" })
+                return value;
+            },
+        },
+        totalhorasaut: {
+            type: "number",
+            custom(value, errors) {
+                if (value == 0 && req.body.dataPack["totalplazaaut"] == 0)
+                    errors.push({ type: "horasPlazas" })
+                return value;
+            },
+        },
+        importe: {
+            type: "number",
+            custom(value, errors) {
+                if (value == 0)
+                    errors.push({ type: "required" })
                 return value;
             },
         },
