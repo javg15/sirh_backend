@@ -103,7 +103,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Materiasclase.findAll({
-            attributes: ['id', [db.sequelize.literal("clave || ' - ' || nombre"), "text"]],
+            attributes: ['id', [db.sequelize.literal("COALESCE(clave,'') || ' - ' || COALESCE(nombre,'')"), "text"]],
             order: [
                 ['nombre', 'ASC'],
             ]

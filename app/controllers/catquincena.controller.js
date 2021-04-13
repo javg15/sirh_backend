@@ -105,8 +105,19 @@ exports.getCatalogo = async(req, res) => {
 
     Catquincena.findAll({
             attributes: ['id', [db.sequelize.literal("anio || ' - ' || quincena"), "text"]],
+            where: {
+                [Op.and]: [{ adicional: 0 }, {
+                    [Op.or]: [{
+                            idestatusquincena: {
+                                [Op.lt]: 4
+                            }
+                        },
+                        { anio: "9999" }
+                    ]
+                }],
+            },
             order: [
-                [db.sequelize.literal("anio || ' - ' || quincena"), 'ASC'],
+                [db.sequelize.literal("anio || ' - ' || quincena"), 'DESC'],
             ]
         }).then(catquincena => {
             if (!catquincena) {
