@@ -1,9 +1,8 @@
 const db = require("../models");
 const { Op } = require("sequelize");
-const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Catquincena = db.catquincena;
-var moment = require('moment');
+const globales = require("../config/global.config");
+const Cattipohorasdocente = db.cattipohorasdocente;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -19,7 +18,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catquincena_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_cattipohorasdocente_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -27,7 +26,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catquincena_mgr('" +
+        query = "SELECT * FROM s_cattipohorasdocente_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -84,17 +83,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catquincena.findOne({
+    Cattipohorasdocente.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catquincena => {
-            if (!catquincena) {
-                return res.status(404).send({ message: "Catquincena Not found." });
+        .then(cattipohorasdocente => {
+            if (!cattipohorasdocente) {
+                return res.status(404).send({ message: "Cattipohorasdocente Not found." });
             }
 
-            res.status(200).send(catquincena);
+            res.status(200).send(cattipohorasdocente);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -103,17 +102,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Catquincena.findAll({
-            attributes: ['id', [db.sequelize.literal("anio || ' - ' || quincena"), "text"]],
+    Cattipohorasdocente.findAll({
+            attributes: ['id', 'tipohora'],
             order: [
-                [db.sequelize.literal("anio || ' - ' || quincena"), 'ASC'],
+                ['tipohora', 'ASC'],
             ]
-        }).then(catquincena => {
-            if (!catquincena) {
-                return res.status(404).send({ message: "Catquincena Not found." });
+        }).then(cattipohorasdocente => {
+            if (!cattipohorasdocente) {
+                return res.status(404).send({ message: "Cattipohorasdocente Not found." });
             }
 
-            res.status(200).send(catquincena);
+            res.status(200).send(cattipohorasdocente);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -133,9 +132,8 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        denominacion: { type: "string", min: 5 },
-        nivelsalarial: { type: "string", max: 5 },
+        clave: { type: "string" },
+        nombreplantel: { type: "string", min: 5 },
     };
 
     var vres = true;
@@ -166,8 +164,9 @@ exports.setRecord = async(req, res) => {
         };*/
     }
 
+
     //buscar si existe el registro
-    Catquincena.findOne({
+    Cattipohorasdocente.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -176,15 +175,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(catquincena => {
-            if (!catquincena) {
+        .then(cattipohorasdocente => {
+            if (!cattipohorasdocente) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Catquincena.create(
+                Cattipohorasdocente.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -198,7 +197,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                catquincena.update(req.body.dataPack).then((self) => {
+                cattipohorasdocente.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

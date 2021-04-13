@@ -2,38 +2,26 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('plantillaspersonal', {
+    return sequelize.define('horasclasedetalle', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        id_catplanteles: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_personal: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_catplantillas: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        consecutivo: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_usuarios_autoriza: {
+        id_horasclase: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        fechaingreso: {
+        id_categorias: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        fecha_ini: {
+            type: DataTypes.DATEONLY,
+            allowNull: true
+        },
+        fecha_fin: {
             type: DataTypes.DATEONLY,
             allowNull: true
         },
@@ -53,13 +41,19 @@ module.exports = function(sequelize, DataTypes) {
         },
         updated_at: {
             type: DataTypes.DATE,
-            allowNull: true,
+            allowNull: true
         }
     }, {
         sequelize,
-        tableName: 'plantillaspersonal',
-        //timestamps: false,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        tableName: 'horasclasedetalle',
+        schema: 'public',
+        timestamps: false,
+        indexes: [{
+            name: "horasclasedetalle_pkey",
+            unique: true,
+            fields: [
+                { name: "id" },
+            ]
+        }, ]
     });
 };

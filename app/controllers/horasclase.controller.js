@@ -1,9 +1,8 @@
 const db = require("../models");
 const { Op } = require("sequelize");
-const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Catquincena = db.catquincena;
-var moment = require('moment');
+const globales = require("../config/global.config");
+const Horasclase = db.horasclase;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -19,7 +18,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catquincena_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_horasclase_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -27,7 +26,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catquincena_mgr('" +
+        query = "SELECT * FROM s_horasclase_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=:scampo&soperador=:soperador&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -84,17 +83,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catquincena.findOne({
+    Horasclase.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catquincena => {
-            if (!catquincena) {
-                return res.status(404).send({ message: "Catquincena Not found." });
+        .then(horasclase => {
+            if (!horasclase) {
+                return res.status(404).send({ message: "Horasclase Not found." });
             }
 
-            res.status(200).send(catquincena);
+            res.status(200).send(horasclase);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -103,17 +102,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Catquincena.findAll({
-            attributes: ['id', [db.sequelize.literal("anio || ' - ' || quincena"), "text"]],
+    Horasclase.findAll({
+            attributes: ['id', 'descripcion'],
             order: [
-                [db.sequelize.literal("anio || ' - ' || quincena"), 'ASC'],
+                ['descripcion', 'ASC'],
             ]
-        }).then(catquincena => {
-            if (!catquincena) {
-                return res.status(404).send({ message: "Catquincena Not found." });
+        }).then(horasclase => {
+            if (!horasclase) {
+                return res.status(404).send({ message: "Horasclase Not found." });
             }
 
-            res.status(200).send(catquincena);
+            res.status(200).send(horasclase);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -122,7 +121,7 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key == "horas") {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -133,9 +132,66 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        denominacion: { type: "string", min: 5 },
-        nivelsalarial: { type: "string", max: 5 },
+        id_catplanteles: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_materiasclase: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        horas: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "numberMin", "expected": 1 })
+                return value; // Sanitize: remove all special chars except numbers
+            },
+        },
+        horaestatus: { type: "number" },
+        id_gruposclase: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_semestre_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_fin: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_cattipohorasdocente: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        frenteagrupo: {
+            type: "number",
+        },
     };
 
     var vres = true;
@@ -166,8 +222,9 @@ exports.setRecord = async(req, res) => {
         };*/
     }
 
+
     //buscar si existe el registro
-    Catquincena.findOne({
+    Horasclase.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -176,15 +233,16 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(catquincena => {
-            if (!catquincena) {
+        .then(horasclase => {
+
+            if (!horasclase) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Catquincena.create(
+                Horasclase.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -198,7 +256,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                catquincena.update(req.body.dataPack).then((self) => {
+                horasclase.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

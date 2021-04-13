@@ -62,5 +62,11 @@ db.catplantillas = require("../models/catplantillas.model.js")(sequelize, Sequel
 db.catfuncionsecundaria = require("../models/catfuncionsecundaria.model.js")(sequelize, Sequelize);
 db.catsindicato = require("../models/catsindicato.model.js")(sequelize, Sequelize);
 db.archivos = require("../models/archivos.model.js")(sequelize, Sequelize);
+db.materiasclase = require("../models/materiasclase.model.js")(sequelize, Sequelize);
+db.cattipohorasdocente = require("../models/cattipohorasdocente.model.js")(sequelize, Sequelize);
+db.gruposclase = require("../models/gruposclase.model.js")(sequelize, Sequelize);
+db.semestre = require("../models/semestre.model.js")(sequelize, Sequelize);
+db.horasclase = require("../models/horasclase.model.js")(sequelize, Sequelize);
+db.horasclasedetalle = require("../models/horasclasedetalle.model.js")(sequelize, Sequelize);
 
 module.exports = db;

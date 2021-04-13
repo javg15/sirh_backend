@@ -2,39 +2,19 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('plantillaspersonal', {
+    return sequelize.define('cattipohorasdocente', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        id_catplanteles: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_personal: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_catplantillas: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        consecutivo: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_usuarios_autoriza: {
-            type: DataTypes.INTEGER,
+        id_cattipohorasdocente: {
+            type: DataTypes.STRING(1),
             allowNull: true
         },
-        fechaingreso: {
-            type: DataTypes.DATEONLY,
+        id_categorias: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         id_usuarios_r: {
@@ -53,11 +33,15 @@ module.exports = function(sequelize, DataTypes) {
         },
         updated_at: {
             type: DataTypes.DATE,
-            allowNull: true,
+            allowNull: true
+        },
+        prioridadparahomologar: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
     }, {
         sequelize,
-        tableName: 'plantillaspersonal',
+        tableName: 'cattipohorasdocente',
         //timestamps: false,
         createdAt: 'created_at',
         updatedAt: 'updated_at',

@@ -2,7 +2,7 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('plantillaspersonal', {
+    return sequelize.define('horasclase', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -11,30 +11,42 @@ module.exports = function(sequelize, DataTypes) {
         },
         id_catplanteles: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
+            allowNull: true
         },
-        id_personal: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_catplantillas: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        consecutivo: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        id_usuarios_autoriza: {
+        id_materiasclase: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        fechaingreso: {
-            type: DataTypes.DATEONLY,
+        horas: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        horaestatus: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_gruposclase: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_semestre_ini: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catquincena_ini: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catquincena_fin: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        frenteagrupo: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_cattipohorasdocente: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         id_usuarios_r: {
@@ -53,13 +65,19 @@ module.exports = function(sequelize, DataTypes) {
         },
         updated_at: {
             type: DataTypes.DATE,
-            allowNull: true,
+            allowNull: true
         }
     }, {
         sequelize,
-        tableName: 'plantillaspersonal',
-        //timestamps: false,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        tableName: 'horasclase',
+        schema: 'public',
+        timestamps: false,
+        indexes: [{
+            name: "horasclase_pkey",
+            unique: true,
+            fields: [
+                { name: "id" },
+            ]
+        }, ]
     });
 };

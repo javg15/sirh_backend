@@ -9,6 +9,14 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             primaryKey: true
         },
+        anio: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        quincena: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         fechainicio: {
             type: DataTypes.DATEONLY,
             allowNull: true
@@ -34,11 +42,58 @@ module.exports = function(sequelize, DataTypes) {
         updated_at: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        adicional: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        idestatusquincena: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        periodovacacional: {
+            type: DataTypes.STRING(4),
+            allowNull: true
+        },
+        fechadepago: {
+            type: DataTypes.STRING(7),
+            allowNull: true
+        },
+        observaciones: {
+            type: DataTypes.STRING(133),
+            allowNull: true
+        },
+        fechacierre: {
+            type: DataTypes.STRING(7),
+            allowNull: true
+        },
+        observaciones2: {
+            type: DataTypes.STRING(69),
+            allowNull: true
+        },
+        bimestre: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        aplicarajusteispt: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        pagoderetroactividad: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        liberadaparaportaladmvo: {
+            type: DataTypes.STRING(4),
+            allowNull: true
+        },
+        permiteabcderecibos: {
+            type: DataTypes.STRING(4),
+            allowNull: true
         }
     }, {
         sequelize,
         tableName: 'catquincena',
-        schema: 'public',
         //timestamps: false,
         createdAt: 'created_at',
         updatedAt: 'updated_at',
