@@ -23,6 +23,11 @@ module.exports = function(app) {
     );
 
     app.post(
+        "/api/categorias/getCatalogoDocentes", [authJwt.verifyToken],
+        controller.getCatalogoDocentes
+    );
+
+    app.post(
         "/api/categorias/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
