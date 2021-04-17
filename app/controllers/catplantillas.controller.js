@@ -118,6 +118,31 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getCatalogoParaCategorias = async(req, res) => {
+
+    Catplantillas.findAll({
+            attributes: ['id', 'descripcion', ['descripcion', "text"]],
+            where: [{
+                id: {
+                    [Op.gt]: 1
+                }
+            }],
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(catplantillas => {
+            if (!catplantillas) {
+                return res.status(404).send({ message: "Catplantillas Not found." });
+            }
+
+            res.status(200).send(catplantillas);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+
 exports.getCatalogoSegunSexo = async(req, res) => {
     //console.log("req.body.id_sexo=", req.body.id_sexo)
     Catplantillas.findAll({
