@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(5),
             allowNull: true
         },
-        id_catplantillas: {
+        id_cattipocategoria: {
             type: DataTypes.INTEGER,
             allowNull: true
         },

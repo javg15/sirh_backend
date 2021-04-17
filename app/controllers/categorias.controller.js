@@ -223,7 +223,7 @@ exports.setRecord = async(req, res) => {
         denominacion: { type: "string", min: 5 },
         nivelsalarial: { type: "string", max: 5 },
         aplicaa: { type: "number" },
-        id_catplantillas: { type: "number" },
+        id_cattipocategoria: { type: "number" },
         id_tiponomina: { type: "number" },
     };
 
