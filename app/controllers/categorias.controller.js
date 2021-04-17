@@ -153,9 +153,11 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
 
 exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 
-    let query = "select c.id, c.clave, c.denominacion, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
-        " from categorias as c " +
-        " where (fn_categorias_disponibles_plantillas(:id_catplanteles,c.id,:id_plazas)->>'plazas_disponibles')::integer>0";
+    let query = "SELECT c.id, c.clave, c.denominacion, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+        " FROM categorias as c " +
+        " LEFT JOIN cattipocategoria as cc ON c.id_cattipocategoria=cc.id " +
+        " WHERE  cc.id_catplantillas=:id_catplantillas " +
+        " AND (fn_categorias_disponibles_plantillas(:id_catplanteles,c.id,:id_plazas)->>'plazas_disponibles')::integer>0";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -165,6 +167,7 @@ exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
         replacements: {
             id_catplanteles: req.body.id_catplanteles,
             id_plazas: req.body.id_plazas, //cuando quiero desplegar tambien el de la plaza buscada
+            id_catplantillas: req.body.id_catplantillas,
         },
         // If plain is true, then sequelize will only return the first
         // record of the result set. In case of false it will return all records.

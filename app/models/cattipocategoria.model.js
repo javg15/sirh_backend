@@ -18,6 +18,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
+        id_catplantillas: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         orden: {
             type: DataTypes.INTEGER,
             allowNull: true
