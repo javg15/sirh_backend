@@ -193,7 +193,8 @@ exports.getConsecutivo = async(req, res) => {
 exports.setRecord = async(req, res) => {
 
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0 || key.indexOf("horas", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("horas", 0) >= 0 ||
+            key.indexOf("horasb", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
             if (isNaN(req.body.dataPack[key]))
@@ -334,7 +335,6 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-
         /*id_archivos: {
             type: "number",
             custom(value, errors) {

@@ -46,6 +46,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.SMALLINT,
             allowNull: true
         },
+        horasb: {
+            type: DataTypes.SMALLINT,
+            allowNull: true
+        },
         id_categorias: {
             type: DataTypes.INTEGER,
             allowNull: true
