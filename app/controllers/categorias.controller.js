@@ -153,7 +153,7 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
 
 exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 
-    let query = "SELECT c.id, c.clave, c.denominacion, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+    let query = "SELECT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
         " FROM categorias as c " +
         " LEFT JOIN cattipocategoria as cc ON c.id_cattipocategoria=cc.id " +
         " WHERE  cc.id_catplantillas=:id_catplantillas " +
