@@ -151,11 +151,12 @@ exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0 ||
             key.indexOf("totalplazaaut", 0) >= 0 ||
-            key.indexOf("totalhorasaut", 0) >= 0 ||
-            key.indexOf("importe", 0) >= 0
+            key.indexOf("totalhorasaut", 0) >= 0
         ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        } else if (key.indexOf("importe", 0) >= 0) {
+            req.body.dataPack[key] = parseFloat(req.body.dataPack[key].toString().replace("$", ""));
         }
     })
 
