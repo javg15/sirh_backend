@@ -4,7 +4,8 @@ const { QueryTypes } = require('sequelize');
 
 exports.getSearchcampos = async(req, res) => {
 
-    const query = "SELECT s.id,s.etiqueta as idesc,s.orden " +
+    const query = "SELECT s.id,s.etiqueta as idesc,s.orden,s.edicion " +
+        ",case when s.edicion=1 then fn_search_valores(UPPER(:modulo),s.campo) else '' end as valores " +
         "FROM searchcampos as s " +
         "LEFT JOIN modulos AS m ON s.id_modulos=m.id " +
         "WHERE s.state='A' AND upper(m.ruta)=UPPER(:modulo) " +
