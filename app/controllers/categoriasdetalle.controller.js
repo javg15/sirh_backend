@@ -165,8 +165,6 @@ exports.setRecord = async(req, res) => {
         ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
-        } else if (key.indexOf("importe", 0) >= 0) {
-            req.body.dataPack[key] = parseFloat(req.body.dataPack[key].toString().replace("$", ""));
         }
     })
 
