@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Plantillasdocsnombramiento = db.plantillasdocsnombramiento;
-const Categoriassueldos = db.categoriassueldos;
+const Categoriasdetalle = db.categoriasdetalle;
 var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -218,7 +218,7 @@ exports.setRecord = async(req, res) => {
 
     /* obtener si la categoria define horas */
     let varAsignarHoras = false;
-    await Categoriassueldos.findAll({
+    await Categoriasdetalle.findAll({
             limit: 1,
             where: {
                 id_categorias: req.body.dataPack.id_categorias
@@ -227,10 +227,10 @@ exports.setRecord = async(req, res) => {
                 ['created_at', 'DESC']
             ]
         })
-        .then(categoriassueldos => {
+        .then(categoriasdetalle => {
 
-            if (categoriassueldos.length > 0) {
-                if (categoriassueldos[0].dataValues.totalhorasaut > 0) {
+            if (categoriasdetalle.length > 0) {
+                if (categoriasdetalle[0].dataValues.totalhorasaut > 0) {
                     varAsignarHoras = true;
                 }
             }
