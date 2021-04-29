@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             primaryKey: true
         },
-        clave: {
+        codigo: {
             type: DataTypes.STRING(5),
             allowNull: true
         },

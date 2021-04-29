@@ -130,7 +130,7 @@ exports.getRecordSegunCategoria = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    let query = "select c.id,c.clave,ze.clave as clave_ze " +
+    let query = "select c.id,c.codigo,ze.clave as clave_ze " +
         "from categoriasdetalle as c " +
         " left join catzonaeconomica as ze on c.id_catzonaeconomica=ze.id " +
         "where c.id_categorias = :id_categorias " +
@@ -173,7 +173,7 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
+        codigo: { type: "string", max: 8 },
         id_catzonaeconomica: {
             type: "number",
             custom(value, errors) {
