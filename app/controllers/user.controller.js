@@ -1,6 +1,7 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
 const User = db.user;
+const Usuarios_zonas = db.usuarios_zonas;
 const Op = db.Sequelize.Op;
 
 const { QueryTypes } = require('sequelize');
@@ -218,9 +219,11 @@ exports.setPerfil = async(req, res) => {
                         });
                     }
 
+                    let record_catzonasgeograficas = req.body.dataPack.record_catzonasgeograficas;
                     delete req.body.dataPack.created_at;
                     delete req.body.dataPack.updated_at;
                     delete req.body.dataPack.passConfirm;
+                    delete req.body.dataPack.record_catzonasgeograficas;
                     req.body.dataPack.id_usuarios_r = req.userId;
                     //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
@@ -228,6 +231,23 @@ exports.setPerfil = async(req, res) => {
                     user.update({
                         pass: bcrypt.hashSync(req.body.dataPack.pass, 8),
                     }).then(self => {
+                        //Eliminar las zonas
+                        Usuarios_zonas.delete({
+                            where: {
+                                id_usuarios: req.body.dataPack.id
+                            },
+                        });
+
+                        //ingresar las zonas
+                        for (let i = 0; i < record_catzonasgeograficas.split(",").length; i++) {
+                            Usuarios_zonas.create({
+                                id_usuarios: req.body.dataPack.id,
+                                id_catzonageografica: record_catzonasgeograficas[i],
+                                id_usuarios_r: req.userId,
+                            });
+                        }
+
+
                         res.status(200).send({ message: "success", id: self.id });
                     }).catch(err => {
                         console.log(err);

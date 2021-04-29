@@ -57,6 +57,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        id_categoriasdetalle: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         estatus: {
             type: DataTypes.STRING,
             allowNull: true

@@ -2,7 +2,7 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Categoriassueldos = db.categoriassueldos;
+const Categoriaspercepciones = db.categoriaspercepciones;
 var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
@@ -22,7 +22,7 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_categoriassueldos_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_categoriaspercepciones_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -30,7 +30,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_categoriassueldos_mgr('" +
+        query = "SELECT * FROM s_categoriaspercepciones_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&fkey=" + params.opcionesAdicionales.fkey +
@@ -88,17 +88,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Categoriassueldos.findOne({
+    Categoriaspercepciones.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        .then(categoriaspercepciones => {
+            if (!categoriaspercepciones) {
+                return res.status(404).send({ message: "Categoriaspercepciones Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(categoriaspercepciones);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -107,7 +107,7 @@ exports.getRecord = async(req, res) => {
 
 exports.getRecordSegunCategoria = async(req, res) => {
 
-    Categoriassueldos.findAll({
+    Categoriaspercepciones.findAll({
             limit: 1,
             where: {
                 id_categorias: req.body.id_categorias
@@ -116,12 +116,12 @@ exports.getRecordSegunCategoria = async(req, res) => {
                 ['created_at', 'DESC']
             ]
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        .then(categoriaspercepciones => {
+            if (!categoriaspercepciones) {
+                return res.status(404).send({ message: "Categoriaspercepciones Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(categoriaspercepciones);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -130,17 +130,17 @@ exports.getRecordSegunCategoria = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Categoriassueldos.findAll({
+    Categoriaspercepciones.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(categoriassueldos => {
-            if (!categoriassueldos) {
-                return res.status(404).send({ message: "Categoriassueldos Not found." });
+        }).then(categoriaspercepciones => {
+            if (!categoriaspercepciones) {
+                return res.status(404).send({ message: "Categoriaspercepciones Not found." });
             }
 
-            res.status(200).send(categoriassueldos);
+            res.status(200).send(categoriaspercepciones);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -165,15 +165,6 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        id_catzonaeconomica: {
-            type: "number",
-            custom(value, errors) {
-                if (value == 0)
-                    errors.push({ type: "required" })
-                return value;
-            },
-        },
         fecha_inicio: {
             type: "string",
             custom(value, errors) {
@@ -199,22 +190,6 @@ exports.setRecord = async(req, res) => {
 
                 if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
-                return value;
-            },
-        },
-        totalplazaaut: {
-            type: "number",
-            custom(value, errors) {
-                if (value == 0 && req.body.dataPack["totalhorasaut"] == 0)
-                    errors.push({ type: "horasPlazas" })
-                return value;
-            },
-        },
-        totalhorasaut: {
-            type: "number",
-            custom(value, errors) {
-                if (value == 0 && req.body.dataPack["totalplazaaut"] == 0)
-                    errors.push({ type: "horasPlazas" })
                 return value;
             },
         },
@@ -257,7 +232,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Categoriassueldos.findOne({
+    Categoriaspercepciones.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -266,15 +241,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(categoriassueldos => {
-            if (!categoriassueldos) {
+        .then(categoriaspercepciones => {
+            if (!categoriaspercepciones) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Categoriassueldos.create(
+                Categoriaspercepciones.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -288,7 +263,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                categoriassueldos.update(req.body.dataPack).then((self) => {
+                categoriaspercepciones.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

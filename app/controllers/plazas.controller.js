@@ -277,6 +277,8 @@ exports.setRecord = async(req, res) => {
         if (key.indexOf("id_", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+            if (isNaN(req.body.dataPack[key]))
+                req.body.dataPack[key] = 0;
         }
     });
 
@@ -328,6 +330,13 @@ exports.setRecord = async(req, res) => {
                 /*if (totalplazasautorizadas <= 0) errors.push({ type: "totalplazasautorizadas", actual: datos[0].fn_plazas_disponibles.totalplazasautorizadas })
                 if (totalautorizadasalplantel <= 0) errors.push({ type: "totalautorizadasalplantel", actual: datos[0].fn_plazas_disponibles.totalautorizadasalplantel })
                 if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })*/
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_categoriasdetalle: {
+            type: "number",
+            custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }

@@ -2,18 +2,14 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('categoriassueldos', {
+    return sequelize.define('categoriaspercepciones', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        clave: {
-            type: DataTypes.STRING(5),
-            allowNull: true
-        },
-        id_categorias: {
+        id_categoriasdetalle: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -27,18 +23,6 @@ module.exports = function(sequelize, DataTypes) {
         },
         fecha_fin: {
             type: DataTypes.DATEONLY,
-            allowNull: true
-        },
-        totalplazaaut: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        totalhorasaut: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_catzonaeconomica: {
-            type: DataTypes.INTEGER,
             allowNull: true
         },
         id_usuarios_r: {
@@ -61,7 +45,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     }, {
         sequelize,
-        tableName: 'categoriassueldos',
+        tableName: 'categoriaspercepciones',
         schema: 'public',
         //timestamps: false,
         createdAt: 'created_at',

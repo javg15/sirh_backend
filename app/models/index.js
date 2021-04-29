@@ -24,11 +24,13 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.user = require("../models/user.model.js")(sequelize, Sequelize);
+db.usuarios_zonas = require("../models/usuarios_zonas.model.js")(sequelize, Sequelize);
 db.catestatusplaza = require("../models/catestatusplaza.model.js")(sequelize, Sequelize);
 db.categorias = require("../models/categorias.model.js")(sequelize, Sequelize);
 db.categoriastabular = require("../models/categoriastabular.model.js")(sequelize, Sequelize);
 db.catquincena = require("../models/catquincena.model.js")(sequelize, Sequelize);
-db.categoriassueldos = require("../models/categoriassueldos.model.js")(sequelize, Sequelize);
+db.categoriasdetalle = require("../models/categoriasdetalle.model.js")(sequelize, Sequelize);
+db.categoriaspercepciones = require("../models/categoriaspercepciones.model.js")(sequelize, Sequelize);
 db.catzonaeconomica = require("../models/catzonaeconomica.model.js")(sequelize, Sequelize);
 db.catplanteles = require("../models/catplanteles.model.js")(sequelize, Sequelize);
 db.catcentrostrabajo = require("../models/catcentrostrabajo.model.js")(sequelize, Sequelize);
