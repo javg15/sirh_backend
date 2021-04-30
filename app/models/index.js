@@ -29,6 +29,7 @@ db.catestatusplaza = require("../models/catestatusplaza.model.js")(sequelize, Se
 db.categorias = require("../models/categorias.model.js")(sequelize, Sequelize);
 db.categoriastabular = require("../models/categoriastabular.model.js")(sequelize, Sequelize);
 db.catquincena = require("../models/catquincena.model.js")(sequelize, Sequelize);
+db.catpercepciones = require("../models/catpercepciones.model.js")(sequelize, Sequelize);
 db.categoriasdetalle = require("../models/categoriasdetalle.model.js")(sequelize, Sequelize);
 db.categoriaspercepciones = require("../models/categoriaspercepciones.model.js")(sequelize, Sequelize);
 db.catzonaeconomica = require("../models/catzonaeconomica.model.js")(sequelize, Sequelize);
