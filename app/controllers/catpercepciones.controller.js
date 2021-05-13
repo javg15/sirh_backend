@@ -106,7 +106,7 @@ exports.getCatalogo = async(req, res) => {
     Catpercepciones.findAll({
             attributes: ['id', "clave", "nombre"],
             order: [
-                [db.sequelize.literal("clave || ' - ' || nombre"), 'DESC'],
+                [db.sequelize.literal("clave || ' - ' || nombre"), 'ASC'],
             ]
         }).then(catpercepciones => {
             if (!catpercepciones) {

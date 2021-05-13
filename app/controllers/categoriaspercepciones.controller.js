@@ -162,14 +162,14 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        fecha_inicio: {
+        /*fecha_inicio: {
             type: "string",
             custom(value, errors) {
                 /*let dateIni = new Date(value)
                 let dateFin = new Date()
 
                 if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fecha_inicio", expected: dateFin.toISOString().split('T')[0] })*/
+                    errors.push({ type: "dateMax", field: "fecha_inicio", expected: dateFin.toISOString().split('T')[0] })*
 
                 if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
@@ -189,7 +189,7 @@ exports.setRecord = async(req, res) => {
                     errors.push({ type: "date" })
                 return value;
             },
-        },
+        },*/
         importe: {
             type: "number",
             custom(value, errors) {
@@ -199,6 +199,22 @@ exports.setRecord = async(req, res) => {
             },
         },
         id_catpercepciones: {
+            type: "number",
+            custom(value, errors) {
+                if (value == 0)
+                    errors.push({ type: "required" })
+                return value;
+            },
+        },
+        id_catquincena_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value == 0)
+                    errors.push({ type: "required" })
+                return value;
+            },
+        },
+        id_catquincena_fin: {
             type: "number",
             custom(value, errors) {
                 if (value == 0)
