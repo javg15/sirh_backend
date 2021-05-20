@@ -76,6 +76,8 @@ exports.GetStatusSegunAccion = ($accion) => {
         return "A";
     } else if ($accion == "PRELIMINAR") {
         return "P";
+    } else if ($accion == "ACTUALIZAR") {
+        return "A";
     } else return "X";
 
 

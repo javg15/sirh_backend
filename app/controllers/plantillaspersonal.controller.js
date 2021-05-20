@@ -297,6 +297,44 @@ exports.setRecord = async(req, res) => {
     if (req.body.actionForm.toUpperCase() == "NUEVO" ||
         req.body.actionForm.toUpperCase() == "EDITAR") {
         vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+    } else if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
+        vres = Array();
+        if (parseInt(req.body.record_id_catquincena) <= 0)
+            vres.push({
+                message: "Selecciona un elemento de 'Desactivar en quincena'",
+                field: "record_id_catquincena",
+                type: "selection"
+            });
+
+        //revisar que si haya un cambio de plantilla
+        await Plantillaspersonal.findOne({
+                where: {
+                    [Op.and]: [{ id: req.body.dataPack.id }, {
+                        id: {
+                            [Op.gt]: 0
+                        }
+                    }],
+                }
+            })
+            .then(plantillaspersonal => {
+                if (plantillaspersonal.id_catplantillas == req.body.dataPack.id_catplantillas)
+                    vres.push({
+                        message: "La plantilla a actualizar debe ser diferente a la actual",
+                        field: "id_catplantillas",
+                        type: "required"
+                    });
+            });
+
+        if (parseInt(req.body.dataPack["id_catplantillas"]) <= 0)
+            vres.push({
+                message: "Selecciona un elemento de 'Plantilla'",
+                field: "id_catplantillas",
+                type: "selection"
+            });
+
+        //no hay errores
+        if (vres.length == 0)
+            vres = true;
     }
 
     /* validation failed */
@@ -347,13 +385,23 @@ exports.setRecord = async(req, res) => {
                 }).catch(err => {
                     res.status(500).send({ message: err.message });
                 });
+
             } else {
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                plantillaspersonal.update(req.body.dataPack).then((self) => {
+                plantillaspersonal.update(req.body.dataPack).then(async(self) => {
+                    if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
+                        query = "SELECT fn_set_plantillas_update(" + self.id + "," + req.body.record_id_catquincena + ")"; //el modo no existe, solo es para obtener un registro
+                        console.log("query:", query)
+                        datos = await db.sequelize.query(query, {
+                            plain: false,
+                            raw: true,
+                            type: QueryTypes.SELECT
+                        });
+                    }
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

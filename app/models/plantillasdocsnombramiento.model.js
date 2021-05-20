@@ -71,7 +71,17 @@ module.exports = function(sequelize, DataTypes) {
         updated_at: {
             type: DataTypes.DATE,
             allowNull: true
-        }
+        },
+        id_catquincena_ini: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        id_catquincena_fin: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
     }, {
         sequelize,
         tableName: 'plantillasdocsnombramiento',
