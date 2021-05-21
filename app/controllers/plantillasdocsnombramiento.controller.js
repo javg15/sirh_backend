@@ -256,7 +256,7 @@ exports.setRecord = async(req, res) => {
                 return value;
             },
         },
-        fechaini: {
+        /*fechaini: {
             type: "string",
             custom(value, errors) {
                 let dateIni = new Date(value)
@@ -296,7 +296,7 @@ exports.setRecord = async(req, res) => {
                 }
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
+        },*/
         id_categorias: {
             type: "number",
             custom(value, errors) {
