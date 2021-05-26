@@ -256,47 +256,32 @@ exports.setRecord = async(req, res) => {
                 return value;
             },
         },
-        /*fechaini: {
-            type: "string",
+        id_catquincena_ini: {
+            type: "number",
             custom(value, errors) {
-                let dateIni = new Date(value)
-                let dateFin = new Date()
 
-                if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fechaini", expected: dateFin.toISOString().split('T')[0] })
-
-                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
-                    errors.push({ type: "date" })
-                return value;
-            },
+                if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
         },
-        fechafin: {
-            type: "string",
+        id_catquincena_fin: {
+            type: "number",
             optional: (datosCatestatusplaza[0].convigencia == 0 ? true : false),
             custom(value, errors) {
 
                 if (datosCatestatusplaza[0].convigencia == 1) {
-                    let dateIni = new Date(value)
-                    let dateFin = new Date()
+                    if (value <= 0) errors.push({ type: "selection" })
+                        ///////////////
+                    dateFin = value
+                    dateIni = req.body.dataPack.id_catquincena_ini
 
-                    if (dateIni > dateFin)
-                        errors.push({ type: "dateMax", field: "fechafin", expected: dateFin.toISOString().split('T')[0] })
+                    if (dateFin < dateIni)
+                        errors.push({ type: "quincenaFin", field: "id_catquincena_fin" })
 
-                    if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
-                        errors.push({ type: "date" })
-
-                    ///////////////
-                    dateFin = new Date(value)
-                    dateIni = new Date(req.body.dataPack.fechaini)
-
-                    if (isNaN(dateFin.getMonth()) == false && isNaN(dateIni.getMonth()) == false) {
-                        if (dateFin < dateIni)
-                            errors.push({ type: "dateMin", field: "fechafin", expected: dateIni.toISOString().split('T')[0] })
-                    }
                 }
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },*/
+        },
         id_categorias: {
             type: "number",
             custom(value, errors) {

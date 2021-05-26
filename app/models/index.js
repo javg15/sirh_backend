@@ -27,6 +27,7 @@ db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.usuarios_zonas = require("../models/usuarios_zonas.model.js")(sequelize, Sequelize);
 db.catestatusplaza = require("../models/catestatusplaza.model.js")(sequelize, Sequelize);
 db.categorias = require("../models/categorias.model.js")(sequelize, Sequelize);
+db.catbajamotivo = require("../models/catbajamotivo.model.js")(sequelize, Sequelize);
 db.categoriastabular = require("../models/categoriastabular.model.js")(sequelize, Sequelize);
 db.catquincena = require("../models/catquincena.model.js")(sequelize, Sequelize);
 db.catpercepciones = require("../models/catpercepciones.model.js")(sequelize, Sequelize);

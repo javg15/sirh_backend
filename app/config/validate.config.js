@@ -64,5 +64,6 @@ module.exports = {
     confirmPass: "La confirmación de contraseña no coincide con el campo contraseña",
     existeCombinacionCategoriastabular: "Existe ya registro para la combinación Categoría y Tipo de plantel",
     usuarioLibre: "La personal con el CURP '{actual}', ya tiene asignado el usuario de sistema '{expected}' ",
-    horasPlazas: "Registre las plazas u horas autorizadas segun sea su selección "
+    horasPlazas: "Registre las plazas u horas autorizadas segun sea su selección ",
+    quincenaFin: "La quincena final no puede ser menor a la quincena inicial ",
 };

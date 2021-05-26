@@ -33,12 +33,12 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        fecha_creacion: {
-            type: DataTypes.DATEONLY,
+        id_catquincena_ini: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
-        fecha_fin: {
-            type: DataTypes.DATEONLY,
+        id_catquincena_fin: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         id_catestatusplaza: {

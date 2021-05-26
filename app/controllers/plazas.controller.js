@@ -364,7 +364,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        fecha_creacion: {
+        /*fecha_creacion: {
             type: "string",
             custom(value, errors, schema) {
                 let dateIni = new Date(value)
@@ -380,6 +380,13 @@ exports.setRecord = async(req, res) => {
                 if (dateIni.getTime() < 315554400000) errors.push({ type: "dateMin", expected: '1/1/1980', actual: value });
                 if (dateIni.getTime() > Date.parse(new Date())) errors.push({ type: "dateMax", expected: new Date(), actual: value });
                 return value
+            }
+        },*/
+        id_catquincena_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
             }
         },
     };

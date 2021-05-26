@@ -82,6 +82,12 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 0
         },
+        id_catbajamotivo: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+
     }, {
         sequelize,
         tableName: 'plantillasdocsnombramiento',
