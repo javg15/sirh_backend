@@ -487,7 +487,7 @@ exports.getCatalogo = async(req, res) => {
 
 exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
 
-    let query = "select  p.id, fn_plaza_clave(p.id) as text " +
+    let query = "select distinct p.id, fn_plaza_clave(p.id) as text " +
         "from plazas as p " +
         "left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A') " +
         "where p.id_categorias =:id_categorias " +
