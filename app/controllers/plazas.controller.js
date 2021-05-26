@@ -491,7 +491,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "from plazas as p " +
         "left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A') " +
         "where p.id_categorias =:id_categorias " +
-        "   and (pn.id is null or pn.id_plazas =:id_plazas)";
+        "   and (pn.id is null or pn.id_plazas =:id_plazas or p.id_catestatusplaza=1)";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
