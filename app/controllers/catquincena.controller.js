@@ -135,8 +135,9 @@ exports.getCatalogoSegunAnio = async(req, res) => {
 
     let query = "select c.id,concat(anio, lpad(c.quincena::text,2,0::text)) as text " +
         "from catquincena as c " +
-        "where c.adicional=0 AND (c.anio=9999 OR c.anio=:anio OR c.anio=:anio - 1 OR c.anio=:anio + 1)  " +
-        "and c.state in ('A','B') ";
+        "where c.adicional=0 AND (c.anio=9999 OR c.anio=:anio OR c.anio BETWEEN :anio - 10 AND :anio + 2)  " +
+        "and c.state in ('A','B') " +
+        "order by concat(anio, lpad(c.quincena::text,2,0::text)) desc";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
