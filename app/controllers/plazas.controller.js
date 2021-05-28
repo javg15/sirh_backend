@@ -492,9 +492,9 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A') " +
         "left join catestatusplaza as ce on p.id_catestatusplaza=ce.id " +
         "where p.id_categorias =:id_categorias " +
-        "   and (pn.id is null " +
-        "       or (pn.id is not null and (not ce.id in (1,2) and ce.tipo=2)) " +
-        "       or pn.id_plazas =:id_plazas ) " +
+        "   and (pn.id is null " + //no esten asignadas
+        "       or (pn.id is not null and (not ce.id in (1,2) and ce.tipo=2)) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
+        "       or pn.id_plazas =:id_plazas ) " + //una plaza en especifico
         "   and p.state IN ('A')";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

@@ -93,7 +93,7 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Plantillasdocsbaja.findOne({
+    Plantillasdocsnombramiento.findOne({
             where: {
                 id: req.body.id
             }
