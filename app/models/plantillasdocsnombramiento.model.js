@@ -87,6 +87,37 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 0
         },
+        id_catfuncionprimaria: {
+            type: DataTypes.SMALLINT,
+            allowNull: true
+        },
+        id_catfuncionsecundaria: {
+            type: DataTypes.SMALLINT,
+            allowNull: true
+        },
+        id_catplanteles: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        id_catcentrostrabajo: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        id_cattipoocupacion: {
+            type: DataTypes.SMALLINT,
+            allowNull: true
+        },
+        id_cattiposemestre: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catesquemapago: {
+            type: DataTypes.SMALLINT,
+            allowNull: true,
+            defaultValue: 0
+        },
 
     }, {
         sequelize,
