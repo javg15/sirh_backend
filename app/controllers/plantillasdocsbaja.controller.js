@@ -121,7 +121,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack[key] = 0;
         }
     });
-
+    req.body.dataPack["id_catquincena_ini"] = req.body.dataPack["id_catquincena_fin"];
 
 
     /* customer validator shema */
