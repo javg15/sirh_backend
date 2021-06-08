@@ -203,18 +203,17 @@ exports.setRecord = async(req, res) => {
     });
     //obtener datos de catestatusplaza
     let datosCatestatusplaza = null;
-    if (req.body.dataPack.id_catestatusplaza > 0) {
-        query = "SELECT * FROM catestatusplaza WHERE id=:id_catestatusplaza"; //el modo no existe, solo es para obtener un registro
 
-        datosCatestatusplaza = await db.sequelize.query(query, {
-            plain: false,
-            replacements: {
-                id_catestatusplaza: req.body.dataPack.id_catestatusplaza,
-            },
-            raw: true,
-            type: QueryTypes.SELECT
-        });
-    }
+    query = "SELECT * FROM catestatusplaza WHERE id=:id_catestatusplaza"; //el modo no existe, solo es para obtener un registro
+
+    datosCatestatusplaza = await db.sequelize.query(query, {
+        plain: false,
+        replacements: {
+            id_catestatusplaza: req.body.dataPack.id_catestatusplaza,
+        },
+        raw: true,
+        type: QueryTypes.SELECT
+    });
 
     /* obtener si la categoria define horas */
     let varAsignarHoras = false;
@@ -242,6 +241,14 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
         id: { type: "number" },
         id_plantillaspersonal: { type: "number" },
+        id_catestatusplaza: {
+            type: "number",
+            custom(value, errors) {
+
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         fechaexpedicion: {
             type: "string",
             custom(value, errors) {
@@ -256,20 +263,21 @@ exports.setRecord = async(req, res) => {
                 return value;
             },
         },
+
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
 
-                if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catquincena_fin: {
             type: "number",
-            optional: (datosCatestatusplaza[0].convigencia == 0 ? true : false),
+            optional: (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].convigencia == 0 ? true : false),
             custom(value, errors) {
 
-                if (datosCatestatusplaza[0].convigencia == 1) {
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].convigencia == 1) {
                     if (value <= 0) errors.push({ type: "selection" })
                         ///////////////
                     dateFin = value
@@ -286,22 +294,22 @@ exports.setRecord = async(req, res) => {
             type: "number",
             custom(value, errors) {
 
-                if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_plazas: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_personal_titular: {
             type: "number",
-            optional: (datosCatestatusplaza[0].esinterina == 0 ? true : false),
+            optional: (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 0 ? true : false),
             custom(value, errors) {
-                if (datosCatestatusplaza[0].esinterina == 1) {
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 1) {
                     if (value <= 0) errors.push({ type: "selection" })
                 }
                 return value; // Sanitize: remove all special chars except numbers
@@ -310,7 +318,7 @@ exports.setRecord = async(req, res) => {
         horas: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza[0].esnombramiento == 1 &&
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 &&
                     req.body.dataPack.id_categorias > 0 &&
                     varAsignarHoras == true &&
                     value == 0) {
@@ -332,42 +340,42 @@ exports.setRecord = async(req, res) => {
         id_catplanteles: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catcentrostrabajo: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catfuncionprimaria: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catfuncionsecundaria: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_cattiposemestre: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catesquemapago: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

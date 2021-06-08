@@ -493,8 +493,9 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "left join catestatusplaza as ce on p.id_catestatusplaza=ce.id " +
         "where p.id_categorias =:id_categorias " +
         "   and (pn.id is null " + //no esten asignadas
-        "       or (pn.id is not null and (not ce.id in (1,2) and ce.tipo=2)) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
-        "       or pn.id_plazas =:id_plazas ) " + //una plaza en especifico
+        "       or (pn.id is not null and (ce.id in (1,2) or ce.tipo=2)) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
+        "       or coalesce(pn.id_plazas,0) =:id_plazas ) " + //una plaza en especifico
+        "   and p.id_catplanteles =:id_catplanteles " +
         "   and p.state IN ('A')";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -505,6 +506,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         replacements: {
             id_categorias: req.body.id_categorias,
             id_plazas: req.body.id_plazas, //cuando quiero desplegar tambien el de la plaza buscada
+            id_catplanteles: req.body.id_catplanteles,
         },
         // If plain is true, then sequelize will only return the first
         // record of the result set. In case of false it will return all records.
