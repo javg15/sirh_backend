@@ -340,42 +340,42 @@ exports.setRecord = async(req, res) => {
         id_catplanteles: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catcentrostrabajo: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catfuncionprimaria: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catfuncionsecundaria: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_cattiposemestre: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_catesquemapago: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 2 && value <= 0) errors.push({ type: "selection" })
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
