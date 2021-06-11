@@ -74,6 +74,7 @@ db.cattipohorasdocente = require("../models/cattipohorasdocente.model.js")(seque
 db.gruposclase = require("../models/gruposclase.model.js")(sequelize, Sequelize);
 db.semestre = require("../models/semestre.model.js")(sequelize, Sequelize);
 db.horasclase = require("../models/horasclase.model.js")(sequelize, Sequelize);
+db.horasclaseasignar = require("../models/horasclaseasignar.model.js")(sequelize, Sequelize);
 db.horasclasedetalle = require("../models/horasclasedetalle.model.js")(sequelize, Sequelize);
 
 module.exports = db;

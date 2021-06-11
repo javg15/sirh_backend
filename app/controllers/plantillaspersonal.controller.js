@@ -151,21 +151,27 @@ exports.getRecordPersonal = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Plantillaspersonal.findAll({
-            attributes: ['id', 'descripcion'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(plantillaspersonal => {
-            if (!plantillaspersonal) {
-                return res.status(404).send({ message: "Plantillaspersonal Not found." });
-            }
+    let query = "select pp.id,concat(lpad(pp.consecutivo::text, 5, '0'),' - ',fn_idesc_personal(pp.id_personal)) as descripcion " +
+        "from plantillaspersonal as pp   " +
+        "where pp.state in ('A','B') " +
+        "order by lpad(pp.consecutivo::text, 5, '0')";
 
-            res.status(200).send(plantillaspersonal);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
 }
 
 exports.getConsecutivo = async(req, res) => {
