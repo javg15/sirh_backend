@@ -14,6 +14,11 @@ module.exports = function(app) {
         controller.getCatalogo
     );
     app.post(
+        "/api/plantillaspersonal/getCatalogoSegunPlantel", [authJwt.verifyToken],
+        controller.getCatalogoSegunPlantel
+    );
+
+    app.post(
         "/api/plantillaspersonal/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );

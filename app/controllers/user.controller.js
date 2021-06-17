@@ -102,6 +102,7 @@ exports.getCatalogo = async(req, res) => {
 exports.getRecord = async(req, res) => {
 
     User.findOne({
+            //attributes: { exclude: ['pass'] },
             where: {
                 id: req.body.id
             }
@@ -110,8 +111,52 @@ exports.getRecord = async(req, res) => {
             if (!user) {
                 return res.status(404).send({ message: "User Not found." });
             }
-
+            user.pass = '';
             res.status(200).send(user);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getRecordUsuariosZonas = async(req, res) => {
+    let query = "select c.id,c.descripcion " +
+        "from catzonageografica as c " +
+        "inner join usuarios_zonas as uz on c.id=uz.id_catzonageografica " +
+        "where uz.id_usuarios=:id_usuarios  ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_usuarios: req.body.id,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+
+    Usuarios_zonas.findOne({
+            //attributes: ['id', ['username', 'text']],
+            //attributes: { exclude: ['pass'] },
+            where: {
+                id_usuarios: req.body.id
+            }
+        })
+        .then(usuarios_zonas => {
+            if (!usuarios_zonas) {
+                return res.status(404).send({ message: "Usuarios_zonas Not found." });
+            }
+            res.status(200).send(usuarios_zonas);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -125,6 +170,7 @@ exports.getRecord = async(req, res) => {
 
 exports.setPerfil = async(req, res) => {
     req.body.dataPack["passConfirm"] = req.body.passConfirm;
+
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
             if (req.body.dataPack[key] != '')
@@ -146,10 +192,11 @@ exports.setPerfil = async(req, res) => {
             //, pattern: passwordPattern
             optional: true,
             custom(value, errors) {
-
-                if (value.toString().length > 0 && value.toString().length < 6) errors.push({ type: "stringMin", expected: 6, actual: value.toString().length })
-                if (value.toString().length > 0 && value.toString().length > 50) errors.push({ type: "stringMax", expected: 50, actual: value.toString().length })
-                if (req.body.passActual.length > 0 && value.toString().length == 0) errors.push({ type: "required" })
+                if (typeof value !== typeof undefined) {
+                    if (value.toString().length > 0 && value.toString().length < 6) errors.push({ type: "stringMin", expected: 6, actual: value.toString().length })
+                    if (value.toString().length > 0 && value.toString().length > 50) errors.push({ type: "stringMax", expected: 50, actual: value.toString().length })
+                    if (req.body.passActual.length > 0 && value.toString().length == 0) errors.push({ type: "required" })
+                }
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -157,8 +204,10 @@ exports.setPerfil = async(req, res) => {
         passConfirm: {
             type: "string",
             custom(value, errors) {
-                if ((value.toString().length > 0 || req.body.dataPack["pass"]) &&
-                    value != req.body.dataPack["pass"]) errors.push({ type: "confirmPass" })
+                if (typeof value !== typeof undefined) {
+                    if ((value.toString().length > 0 || req.body.dataPack["pass"]) &&
+                        value != req.body.dataPack["pass"]) errors.push({ type: "confirmPass" })
+                }
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -202,8 +251,8 @@ exports.setPerfil = async(req, res) => {
         })
         .then(user => {
             if (user) {
-
-                if (req.body.dataPack.pass.length > 0) {
+                // solo se actualiza password
+                if (req.body.onlypass == 1) {
                     var passwordIsValid = bcrypt.compareSync(
                         req.body.passActual,
                         user.pass
@@ -217,45 +266,64 @@ exports.setPerfil = async(req, res) => {
                             }
                         });
                     }
+                }
 
-                    let record_catzonasgeograficas = req.body.dataPack.record_catzonasgeograficas;
-                    delete req.body.dataPack.created_at;
-                    delete req.body.dataPack.updated_at;
-                    delete req.body.dataPack.passConfirm;
-                    delete req.body.dataPack.record_catzonasgeograficas;
-                    req.body.dataPack.id_usuarios_r = req.userId;
-                    //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+                let record_catzonasgeograficas = req.body.dataPack.record_catzonasgeograficas;
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                delete req.body.dataPack.passConfirm;
+                delete req.body.dataPack.record_catzonasgeograficas;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-
+                let pasa = true;
+                // se actualiza password
+                if (req.body.dataPack.pass.length > 0) {
                     user.update({
                         pass: bcrypt.hashSync(req.body.dataPack.pass, 8),
                     }).then(self => {
-                        //Eliminar las zonas
-                        Usuarios_zonas.delete({
-                            where: {
-                                id_usuarios: req.body.dataPack.id
-                            },
-                        });
 
-                        //ingresar las zonas
-                        for (let i = 0; i < record_catzonasgeograficas.split(",").length; i++) {
-                            Usuarios_zonas.create({
-                                id_usuarios: req.body.dataPack.id,
-                                id_catzonageografica: record_catzonasgeograficas[i],
-                                id_usuarios_r: req.userId,
-                            });
-                        }
-
-
-                        res.status(200).send({ message: "success", id: self.id });
                     }).catch(err => {
-                        console.log(err);
-                        res.status(500).send({ message: err.message });
+                        pasa = false;
                     });
-                } else {
+                }
+
+                //actualizar el resto
+                delete req.body.dataPack.pass;
+                user.update(req.body.dataPack).then(self => {
+
+                }).catch(err => {
+                    pasa = false;
+                });
+
+                if (pasa) {
+                    //Eliminar las zonas
+                    Usuarios_zonas.destroy({
+                        where: {
+                            id_usuarios: req.body.dataPack.id
+                        },
+                    });
+
+                    //ingresar las zonas
+                    for (let i = 0; i < record_catzonasgeograficas.length; i++) {
+                        Usuarios_zonas.create({
+                            id_usuarios: req.body.dataPack.id,
+                            id_catzonageografica: record_catzonasgeograficas[i].id,
+                            id_usuarios_r: req.userId,
+                        });
+                    }
+
+
                     res.status(200).send({ message: "success", id: req.body.dataPack.id });
                 }
+
+
+            } else {
+                //solo actualizar datos
+
+                res.status(200).send({ message: "success", id: req.body.dataPack.id });
             }
+
 
 
         })

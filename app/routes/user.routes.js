@@ -17,6 +17,11 @@ module.exports = function(app) {
         "/api/user/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
+    app.post(
+        "/api/user/getRecordUsuariosZonas", [authJwt.verifyToken],
+        controller.getRecordUsuariosZonas
+    );
+
 
     app.post(
         "/api/user/getCatalogo", [authJwt.verifyToken],

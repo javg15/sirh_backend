@@ -89,7 +89,26 @@ exports.getRecord = async(req, res) => {
         })
         .then(horasclaseasignar => {
             if (!horasclaseasignar) {
-                return res.status(404).send({ message: "Horasclaseasignar Not found." });
+                return res.status(200).send({ message: "Horasclaseasignar Not found." });
+            }
+
+            res.status(200).send(horasclaseasignar);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getRecordSegunParent = async(req, res) => {
+
+    Horasclaseasignar.findOne({
+            where: {
+                id_horasclase: req.body.id_horasclase
+            }
+        })
+        .then(horasclaseasignar => {
+            if (!horasclaseasignar) {
+                return res.status(200).send({ message: "Horasclaseasignar Not found." });
             }
 
             res.status(200).send(horasclaseasignar);
@@ -131,37 +150,9 @@ exports.setRecord = async(req, res) => {
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
-        id: { type: "number" },
-        id_catplanteles: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_materiasclase: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        horas: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "numberMin", "expected": 1 })
-                return value; // Sanitize: remove all special chars except numbers
-            },
-        },
-        horaestatus: { type: "number" },
-        id_gruposclase: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_semestre_ini: {
+        //id: { type: "number" },
+        id_horasclase: { type: "number" },
+        id_plantillaspersonal: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
@@ -181,16 +172,6 @@ exports.setRecord = async(req, res) => {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
-        id_cattipohorasdocente: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        frenteagrupo: {
-            type: "number",
         },
     };
 
@@ -226,11 +207,7 @@ exports.setRecord = async(req, res) => {
     //buscar si existe el registro
     Horasclaseasignar.findOne({
             where: {
-                [Op.and]: [{ id: req.body.dataPack.id }, {
-                    id: {
-                        [Op.gt]: 0
-                    }
-                }],
+                [Op.and]: [{ id_plantillaspersonal: req.body.dataPack.id_plantillaspersonal }, {}],
             }
         })
         .then(horasclaseasignar => {
