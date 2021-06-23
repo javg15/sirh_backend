@@ -28,6 +28,7 @@ module.exports = function(app) {
         controller.getCatalogo
     );
 
+
     app.post(
         "/api/plazas/getRecordPlazasInfo", [authJwt.verifyToken],
         controller.getRecordPlazasInfo

@@ -140,6 +140,7 @@ require('./app/routes/shared.routes')(app);
 require('./app/routes/reportes.routes')(app);
 require('./app/routes/plazas.routes')(app);
 require('./app/routes/personal.routes')(app);
+require('./app/routes/personalhoras.routes')(app);
 require('./app/routes/catestadocivil.routes')(app);
 require('./app/routes/plantillaspersonal.routes')(app);
 require('./app/routes/plantillaspersonaldocs.routes')(app);

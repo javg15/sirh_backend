@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/gruposclase.controller");
+const controller = require("../controllers/personalhoras.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,20 +10,19 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/gruposclase/getCatalogo", [authJwt.verifyToken],
+        "/api/personalhoras/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
     app.post(
-        "/api/gruposclase/getCatalogoSegunPlantel", [authJwt.verifyToken],
-        controller.getCatalogoSegunPlantel
-    );
-
-    app.post(
-        "/api/gruposclase/getAdmin", [authJwt.verifyToken],
+        "/api/personalhoras/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/gruposclase/getRecord", [authJwt.verifyToken],
+        "/api/personalhoras/getRecord", [authJwt.verifyToken],
         controller.getRecord
+    );
+    app.post(
+        "/api/personalhoras/setRecord", [authJwt.verifyToken],
+        controller.setRecord
     );
 };

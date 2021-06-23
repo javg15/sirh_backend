@@ -27,6 +27,9 @@ module.exports = function(app) {
         "/api/catplanteles/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
-
+    app.post(
+        "/api/catplanteles/getCatalogoSegunPersonal", [authJwt.verifyToken],
+        controller.getCatalogoSegunPersonal
+    );
 
 };

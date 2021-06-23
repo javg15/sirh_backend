@@ -2,7 +2,7 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Catplanteles = db.catplanteles;
+const Ppersonalhoras = db.personalhoras;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -18,7 +18,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catplanteles_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_personalhoras_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -26,7 +26,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catplanteles_mgr('" +
+        query = "SELECT * FROM s_personalhoras_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -82,17 +82,36 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catplanteles.findOne({
+    Personalhoras.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
+        .then(personalhoras => {
+            if (!personalhoras) {
+                return res.status(404).send({ message: "Personalhoras Not found." });
             }
 
-            res.status(200).send(catplanteles);
+            res.status(200).send(personalhoras);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getCatalogo = async(req, res) => {
+
+    Personalhoras.findAll({
+            attributes: ['id', 'descripcion'],
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(personalhoras => {
+            if (!personalhoras) {
+                return res.status(404).send({ message: "Personalhoras Not found." });
+            }
+
+            res.status(200).send(personalhoras);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -101,7 +120,8 @@ exports.getRecord = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 ||
+            key == "horas" || key == "horaestatus" || key == "frenteagrupo") {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -112,8 +132,63 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        ubicacion: { type: "string", min: 5 },
+        id_personal: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_semestre: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catestatushora: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_cattipohorasmateria: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        cantidad: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "numberMin", "expected": 1 })
+                return value; // Sanitize: remove all special chars except numbers
+            },
+        },
+        id_horasclase: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_fin: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+
     };
 
     var vres = true;
@@ -144,8 +219,9 @@ exports.setRecord = async(req, res) => {
         };*/
     }
 
+
     //buscar si existe el registro
-    Catplanteles.findOne({
+    Personalhoras.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -154,15 +230,16 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(catplanteles => {
-            if (!catplanteles) {
+        .then(personalhoras => {
+
+            if (!personalhoras) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Catplanteles.create(
+                Personalhoras.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -176,7 +253,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                catplanteles.update(req.body.dataPack).then((self) => {
+                personalhoras.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
@@ -187,61 +264,4 @@ exports.setRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
-}
-
-exports.getCatalogo = async(req, res) => {
-
-    Catplanteles.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion', 'clave', 'tipoplantel', [db.sequelize.literal("clave || ' - ' || ubicacion"), "text"]],
-            order: [
-                ['clave', 'ASC'],
-            ]
-        }).then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
-            }
-
-            res.status(200).send(catplanteles);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.getCatalogoSegunPersonal = async(req, res) => {
-
-
-    let query = "select distinct c.id,concat(fn_idesc_plantel(c.id) ,' - ' ,ca.denominacion) as text,p.id as id_plaza " +
-        "from catplanteles as c " +
-        "    left join plazas as p on c.id = p.id_catplanteles " +
-        "    left join categorias as ca on p.id_categorias = ca.id " +
-        "   left join plantillasdocsnombramiento as pn on p.id = pn.id_plazas_afectada  " +
-        "   left join plantillaspersonal as pp on pp.id = pn.id_plantillaspersonal  " +
-        "   left join catestatusplaza as ce on ce.id = p.id_catestatusplaza  " +
-        "where pp.id_personal = :id_personal " +
-        "   and ce.esnombramiento = 1 " +
-        "   and ce.state in ('A','B') " +
-        "   and pn.state in ('A','B') " +
-        "   and pp.state in ('A','B')";
-
-    datos = await db.sequelize.query(query, {
-        // A function (or false) for logging your queries
-        // Will get called for every SQL query that gets sent
-        // to the server.
-        logging: console.log,
-
-        replacements: {
-            id_personal: req.body.id_personal,
-        },
-
-        // If plain is true, then sequelize will only return the first
-        // record of the result set. In case of false it will return all records.
-        plain: false,
-
-        // Set this to true if you don't have a model definition for your query.
-        raw: true,
-        type: QueryTypes.SELECT
-    });
-
-    res.status(200).send(datos);
 }

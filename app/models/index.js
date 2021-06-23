@@ -54,6 +54,7 @@ db.presupuesto = require("../models/presupuesto.model.js")(sequelize, Sequelize)
 db.rhnominas = require("../models/rhnominas.model.js")(sequelize, Sequelize);
 db.plazas = require("../models/plazas.model.js")(sequelize, Sequelize);
 db.personal = require("../models/personal.model.js")(sequelize, Sequelize);
+db.personalhoras = require("../models/personalhoras.model.js")(sequelize, Sequelize);
 db.catestadocivil = require("../models/catestadocivil.model.js")(sequelize, Sequelize);
 db.plantillaspersonal = require("../models/plantillaspersonal.model.js")(sequelize, Sequelize);
 db.plantillaspersonaldocs = require("../models/plantillaspersonaldocs.model.js")(sequelize, Sequelize);

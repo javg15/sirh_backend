@@ -118,6 +118,40 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getCatalogoSegunPlantel = async(req, res) => {
+
+
+    let query = "select distinct gc.* " +
+        "from horasclase as hc " +
+        "    left join gruposclase as gc on gc.id=hc.id_gruposclase  " +
+        "where hc.id_catplanteles=:id_catplanteles  " +
+        "    and hc.id_semestre_ini=:id_semestre  " +
+        "    and hc.state in ('A','B') " +
+        "    and gc.state in ('A','B')";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_catplanteles: req.body.id_catplanteles,
+            id_semestre: req.body.id_semestre,
+        },
+
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
