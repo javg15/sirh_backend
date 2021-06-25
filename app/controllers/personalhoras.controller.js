@@ -15,9 +15,11 @@ let dataValidator = new Validator({
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
-        query = "";
+        query = "",
+        params = req.body.dataTablesParameters;
 
     if (req.body.solocabeceras == 1) {
+        params = req.body;
         query = "SELECT * FROM s_personalhoras_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
@@ -29,9 +31,10 @@ exports.getAdmin = async(req, res) => {
         query = "SELECT * FROM s_personalhoras_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
-            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir + "')";
+            "&ordencampo=ID" +
+            "&ordensentido=ASC" +
+            "&fkey=" + params.opcionesAdicionales.fkey +
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -67,7 +70,7 @@ exports.getAdmin = async(req, res) => {
     }
 
     respuesta = {
-            draw: req.body.opcionesAdicionales.raw,
+            draw: params.opcionesAdicionales.raw,
             recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             data: datos,

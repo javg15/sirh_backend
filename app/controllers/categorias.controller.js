@@ -130,7 +130,7 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
         aplicaa.push(1)
 
     Categorias.findAll({
-            attributes: ['id', 'clave', 'denominacion', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
+            attributes: ['id', 'clave', 'denominacion', 'id_cattipocategoria', 'horasasignadas', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
             where: {
                 aplicaa: aplicaa,
             },

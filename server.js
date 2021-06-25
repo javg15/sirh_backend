@@ -164,6 +164,9 @@ require('./app/routes/semestre.routes')(app);
 require('./app/routes/horasclase.routes')(app);
 require('./app/routes/horasclaseasignar.routes')(app);
 require('./app/routes/horasclasedetalle.routes')(app);
+require('./app/routes/catestatushora.routes')(app);
+require('./app/routes/cattipohorasmateria.routes')(app);
+require('./app/routes/catnombramientos.routes')(app);
 /*app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });*/

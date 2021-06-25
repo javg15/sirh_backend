@@ -61,6 +61,14 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        horas: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        horasb: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         estatus: {
             type: DataTypes.STRING,
             allowNull: true

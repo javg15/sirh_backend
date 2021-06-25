@@ -273,7 +273,7 @@ exports.getHistorial = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("horas", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
             if (isNaN(req.body.dataPack[key]))
@@ -286,7 +286,11 @@ exports.setRecord = async(req, res) => {
         query = "",
         totalplazasautorizadas = 0,
         totalautorizadasalplantel = 0,
-        totalplazasdisponibles = 0;
+        totalplazasdisponibles = 0,
+        varHorasAB = false;
+    /*************
+     * plazas diponibles
+     */
 
     query = "SELECT * FROM fn_plazas_disponibles(" +
         ":id_categorias," +
@@ -314,6 +318,95 @@ exports.setRecord = async(req, res) => {
     totalplazasdisponibles = datos[0].fn_plazas_disponibles.totalplazasdisponibles;
     totalautorizadasalplantel = datos[0].fn_plazas_disponibles.totalautorizadasalplantel;
 
+    /*************
+     * horas AB
+     */
+    query = "SELECT * FROM categorias " +
+        "WHERE id=:id_categorias";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.dataPack["id_categorias"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    if (datos[0].id_cattipocategoria == 2 && datos[0].horasasignadas == 0 && datos[0].state == 'A')
+        varHorasAB = true;
+
+    /*************
+     * Suma de horas AB
+     */
+    let horasAutorizadas = 0,
+        horasAcumuladasA = 0,
+        horasAcumuladasB = 0;
+    query = "select cd.totalhorasaut " +
+        "from categorias as c " +
+        "    left join categoriasdetalle as cd on c.id=cd.id_categorias and cd.state in ('A','B') " +
+        "    left join catplanteles as cp on cd.id_catzonaeconomica =cp.id_catzonaeconomica  " +
+        "where c.id=:id_categorias and cp.id=:id_catplanteles";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.dataPack["id_categorias"],
+            id_catplanteles: req.body.dataPack["id_catplanteles"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    if (datos.length > 0)
+        horasAutorizadas = datos[0].totalhorasaut;
+
+
+    query = "select sum(coalesce(p.horas,0)) as horasAcumuladasA, sum(coalesce(p.horasb,0)) as horasAcumuladasB " +
+        "from plazas as p " +
+        "    left join catplanteles as cp on p.id_catplanteles =cp.id and cp.id=:id_catplanteles " +
+        "    left join catzonaeconomica as ze on p.id_catzonaeconomica =ze.id and cp.id_catzonaeconomica =cp.id " +
+        "where p.id_categorias=:id_categorias " +
+        "    and p.state  IN('A','B')";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.dataPack["id_categorias"],
+            id_catplanteles: req.body.dataPack["id_catplanteles"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    if (datos.length > 0) {
+        horasAcumuladasA = datos[0].horasAcumuladasA;
+        horasAcumuladasB = datos[0].horasAcumuladasB;
+    }
 
     /* customer validator shema */
     const dataVSchema = {
@@ -347,13 +440,22 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        /*id_catcentrostrabajo: {
+        horas: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if (varHorasAB && value <= 0 && req.body.dataPack["horasb"] <= 0) errors.push({ type: "required" })
+                if (varHorasAB && horasAcumuladasA > horasAutorizadas) errors.push({ type: "horasAcumuladas", actual: horasAcumuladasA, expected: horasAutorizadas })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },*/
+        },
+        horasb: {
+            type: "number",
+            custom(value, errors) {
+                if (varHorasAB && value <= 0 && req.body.dataPack["horas"] <= 0) errors.push({ type: "required" })
+                if (varHorasAB && horasAcumuladasB > horasAutorizadas) errors.push({ type: "horasAcumuladas", actual: horasAcumuladasB, expected: horasAutorizadas })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         /*id_catplantelescobro: { type: "number" },
         id_catzonageografica: { type: "number" },*/
         id_catestatusplaza: {

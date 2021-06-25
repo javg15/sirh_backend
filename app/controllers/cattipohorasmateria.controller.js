@@ -1,8 +1,6 @@
 const db = require("../models");
-const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
-const globales = require("../config/global.config");
-const Semestre = db.semestre;
+const Cattipohorasmateria = db.cattipohorasmateria;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -18,7 +16,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_semestre_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_cattipohorasmateria_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -26,7 +24,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_semestre_mgr('" +
+        query = "SELECT * FROM s_cattipohorasmateria_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -82,17 +80,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Semestre.findOne({
+    Cattipohorasmateria.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(semestre => {
-            if (!semestre) {
-                return res.status(404).send({ message: "Semestre Not found." });
+        .then(cattipohorasmateria => {
+            if (!cattipohorasmateria) {
+                return res.status(404).send({ message: "Cattipohorasmateria Not found." });
             }
 
-            res.status(200).send(semestre);
+            res.status(200).send(cattipohorasmateria);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -101,17 +99,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Semestre.findAll({
-            attributes: ['id', [db.sequelize.literal("anio || ' - ' || tipo"), "text"]],
+    Cattipohorasmateria.findAll({
+            attributes: ['id', 'descripcion'],
             order: [
-                ['qnainiciosemestre', 'ASC'],
+                ['descripcion', 'ASC'],
             ]
-        }).then(semestre => {
-            if (!semestre) {
-                return res.status(404).send({ message: "Semestre Not found." });
+        }).then(cattipohorasmateria => {
+            if (!cattipohorasmateria) {
+                return res.status(404).send({ message: "Cattipohorasmateria Not found." });
             }
 
-            res.status(200).send(semestre);
+            res.status(200).send(cattipohorasmateria);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -162,49 +160,5 @@ exports.setRecord = async(req, res) => {
             message: errors
         };*/
     }
-
-
-    //buscar si existe el registro
-    Semestre.findOne({
-            where: {
-                [Op.and]: [{ id: req.body.dataPack.id }, {
-                    id: {
-                        [Op.gt]: 0
-                    }
-                }],
-            }
-        })
-        .then(semestre => {
-            if (!semestre) {
-                delete req.body.dataPack.id;
-                delete req.body.dataPack.created_at;
-                delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuarios_r = req.userId;
-                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
-
-                Semestre.create(
-                    req.body.dataPack
-                ).then((self) => {
-                    // here self is your instance, but updated
-                    res.status(200).send({ message: "success", id: self.id });
-                }).catch(err => {
-                    res.status(500).send({ message: err.message });
-                });
-            } else {
-                delete req.body.dataPack.created_at;
-                delete req.body.dataPack.updated_at;
-                req.body.dataPack.id_usuarios_r = req.userId;
-                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
-
-                semestre.update(req.body.dataPack).then((self) => {
-                    // here self is your instance, but updated
-                    res.status(200).send({ message: "success", id: self.id });
-                });
-            }
-
-
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
+    res.status(200).send("Created");
 }
