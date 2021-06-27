@@ -17,6 +17,10 @@ module.exports = function(app) {
         "/api/gruposclase/getCatalogoSegunPlantel", [authJwt.verifyToken],
         controller.getCatalogoSegunPlantel
     );
+    app.post(
+        "/api/gruposclase/getCatalogoConHorasDisponiblesSegunPlantel", [authJwt.verifyToken],
+        controller.getCatalogoConHorasDisponiblesSegunPlantel
+    );
 
     app.post(
         "/api/gruposclase/getAdmin", [authJwt.verifyToken],

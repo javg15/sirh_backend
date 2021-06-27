@@ -118,8 +118,6 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 exports.getCatalogoSegunGrupo = async(req, res) => {
-
-
     let query = "select distinct mc.* " +
         "from horasclase as hc " +
         "    left join materiasclase as mc on mc.id=hc.id_materiasclase  " +
@@ -149,6 +147,39 @@ exports.getCatalogoSegunGrupo = async(req, res) => {
     res.status(200).send(datos);
 }
 
+exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
+    let query = "select distinct mc.id,mc.nombre as text,cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer) as horasdisponibles " +
+        "from horasclase as h " +
+        "   left join gruposclase as gc on h.id_gruposclase =gc.id " +
+        "   left join materiasclase as mc on h.id_materiasclase =mc.id " +
+        "where h.id_catplanteles =:id_catplanteles " +
+        "   and h.id_gruposclase =:id_gruposclase " +
+        "   and cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 " +
+        "   and h.state IN ('A','B') " +
+        "order by mc.nombre ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_catplanteles: req.body.id_catplanteles,
+            id_gruposclase: req.body.id_gruposclase,
+        },
+
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
 
 
 exports.setRecord = async(req, res) => {
@@ -208,6 +239,7 @@ exports.setRecord = async(req, res) => {
             }
         })
         .then(materiasclase => {
+            delete req.body.dataPack.horasdisponibles;//temporal
             if (!materiasclase) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;

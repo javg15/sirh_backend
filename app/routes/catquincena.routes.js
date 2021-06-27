@@ -18,6 +18,11 @@ module.exports = function(app) {
         controller.getCatalogoSegunAnio
     );
     app.post(
+        "/api/catquincena/getCatalogoSegunSemestre", [authJwt.verifyToken],
+        controller.getCatalogoSegunSemestre
+    );
+    
+    app.post(
         "/api/catquincena/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );

@@ -2,7 +2,7 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Ppersonalhoras = db.personalhoras;
+const Personalhoras = db.personalhoras;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -29,7 +29,7 @@ exports.getAdmin = async(req, res) => {
         });
     } else {
         query = "SELECT * FROM s_personalhoras_mgr('" +
-            "&modo=0&id_usuario=:id_usuario" +
+            "&modo=22&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +
             "&ordensentido=ASC" +
@@ -142,6 +142,13 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
+        id_catplanteles: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         id_semestre: {
             type: "number",
             custom(value, errors) {
@@ -156,7 +163,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        id_cattipohorasmateria: {
+        id_catnombramientos: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
@@ -170,7 +177,14 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             },
         },
-        id_horasclase: {
+        id_gruposclase: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_materiasclase: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
@@ -184,14 +198,20 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        id_catquincena_fin: {
+        /*id_catquincena_fin: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
+        },*/
+        id_cattipohorasdocente: {
+            type: "number",
+            custom(value, errors) {
+                if (req.body.dataPack["horassueltas"]==1  && value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
         },
-
     };
 
     var vres = true;

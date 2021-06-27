@@ -157,8 +157,37 @@ exports.getCatalogoSegunAnio = async(req, res) => {
     });
 
     res.status(200).send(datos);
+}
 
+exports.getCatalogoSegunSemestre = async(req, res) => {
 
+    let query = "select c.id,concat(c.anio, lpad(c.quincena::text,2,0::text)) as text " +
+        "from catquincena as c " +
+	    "    left join semestre as s on c.id between s.id_catquincena_ini and s.id_catquincena_fin " +
+        "where c.adicional=0  " +
+        "   and s.id=:id_semestre  " +
+        "   and c.state in ('A','B') " +
+        "order by concat(c.anio, lpad(c.quincena::text,2,0::text)) desc";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_semestre: req.body.id_semestre,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
 }
 
 

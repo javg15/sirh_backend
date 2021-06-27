@@ -13,7 +13,15 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_plazas: {
+        id_catplanteles: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_gruposclase: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_materiasclase: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -45,6 +53,14 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        horassueltas: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_cattipohorasdocente: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -63,10 +79,6 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true
         },
-        id_horasclase: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        }
     }, {
         sequelize,
         tableName: 'personalhoras',

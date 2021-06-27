@@ -119,15 +119,14 @@ exports.getCatalogo = async(req, res) => {
 }
 
 exports.getCatalogoSegunPlantel = async(req, res) => {
-
-
-    let query = "select distinct gc.* " +
+    let query = "select distinct gc.*,concat(gc.grupo,'-',gc.tiposemestre) as text " +
         "from horasclase as hc " +
         "    left join gruposclase as gc on gc.id=hc.id_gruposclase  " +
         "where hc.id_catplanteles=:id_catplanteles  " +
         "    and hc.id_semestre_ini=:id_semestre  " +
         "    and hc.state in ('A','B') " +
-        "    and gc.state in ('A','B')";
+        "    and gc.state in ('A','B') " + 
+        "order by concat(gc.grupo,'-',gc.tiposemestre) ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -138,6 +137,37 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
         replacements: {
             id_catplanteles: req.body.id_catplanteles,
             id_semestre: req.body.id_semestre,
+        },
+
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
+exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
+    let query = "select distinct gc.id,concat(gc.grupo ,'-',gc.tiposemestre) as text " +
+        "from horasclase as h " +
+        "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
+        "where h.id_catplanteles =:id_catplanteles " +
+        "    and cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 " +
+        "   and h.state IN ('A','B') " +
+        "order by concat(gc.grupo ,'-',gc.tiposemestre) ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_catplanteles: req.body.id_catplanteles,
         },
 
         // If plain is true, then sequelize will only return the first
