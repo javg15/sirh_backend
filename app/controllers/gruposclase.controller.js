@@ -125,7 +125,7 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
         "where hc.id_catplanteles=:id_catplanteles  " +
         "    and hc.id_semestre_ini=:id_semestre  " +
         "    and hc.state in ('A','B') " +
-        "    and gc.state in ('A','B') " + 
+        "    and gc.state in ('A','B') " +
         "order by concat(gc.grupo,'-',gc.tiposemestre) ";
 
     datos = await db.sequelize.query(query, {
@@ -152,12 +152,13 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
 }
 
 exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
+    //:id_personalhoras<>0 es edición
     let query = "select distinct gc.id,concat(gc.grupo ,'-',gc.tiposemestre) as text " +
         "from horasclase as h " +
         "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
-        "    and cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 " +
-        "   and h.state IN ('A','B') " +
+        "   AND (cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
+        "   AND h.state IN ('A','B') " +
         "order by concat(gc.grupo ,'-',gc.tiposemestre) ";
 
     datos = await db.sequelize.query(query, {
@@ -168,6 +169,7 @@ exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
 
         replacements: {
             id_catplanteles: req.body.id_catplanteles,
+            id_personalhoras: req.body.id_personalhoras,
         },
 
         // If plain is true, then sequelize will only return the first

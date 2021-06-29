@@ -29,10 +29,11 @@ exports.getAdmin = async(req, res) => {
         });
     } else {
         query = "SELECT * FROM s_personalhoras_mgr('" +
-            "&modo=22&id_usuario=:id_usuario" +
+            "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +
-            "&ordensentido=ASC" +
+            "&ordensentido=DESC" +
+            "&state=" + params.opcionesAdicionales.state +
             "&fkey=" + params.opcionesAdicionales.fkey +
             "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
@@ -44,8 +45,10 @@ exports.getAdmin = async(req, res) => {
 
             replacements: {
                 id_usuario: req.userId,
-                start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
-                length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
+                modo: params.opcionesAdicionales.modo,
+
+                start: (typeof params.start !== typeof undefined ? params.start : 0),
+                length: (typeof params.start !== typeof undefined ? params.length : 1),
 
             },
             // If plain is true, then sequelize will only return the first
@@ -198,17 +201,17 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        /*id_catquincena_fin: {
+        id_catquincena_fin: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },*/
+        },
         id_cattipohorasdocente: {
             type: "number",
             custom(value, errors) {
-                if (req.body.dataPack["horassueltas"]==1  && value <= 0) errors.push({ type: "selection" })
+                if (req.body.dataPack["horassueltas"] == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -247,10 +250,12 @@ exports.setRecord = async(req, res) => {
     Personalhoras.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
-                    id: {
-                        [Op.gt]: 0
-                    }
-                }],
+                        id: {
+                            [Op.gt]: 0
+                        },
+                    },
+                    { state: "A" },
+                ],
             }
         })
         .then(personalhoras => {
@@ -276,10 +281,30 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                personalhoras.update(req.body.dataPack).then((self) => {
-                    // here self is your instance, but updated
-                    res.status(200).send({ message: "success", id: self.id });
-                });
+                //si el estatus es diferente, entonces duplicar
+                if (personalhoras.id_catestatushora != req.body.dataPack.id_catestatushora) {
+                    //actualizar el state=D
+                    personalhoras.update({ state: "D" }).then((self) => {
+                        // here self is your instance, but updated
+                        res.status(200).send({ message: "success", id: self.id });
+                    });
+
+                    //duplicar
+                    delete req.body.dataPack.id;
+                    Personalhoras.create(
+                        req.body.dataPack
+                    ).then((self) => {
+                        // here self is your instance, but updated
+                        res.status(200).send({ message: "success", id: self.id });
+                    }).catch(err => {
+                        res.status(500).send({ message: err.message });
+                    });
+                } else {
+                    personalhoras.update(req.body.dataPack).then((self) => {
+                        // here self is your instance, but updated
+                        res.status(200).send({ message: "success", id: self.id });
+                    });
+                }
             }
 
 

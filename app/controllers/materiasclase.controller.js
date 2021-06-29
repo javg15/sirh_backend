@@ -154,7 +154,7 @@ exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
         "   left join materiasclase as mc on h.id_materiasclase =mc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
         "   and h.id_gruposclase =:id_gruposclase " +
-        "   and cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 " +
+        "   and (cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0)" +
         "   and h.state IN ('A','B') " +
         "order by mc.nombre ";
 
@@ -167,6 +167,7 @@ exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
         replacements: {
             id_catplanteles: req.body.id_catplanteles,
             id_gruposclase: req.body.id_gruposclase,
+            id_personalhoras: req.body.id_personalhoras,
         },
 
         // If plain is true, then sequelize will only return the first
@@ -239,7 +240,7 @@ exports.setRecord = async(req, res) => {
             }
         })
         .then(materiasclase => {
-            delete req.body.dataPack.horasdisponibles;//temporal
+            delete req.body.dataPack.horasdisponibles; //temporal
             if (!materiasclase) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
