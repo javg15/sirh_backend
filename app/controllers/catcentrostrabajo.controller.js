@@ -216,7 +216,8 @@ exports.setRecord = async(req, res) => {
                 Catcentrostrabajo.create(
                     req.body.dataPack
                 ).then((self) => {
-                    // here self is your instance, but updated
+                    console.log("self.id=>", self.id)
+                        // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
                     res.status(500).send({ message: err.message });

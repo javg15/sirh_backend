@@ -1,5 +1,6 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
+const globales = require("../config/global.config");
 const User = db.user;
 const Usuarios_zonas = db.usuarios_zonas;
 const Personal = db.personal;
@@ -292,7 +293,7 @@ exports.setPerfil = async(req, res) => {
                 }],
             }
         })
-        .then(user => {
+        .then(async user => {
 
             // solo se actualiza password
             if (user && req.body.onlypass == 1) {
@@ -318,7 +319,9 @@ exports.setPerfil = async(req, res) => {
                 delete req.body.dataPack.updated_at;
                 delete req.body.dataPack.passConfirm;
                 delete req.body.dataPack.record_catzonasgeograficas;
+                delete req.body.dataPack.uPassenc;
                 req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
                 //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
             }
             let pasa = true;
@@ -326,7 +329,7 @@ exports.setPerfil = async(req, res) => {
             if (user) {
                 // se actualiza password
                 if (req.body.dataPack.pass.length > 0) {
-                    user.update({
+                    await user.update({
                         pass: bcrypt.hashSync(req.body.dataPack.pass, 8),
                     }).then(self => {
 
@@ -338,7 +341,7 @@ exports.setPerfil = async(req, res) => {
                 if (req.body.onlypass != 1) { //se actualiza todo
                     //actualizar el resto
                     delete req.body.dataPack.pass;
-                    user.update(req.body.dataPack).then(self => {
+                    await user.update(req.body.dataPack).then(self => {
 
                     }).catch(err => {
                         res.status(500).send({ message: err.message });
@@ -348,11 +351,13 @@ exports.setPerfil = async(req, res) => {
                 }
             } else {
                 // Save User to Database
-                User.create(req.body.dataPack)
-                    .then(user => {
-                        user.update({
+                delete req.body.dataPack.id;
+                await User.create(req.body.dataPack)
+                    .then(async user => {
+                        await user.update({
                             pass: bcrypt.hashSync(req.body.dataPack.pass, 8),
                         }).then(self => {
+                            req.body.dataPack.id = self.id
 
                         }).catch(err => {
                             res.status(500).send({ message: err.message });

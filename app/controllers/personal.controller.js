@@ -99,6 +99,26 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.getRecordSegunUsuario = async(req, res) => {
+
+    Personal.findOne({
+            where: {
+                id_usuarios_sistema: req.body.id_usuario
+            }
+        })
+        .then(personal => {
+            if (!personal) {
+                return res.status(404).send({ message: "Personal Not found." });
+            }
+
+            res.status(200).send(personal);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+
 exports.getRecordSegunCURP = async(req, res) => {
 
     Personal.findOne({
