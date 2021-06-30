@@ -333,9 +333,7 @@ exports.getCatalogoSegunBusqueda = async(req, res) => {
 
     if (req.body.query.length > 2) {
         Personal.findAll({
-                attributes: [
-                    [db.sequelize.literal("nombre || ' ' || apellidopaterno || ' ' || apellidomaterno || ' -- ' || curp || ' -- ' || id"), "full_name"]
-                ],
+                attributes: ["id", "numeemp", [db.sequelize.literal("nombre || ' ' || apellidopaterno || ' ' || apellidomaterno || ' -- ' || curp || ' -- ' || id"), "full_name"]],
                 where: {
                     [Op.or]: [
                         db.sequelize.where(db.sequelize.fn("concat", db.sequelize.col("nombre"), " ", db.sequelize.col("apellidopaterno"), " ", db.sequelize.col("apellidomaterno")), {

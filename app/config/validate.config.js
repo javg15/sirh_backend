@@ -67,4 +67,5 @@ module.exports = {
     horasPlazas: "Registre las plazas u horas autorizadas segun sea su selección ",
     quincenaFin: "La quincena final no puede ser menor a la quincena inicial ",
     horasAcumuladas: "Las horas acumuladas de '{actual}' en la zona del plantel, superan a las horas autorizadas de '{expected}'",
+    unique: "El valor '{actual}' ya existe en la Base de Datos",
 };

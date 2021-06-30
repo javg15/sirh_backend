@@ -12,14 +12,14 @@ let dataValidator = new Validator({
     messages: mensajesValidacion
 });
 
-
 exports.getAdmin = async(req, res) => {
     let datos = "",
         query = "",
-        params = req.body.dataTablesParameters;
+        params = req.body;
 
     if (req.body.solocabeceras == 1) {
         params = req.body;
+
         query = "SELECT * FROM s_personalhoras_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
@@ -28,7 +28,81 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
+
         query = "SELECT * FROM s_personalhoras_mgr('" +
+            "&modo=:modo&id_usuario=:id_usuario" +
+            "&inicio=:start&largo=:length" +
+            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
+            "&ordensentido=" + req.body.order[0].dir +
+            "&fkey=" + params.opcionesAdicionales.fkey +
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
+
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_usuario: req.userId,
+                modo: params.opcionesAdicionales.modo,
+
+                start: (typeof params.start !== typeof undefined ? params.start : 0),
+                length: (typeof params.start !== typeof undefined ? params.length : 1),
+                /*scampo: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.campo) : 0),
+                soperador: (typeof params.start !== typeof undefined ? parseInt(params.opcionesAdicionales.datosBusqueda.operador) : 0),
+                sdato: (typeof params.start !== typeof undefined ? params.opcionesAdicionales.datosBusqueda.valor.toString() : 0),*/
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
+
+    var columnNames = (datos.length > 0 ? Object.keys(datos[0]).map(function(key) {
+        return key;
+    }) : []);
+    var quitarKeys = false;
+
+    for (var i = 0; i < columnNames.length; i++) {
+        if (columnNames[i] == "total_count") quitarKeys = true;
+        if (quitarKeys)
+            columnNames.splice(i);
+    }
+
+    respuesta = {
+        draw: params.opcionesAdicionales.raw,
+        recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+        recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+        data: datos,
+        columnNames: columnNames
+    }
+
+    res.status(200).send(respuesta);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+}
+
+exports.getAdminSub = async(req, res) => {
+    let datos = "",
+        query = "",
+        params = req.body.dataTablesParameters;
+
+    if (req.body.solocabeceras == 1) {
+        params = req.body;
+        query = "SELECT * FROM s_personalhorassub_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+
+        datos = await db.sequelize.query(query, {
+            plain: false,
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    } else {
+        query = "SELECT * FROM s_personalhorassub_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +

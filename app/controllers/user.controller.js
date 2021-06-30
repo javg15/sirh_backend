@@ -2,6 +2,7 @@ const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
 const User = db.user;
 const Usuarios_zonas = db.usuarios_zonas;
+const Personal = db.personal;
 const Op = db.Sequelize.Op;
 
 const { QueryTypes } = require('sequelize');
@@ -176,7 +177,26 @@ exports.setPerfil = async(req, res) => {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
-    })
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
+    });
+
+    let existeUsuario = false;
+    await User.findOne({
+            where: {
+                [Op.and]: [{
+                    [Op.not]: [{ id: req.body.dataPack.id }]
+                }, { state: ["A", "B"] }, {
+                    username: req.body.dataPack.username
+                }],
+            }
+        })
+        .then(user => {
+            if (user) {
+                existeUsuario = true;
+            }
+        });
 
     //let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
 
@@ -185,22 +205,45 @@ exports.setPerfil = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
+        username: {
+            type: "string",
+            /*min: 8,
+            max: 50,*/
+            //, pattern: passwordPattern
+            //optional: true,
+            custom(value, errors) {
+
+                if (typeof value !== typeof undefined) {
+
+                    if (value.toString().trim().length == 0) errors.push({ type: "required" })
+                    if (existeUsuario == true) errors.push({ type: "unique", actual: value.toString() })
+                }
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         pass: {
             type: "string",
             /*min: 8,
             max: 50,*/
             //, pattern: passwordPattern
-            optional: true,
+            //optional: true,
             custom(value, errors) {
-                if (typeof value !== typeof undefined) {
+                if (typeof value !== typeof undefined || req.body.dataPack.id == 0) {
                     if (value.toString().length > 0 && value.toString().length < 6) errors.push({ type: "stringMin", expected: 6, actual: value.toString().length })
                     if (value.toString().length > 0 && value.toString().length > 50) errors.push({ type: "stringMax", expected: 50, actual: value.toString().length })
                     if (req.body.passActual.length > 0 && value.toString().length == 0) errors.push({ type: "required" })
+                    if (value.toString().length == 0 && req.body.dataPack.id == 0) errors.push({ type: "required" })
                 }
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        //username: { type: "string", min: 5 },
+        id_permgrupos: {
+            type: "number",
+            custom(value, errors) {
+                if (req.body["onlypass"] == 0 && (value <= 0 && req.body.dataPack.id != 4)) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         passConfirm: {
             type: "string",
             custom(value, errors) {
@@ -250,33 +293,37 @@ exports.setPerfil = async(req, res) => {
             }
         })
         .then(user => {
-            if (user) {
-                // solo se actualiza password
-                if (req.body.onlypass == 1) {
-                    var passwordIsValid = bcrypt.compareSync(
-                        req.body.passActual,
-                        user.pass
-                    );
 
-                    if (!passwordIsValid) {
-                        res.status(200).send({
-                            error: true,
-                            message: {
-                                "passActual": "La 'contraseña' actual es inválida"
-                            }
-                        });
-                    }
+            // solo se actualiza password
+            if (user && req.body.onlypass == 1) {
+                var passwordIsValid = bcrypt.compareSync(
+                    req.body.passActual,
+                    user.pass
+                );
+
+                if (!passwordIsValid) {
+                    res.status(200).send({
+                        error: true,
+                        message: {
+                            "passActual": "La 'contraseña' actual es inválida"
+                        }
+                    });
                 }
+            }
 
-                let record_catzonasgeograficas = req.body.dataPack.record_catzonasgeograficas;
+            let record_catzonasgeograficas;
+            if (req.body.onlypass != 1) { //se actualiza todo
+                record_catzonasgeograficas = req.body.dataPack.record_catzonasgeograficas;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 delete req.body.dataPack.passConfirm;
                 delete req.body.dataPack.record_catzonasgeograficas;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 //req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+            }
+            let pasa = true;
 
-                let pasa = true;
+            if (user) {
                 // se actualiza password
                 if (req.body.dataPack.pass.length > 0) {
                     user.update({
@@ -284,47 +331,81 @@ exports.setPerfil = async(req, res) => {
                     }).then(self => {
 
                     }).catch(err => {
+                        res.status(500).send({ message: err.message });
                         pasa = false;
                     });
                 }
+                if (req.body.onlypass != 1) { //se actualiza todo
+                    //actualizar el resto
+                    delete req.body.dataPack.pass;
+                    user.update(req.body.dataPack).then(self => {
 
-                //actualizar el resto
-                delete req.body.dataPack.pass;
-                user.update(req.body.dataPack).then(self => {
-
-                }).catch(err => {
-                    pasa = false;
-                });
-
-                if (pasa) {
-                    //Eliminar las zonas
-                    Usuarios_zonas.destroy({
-                        where: {
-                            id_usuarios: req.body.dataPack.id
-                        },
+                    }).catch(err => {
+                        res.status(500).send({ message: err.message });
+                        pasa = false;
+                        console.log("err=>", err, "; pasa=>", pasa)
                     });
-
-                    //ingresar las zonas
-                    for (let i = 0; i < record_catzonasgeograficas.length; i++) {
-                        Usuarios_zonas.create({
-                            id_usuarios: req.body.dataPack.id,
-                            id_catzonageografica: record_catzonasgeograficas[i].id,
-                            id_usuarios_r: req.userId,
-                        });
-                    }
-
-
-                    res.status(200).send({ message: "success", id: req.body.dataPack.id });
                 }
-
-
             } else {
-                //solo actualizar datos
+                // Save User to Database
+                User.create(req.body.dataPack)
+                    .then(user => {
+                        user.update({
+                            pass: bcrypt.hashSync(req.body.dataPack.pass, 8),
+                        }).then(self => {
 
-                res.status(200).send({ message: "success", id: req.body.dataPack.id });
+                        }).catch(err => {
+                            res.status(500).send({ message: err.message });
+                            pasa = false;
+                        });
+                        pasa = true;
+                    })
+                    .catch(err => {
+                        res.status(500).send({ message: err.message });
+                        pasa = false
+                    });
             }
 
 
+            if (pasa && req.body.onlypass != 1) { //pasa y se actualiza todo
+                //Eliminar las zonas
+                Usuarios_zonas.destroy({
+                    where: {
+                        id_usuarios: req.body.dataPack.id
+                    },
+                });
+
+                //ingresar las zonas
+                for (let i = 0; i < record_catzonasgeograficas.length; i++) {
+                    Usuarios_zonas.create({
+                        id_usuarios: req.body.dataPack.id,
+                        id_catzonageografica: record_catzonasgeograficas[i].id,
+                        id_usuarios_r: req.userId,
+                    });
+                }
+
+                //actualiza el id_usuario_sistema en la tabla personal
+                Personal.findOne({
+                        where: {
+                            [Op.and]: [{ id: req.body["id_personal"] }, {
+                                id: {
+                                    [Op.gt]: 0
+                                }
+                            }],
+                        }
+                    })
+                    .then(personal => {
+                        if (personal) {
+                            personal.update({ id_usuarios_sistema: req.body.dataPack.id }).then(self => {}).catch(err => {
+                                pasa = false;
+                            });
+                        }
+                    });
+
+                res.status(200).send({ message: "success", id: req.body.dataPack.id });
+            } else {
+                res.status(200).send({ message: "success", id: req.body.dataPack.id });
+            }
 
         })
         .catch(err => {

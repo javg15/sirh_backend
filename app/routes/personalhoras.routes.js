@@ -18,6 +18,10 @@ module.exports = function(app) {
         controller.getAdmin
     );
     app.post(
+        "/api/personalhoras/getAdminSub", [authJwt.verifyToken],
+        controller.getAdminSub
+    );
+    app.post(
         "/api/personalhoras/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );

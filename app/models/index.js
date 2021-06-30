@@ -80,5 +80,6 @@ db.horasclasedetalle = require("../models/horasclasedetalle.model.js")(sequelize
 db.catestatushora = require("../models/catestatushora.model.js")(sequelize, Sequelize);
 db.cattipohorasmateria = require("../models/cattipohorasmateria.model.js")(sequelize, Sequelize);
 db.catnombramientos = require("../models/catnombramientos.model.js")(sequelize, Sequelize);
+db.permgrupos = require("../models/permgrupos.model.js")(sequelize, Sequelize);
 
 module.exports = db;
