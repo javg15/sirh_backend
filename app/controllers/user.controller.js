@@ -346,7 +346,7 @@ exports.setPerfil = async(req, res) => {
                     }).catch(err => {
                         res.status(500).send({ message: err.message });
                         pasa = false;
-                        console.log("err=>", err, "; pasa=>", pasa)
+
                     });
                 }
             } else {
