@@ -25,6 +25,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATEONLY,
             allowNull: true
         },
+        id_cattipohorasdocente: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: false,

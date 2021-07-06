@@ -102,7 +102,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Cattipohorasdocente.findAll({
-            attributes: ['id', 'tipohora'],
+            attributes: ['id', ['tipohora', 'text']],
             order: [
                 ['tipohora', 'ASC'],
             ]
