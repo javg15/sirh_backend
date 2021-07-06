@@ -161,34 +161,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        id_semestre_ini: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_catquincena_ini: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_catquincena_fin: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
-        id_cattipohorasdocente: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },
+
         frenteagrupo: {
             type: "number",
         },

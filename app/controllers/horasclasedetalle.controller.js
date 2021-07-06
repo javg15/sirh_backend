@@ -137,48 +137,40 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        id_categorias: {
+        id_cattipohorasdocente: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        fecha_ini: {
-            type: "string",
+        id_semestre_ini: {
+            type: "number",
             custom(value, errors) {
-                /*let dateIni = new Date(value)
-                let dateFin = new Date()
-
-                if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fecha_ini", expected: dateFin.toISOString().split('T')[0] })*/
-
-                if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
-                    errors.push({ type: "date" })
-                return value;
-            },
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
         },
-        fecha_fin: {
-            type: "string",
+        id_catquincena_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_fin: {
+            type: "number",
+            optional: true,
             custom(value, errors) {
 
-                /*let dateIni = new Date(value)
-                let dateFin = new Date()
+                if (value <= 0) errors.push({ type: "selection" })
+                    ///////////////
+                dateFin = value
+                dateIni = req.body.dataPack.id_catquincena_ini
 
-                if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fechafin", expected: dateFin.toISOString().split('T')[0] })*/
+                if (dateFin < dateIni)
+                    errors.push({ type: "quincenaFin", field: "id_catquincena_fin" })
 
-                if (!moment(value).isValid() || !moment(value).isAfter('1900-01-01'))
-                    errors.push({ type: "date" })
-
-                ///////////////
-                dateFin = new Date(value)
-                dateIni = new Date(req.body.dataPack.fecha_ini)
-
-                if (isNaN(dateFin.getMonth()) == false && isNaN(dateIni.getMonth()) == false) {
-                    if (dateFin < dateIni)
-                        errors.push({ type: "dateMin", field: "fecha_fin", expected: dateIni.toISOString().split('T')[0] })
-                }
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
