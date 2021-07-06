@@ -29,6 +29,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        id_semestre_ini: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catquincena_ini: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catquincena_fin: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: false,
