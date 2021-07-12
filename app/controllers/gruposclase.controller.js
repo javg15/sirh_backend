@@ -197,8 +197,21 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string" },
-        nombreplantel: { type: "string", min: 5 },
+        grupo: { type: "string", min: 3, max: 3 },
+        tiposemestre: {
+            type: "string",
+            custom(value, errors) {
+                if (!(value == "A" || value == "B")) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        letragrupo: {
+            type: "string",
+            custom(value, errors) {
+                if (value.length <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
     };
 
     var vres = true;

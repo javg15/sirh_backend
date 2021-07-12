@@ -120,19 +120,81 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("anio", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
     })
+
+    query = "select * " +
+        "from semestre as a " +
+        "where anio=:anio " +
+        "    and tipo=:tipo ";
+    "    and id_catquincena_ini=:id_catquincena_ini ";
+    "    and id_catquincena_fin=:id_catquincena_fin ";
+    "    and state  IN('A','B')";
+    datosUnique = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            anio: req.body.dataPack["anio"],
+            tipo: req.body.dataPack["tipo"],
+            id_catquincena_ini: req.body.dataPack["id_catquincena_ini"],
+            id_catquincena_fin: req.body.dataPack["id_catquincena_fin"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
 
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string" },
-        nombreplantel: { type: "string", min: 5 },
+        anio: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                if (datosUnique.length > 0) errors.push({ type: "uniqueRecord" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        tipo: {
+            type: "string",
+            custom(value, errors) {
+                if (!(value == "A" || value == "B")) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_ini: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_fin: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catquincena_fininterinas: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
     };
 
     var vres = true;

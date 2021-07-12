@@ -25,4 +25,8 @@ module.exports = function(app) {
         "/api/materiasclase/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
+    app.post(
+        "/api/materiasclase/setRecord", [authJwt.verifyToken],
+        controller.setRecord
+    );
 };

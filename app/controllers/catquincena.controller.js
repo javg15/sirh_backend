@@ -101,9 +101,9 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
-    let query = "select c.id,concat(anio, lpad(c.quincena::text,2,0::text)) as text " +
+    let query = "select c.id,concat(anio, lpad(c.quincena::text,2,0::text)) as text,c.anio,c.quincena " +
         "from catquincena as c " +
-        "where c.adicional=0 AND (c.anio=9999 OR c.idestatusquincena<4)  " +
+        "where c.adicional=0 AND (c.anio=9999 OR c.idestatusquincena>0)  " + //OR c.idestatusquincena<4
         "and c.state in ('A','B') " +
         "order by concat(anio, lpad(c.quincena::text,2,0::text)) DESC ";
 
@@ -163,7 +163,7 @@ exports.getCatalogoSegunSemestre = async(req, res) => {
 
     let query = "select c.id,concat(c.anio, lpad(c.quincena::text,2,0::text)) as text " +
         "from catquincena as c " +
-	    "    left join semestre as s on c.id between s.id_catquincena_ini and s.id_catquincena_fin " +
+        "    left join semestre as s on c.id between s.id_catquincena_ini and s.id_catquincena_fin " +
         "where c.adicional=0  " +
         "   and s.id=:id_semestre  " +
         "   and c.state in ('A','B') " +
@@ -193,20 +193,67 @@ exports.getCatalogoSegunSemestre = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("anio", 0) >= 0 ||
+            key.indexOf("quincena", 0) >= 0 || key.indexOf("bimestre", 0) >= 0
+        ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
     })
+
+    query = "select * " +
+        "from catquincena as a " +
+        "where anio=:anio " +
+        "    and quincena=:quincena ";
+    "    and bimestre=:bimestre ";
+    "    and state  IN('A','B')";
+    datosUnique = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            anio: req.body.dataPack["anio"],
+            quincena: req.body.dataPack["quincena"],
+            bimestre: req.body.dataPack["bimestre"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
 
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
-        denominacion: { type: "string", min: 5 },
-        nivelsalarial: { type: "string", max: 5 },
+        anio: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                if (datosUnique.length > 0) errors.push({ type: "uniqueRecord" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        quincena: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        bimestre: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
     };
 
     var vres = true;

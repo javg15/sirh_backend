@@ -30,4 +30,8 @@ module.exports = function(app) {
         "/api/gruposclase/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
+    app.post(
+        "/api/gruposclase/setRecord", [authJwt.verifyToken],
+        controller.setRecord
+    );
 };
