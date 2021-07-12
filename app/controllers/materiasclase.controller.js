@@ -191,6 +191,32 @@ exports.setRecord = async(req, res) => {
         }
     })
 
+    query = "select * " +
+        "from materiasclase as a " +
+        "where clave=:clave " +
+        "    and id_semestre_ini=:id_semestre_ini ";
+    "    and id_semestre_fin=:id_semestre_fin ";
+    "    and state  IN('A','B')";
+    datosUnique = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            clave: req.body.dataPack["clave"],
+            tipo: req.body.dataPack["tipo"],
+            id_semestre_ini: req.body.dataPack["id_semestre_ini"],
+            id_semestre_fin: req.body.dataPack["id_semestre_fin"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -201,6 +227,7 @@ exports.setRecord = async(req, res) => {
         id_semestre_ini: {
             type: "number",
             custom(value, errors) {
+                if (datosUnique.length > 0) errors.push({ type: "uniqueRecord" })
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
