@@ -22,7 +22,10 @@ module.exports = function(app) {
         controller.getRecordUsuariosZonas
     );
 
-
+    app.post(
+        "/api/user/getMenu", [authJwt.verifyToken],
+        controller.getMenu
+    );
     app.post(
         "/api/user/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
