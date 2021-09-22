@@ -2,8 +2,6 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const configsvc = require("../config/service.config.js");
-const request = require('request');
 const Plazas = db.plazas;
 var moment = require('moment');
 const { QueryTypes } = require('sequelize');
@@ -273,32 +271,7 @@ exports.getHistorial = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
-exports.getHistorialNomina = async(req, res) => {
-    if (req.body.id_personal > 0) {
-        //obtener token
-        request.post({
-            url: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicetoken,
-            form: {
-                usuario: configsvc.usuario,
-                contrasena: configsvc.contrasena
-            }
-        }, function(err, httpResponse, body) {
-            //llamar al servicio con el token e id usuario
-            request({
-                uri: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicehistorial + '/' + req.body.id_personal,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'access-token': JSON.parse(body).body[0].token
-                },
-                method: 'GET',
-            }, function(err, httpResponse, body) {
-                res.status(200).send(body);
-            })
-        })
-    }
-    //cabeceras
-    res.status(200).send('{ "cabeceras": [{ "data": "desctiponomina", "name": "a_desctiponomina", "title": "Tipo Nomina" }]}');
-}
+
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {

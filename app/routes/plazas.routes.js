@@ -51,10 +51,7 @@ module.exports = function(app) {
         "/api/plazas/getHistorial", [authJwt.verifyToken],
         controller.getHistorial
     );
-    app.post(
-        "/api/plazas/getHistorialNomina", [authJwt.verifyToken],
-        controller.getHistorialNomina
-    );
+
 
     app.post(
         "/api/plazas/getCatalogoDisponibleSegunCategoria", [authJwt.verifyToken],

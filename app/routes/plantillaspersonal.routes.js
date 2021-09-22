@@ -27,6 +27,10 @@ module.exports = function(app) {
         controller.getRecord
     );
     app.post(
+        "/api/plantillaspersonal/getHistorialNomina", [authJwt.verifyToken],
+        controller.getHistorialNomina
+    );
+    app.post(
         "/api/plantillaspersonal/getRecordPersonal", [authJwt.verifyToken],
         controller.getRecordPersonal
     );

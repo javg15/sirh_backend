@@ -2,6 +2,8 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
+const configsvc = require("../config/service.config.js");
+const request = require('request');
 const Plantillaspersonal = db.plantillaspersonal;
 const Catplanteles = db.catplanteles;
 const Catplantillas = db.catplantillas;
@@ -93,6 +95,85 @@ exports.getAdmin = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
+exports.getHistorialNomina = async(req, res) => {
+    let cabeceras = "",
+        params = req.body.dataTablesParameters;
+    //cabeceras
+    cabeceras = '[' +
+        '{ "data": "plazapp", "name": "a_plazapp", "title": "Plazas(s)" },' +
+        '{ "data": "abrevtipoemp", "name": "a_abrevtipoemp", "title": "O" },' +
+        '{ "data": "claveplantelplaza", "name": "a_claveplantelplaza", "title": "P" },' +
+        '{ "data": "abrevesquemapago", "name": "a_abrevesquemapago", "title": "EP" },' +
+        '{ "data": "siglassindicato", "name": "a_siglassindicato", "title": "Sind." },' +
+        '{ "data": "nombrefuncionpri", "name": "a_nombrefuncionpri", "title": "Fun. prim." },' +
+        '{ "data": "nombrefuncionsec", "name": "a_nombrefuncionsec", "title": "Fun. sec." },' +
+        '{ "data": "tiposemestre", "name": "a_tiposemestre", "title": "Sem." },' +
+        '{ "data": "qnaini", "name": "a_qnaini", "title": "Inicio" },' +
+        '{ "data": "qnafin", "name": "a_qnafin", "title": "Fin" },' +
+        '{ "data": "descmotgralbaja", "name": "a_descmotgralbaja", "title": "Mot. baja" },' +
+        '{ "data": "fechafin", "name": "a_fechafin", "title": "Fecha fin" }' +
+        ']';
+
+    var columnNames = ["plazapp", "abrevtipoemp", "claveplantelplaza", "abrevesquemapago", "siglassindicato", "nombrefuncionpri", "nombrefuncionsec",
+        "tiposemestre", "qnaini", "qnafin", "descmotgralbaja", "fechafin"
+    ]
+
+
+    if (params.solocabeceras == 1) {
+        body = [{
+            acciones: "",
+            agregar: "1",
+            align_rigth: "",
+            cabeceras: cabeceras,
+            id: 0,
+            nombramiento: "",
+            nombre: "",
+            num_empleado: "",
+            plantel: "",
+            plantilla: "",
+            rfc: "",
+            stateparametro: "A",
+            total_count: "1"
+        }];
+        res.status(200).send({
+            draw: params.opcionesAdicionales.raw,
+            recordsTotal: body.length,
+            recordsFiltered: body.length,
+            data: body,
+            columnNames: columnNames
+        });
+    } else {
+        //obtener token
+        request.post({
+            url: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicetoken,
+            form: {
+                usuario: configsvc.usuario,
+                contrasena: configsvc.contrasena
+            }
+        }, function(err, httpResponse, body) {
+            //llamar al servicio con el token e id usuario
+            request({
+                uri: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicehistorial + '/' +
+                    params.opcionesAdicionales.id_personal,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'access-token': JSON.parse(body).body[0].token
+                },
+                method: 'GET',
+            }, function(err, httpResponse, body) {
+                body = JSON.parse(body).body;
+                res.status(200).send({
+                    draw: params.opcionesAdicionales.raw,
+                    recordsTotal: body.length,
+                    recordsFiltered: body.length,
+                    data: body,
+                    columnNames: columnNames
+                });
+            })
+        })
+    }
+
+}
 
 exports.getRecord = async(req, res) => {
 
@@ -230,6 +311,8 @@ exports.getConsecutivo = async(req, res) => {
             res.status(500).send({ message: err.message });
         });
 }
+
+
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
