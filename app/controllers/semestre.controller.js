@@ -104,7 +104,8 @@ exports.getCatalogo = async(req, res) => {
     Semestre.findAll({
             attributes: ['id', [db.sequelize.literal("anio || ' - ' || tipo"), "text"]],
             order: [
-                ['qnainiciosemestre', 'ASC'],
+                ['anio', 'ASC'],
+                ['tipo', 'ASC'],
             ]
         }).then(semestre => {
             if (!semestre) {

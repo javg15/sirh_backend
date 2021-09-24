@@ -157,7 +157,8 @@ exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
         "from horasclase as h " +
         "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
-        "   AND (cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
+        "   AND (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
+        "   AND gc.tiposemestre  =:tiposemestre " +
         "   AND h.state IN ('A','B') " +
         "order by concat(gc.grupo ,'-',gc.tiposemestre) ";
 
@@ -170,6 +171,9 @@ exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
         replacements: {
             id_catplanteles: req.body.id_catplanteles,
             id_personalhoras: req.body.id_personalhoras,
+            tiposemestre:req.body.tipo,
+            id_cattiposemestre: req.body.id_cattiposemestre,
+            id_semestre: req.body.id_semestre,
         },
 
         // If plain is true, then sequelize will only return the first

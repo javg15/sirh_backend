@@ -148,13 +148,13 @@ exports.getCatalogoSegunGrupo = async(req, res) => {
 }
 
 exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
-    let query = "select distinct mc.id,mc.nombre as text,cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer) as horasdisponibles " +
+    let query = "select distinct mc.id,mc.nombre as text,cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer) as horasdisponibles " +
         "from horasclase as h " +
         "   left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "   left join materiasclase as mc on h.id_materiasclase =mc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
         "   and h.id_gruposclase =:id_gruposclase " +
-        "   and (cast(fn_horas_disponibles(h.id)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0)" +
+        "   and (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0)" +
         "   and h.state IN ('A','B') " +
         "order by mc.nombre ";
 
@@ -168,6 +168,8 @@ exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
             id_catplanteles: req.body.id_catplanteles,
             id_gruposclase: req.body.id_gruposclase,
             id_personalhoras: req.body.id_personalhoras,
+            id_cattiposemestre: req.body.id_cattiposemestre,
+            id_semestre: req.body.id_semestre,
         },
 
         // If plain is true, then sequelize will only return the first

@@ -111,11 +111,12 @@ exports.getHistorialNomina = async(req, res) => {
         '{ "data": "qnaini", "name": "a_qnaini", "title": "Inicio" },' +
         '{ "data": "qnafin", "name": "a_qnafin", "title": "Fin" },' +
         '{ "data": "descmotgralbaja", "name": "a_descmotgralbaja", "title": "Mot. baja" },' +
-        '{ "data": "fechafin", "name": "a_fechafin", "title": "Fecha fin" }' +
+        '{ "data": "fechafin", "name": "a_fechafin", "title": "Fecha fin" },' +
+        '{ "data": "acciones", "name": "a_acciones", "title": "" }' +
         ']';
 
     var columnNames = ["plazapp", "abrevtipoemp", "claveplantelplaza", "abrevesquemapago", "siglassindicato", "nombrefuncionpri", "nombrefuncionsec",
-        "tiposemestre", "qnaini", "qnafin", "descmotgralbaja", "fechafin"
+        "tiposemestre", "qnaini", "qnafin", "descmotgralbaja", "fechafin","acciones"
     ]
 
 
@@ -156,7 +157,7 @@ exports.getHistorialNomina = async(req, res) => {
                 uri: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicehistorial + '/' +
                     params.opcionesAdicionales.id_personal,
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset = utf-8',
                     'access-token': JSON.parse(body).body[0].token
                 },
                 method: 'GET',

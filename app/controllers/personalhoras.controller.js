@@ -198,6 +198,44 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getRecordTitularEnLicencia = async(req, res) => {
+        //:id_personalhoras<>0 es edición
+        let query = "select p.id as id_personalhoras,pe.id, pe.rfc ,pe.numeemp ,fn_idesc_personal(pe.id) as nombre "
+        + "from personalhoras as p  "
+        + "    left join personal as pe on p.id_personal =pe.id "
+        + "WHERE p.id_catplanteles=:id_catplanteles    "
+            + "AND p.id_gruposclase=:id_gruposclase "
+            + "AND p.id_materiasclase=:id_materiasclase "    
+            + "AND p.id_catestatushora =5  " //--en licencia
+            + "AND p.id_semestre =:id_semestre "    
+        + "AND p.state IN ('A','B') ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_catplanteles: req.body.id_catplanteles,
+            id_gruposclase: req.body.id_gruposclase,
+            id_materiasclase: req.body.id_materiasclase,
+            id_semestre: req.body.id_semestre,
+        },
+
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0 ||

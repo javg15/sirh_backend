@@ -149,6 +149,31 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
         });
 }
 
+exports.getRecordParaCombo = async(req, res) => {
+
+    let query = "SELECT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+        " FROM categorias as c " +
+        " WHERE  c.id=:id_categoria ";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categoria: req.body.id_categoria,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
 
 exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 

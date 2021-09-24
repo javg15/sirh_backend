@@ -14,6 +14,10 @@ module.exports = function(app) {
         controller.getCatalogo
     );
     app.post(
+        "/api/categorias/getRecordParaCombo", [authJwt.verifyToken],
+        controller.getRecordParaCombo
+    );
+    app.post(
         "/api/categorias/getCatalogoSegunPlantel", [authJwt.verifyToken],
         controller.getCatalogoSegunPlantel
     );
