@@ -402,7 +402,7 @@ exports.setRecord = async(req, res) => {
 
                 //si el estatus es diferente, entonces duplicar
                 if (personalhoras.id_catestatushora != req.body.dataPack.id_catestatushora) {
-                    //actualizar el state=D
+                    //actualizar el state=D, se queda registrado aunque se hayan equivocado
                     personalhoras.update({ state: "D" }).then((self) => {
                         // here self is your instance, but updated
                         res.status(200).send({ message: "success", id: self.id });
