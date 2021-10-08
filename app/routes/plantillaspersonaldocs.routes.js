@@ -34,4 +34,9 @@ module.exports = function(app) {
         "/api/plantillaspersonaldocs/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+    app.post(
+        "/api/plantillaspersonaldocs/setActualizarFin", [authJwt.verifyToken],
+        controller.setActualizarFin
+    );
+    
 };

@@ -622,3 +622,35 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
 
     res.status(200).send(datos);
 }
+
+exports.getCatalogoVigenteSegunCategoria = async(req, res) => {
+
+    let query = "SELECT DISTINCT c.id, fn_plaza_clave(c.id) as text " 
+    + "FROM plazas as c "
+    + "    inner JOIN plantillasdocsnombramiento as pdn on pdn.id_plazas=c.id "
+    + "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  "
+    + "WHERE  a.id=:id_catplantillas "
+    + " AND pdn.state in ('A','B') "
+    + " and c.id_categorias =:id_categorias ";
+//    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.id_categorias,
+            id_catplantillas: req.body.id_catplantillas, //cuando quiero desplegar tambien el de la plaza buscada
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}

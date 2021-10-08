@@ -58,4 +58,8 @@ module.exports = function(app) {
         controller.getCatalogoDisponibleSegunCategoria
     );
 
+    app.post(
+        "/api/plazas/getCatalogoVigenteSegunCategoria", [authJwt.verifyToken],
+        controller.getCatalogoVigenteSegunCategoria
+    );
 };

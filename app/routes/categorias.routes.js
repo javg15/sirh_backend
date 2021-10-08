@@ -25,7 +25,11 @@ module.exports = function(app) {
         "/api/categorias/getCatalogoDisponibleEnPlantilla", [authJwt.verifyToken],
         controller.getCatalogoDisponibleEnPlantilla
     );
-
+    app.post(
+        "/api/categorias/getCatalogoVigenteEnPlantilla", [authJwt.verifyToken],
+        controller.getCatalogoVigenteEnPlantilla
+    );
+    
     app.post(
         "/api/categorias/getCatalogoDocentes", [authJwt.verifyToken],
         controller.getCatalogoDocentes
