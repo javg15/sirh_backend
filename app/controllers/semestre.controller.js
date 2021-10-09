@@ -3,6 +3,8 @@ const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
 const Semestre = db.semestre;
+const configsvc = require("../config/service.config.js");
+const request = require('request');
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -270,4 +272,100 @@ exports.setRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+}
+
+exports.setUpdateFromWebService = async(req, res) => {
+    let promises = [];
+    
+    //obtener los datos
+    //obtener token
+    request.post({
+        url: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicetoken,
+        form: {
+            usuario: configsvc.usuario,
+            contrasena: configsvc.contrasena
+        }
+    }, function(err, httpResponse, body) {
+        //llamar al servicio con el token e id usuario
+        request({
+            uri: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicesemestres,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset = utf-8',
+                'access-token': JSON.parse(body).body[0].token
+            },
+            method: 'GET',
+        }, function(err, httpResponse, body) {
+            body = JSON.parse(body).body;
+            pasa=true;
+
+            //recorrer la estructura y recolectar en promises las acciones a realizar
+            for(i=0;i<body.length;i++){
+                if(pasa){
+                    //buscar si existe el registro
+                    Semestre.findOne({
+                        where: {
+                            [Op.and]: [{ id: body[i].idsemestre }, {
+                                id: {
+                                    [Op.gt]: 0
+                                }
+                            }],
+                        }
+                    })
+                    .then(semestre => {
+                        if (!semestre) {
+                            promises.push({
+                                id:body[i].idsemestre,
+                                id_usuarios_r : req.userId,
+                                state:'A',
+                                tipo:body[i].tiposemestre,
+                                anio:body[i].aniosemestre,
+                                accion:"create"
+                            })
+                        }
+                        else{
+                            promises.push({
+                                id_usuarios_r : req.userId,
+                                state:'A',
+                                tipo:body[i].tiposemestre,
+                                anio:body[i].aniosemestre,
+                                accion:"update"
+                            })
+                        }
+                    })
+                    .catch(err => {
+                        res.status(500).send({ message: err.message });
+                        pasa=false;
+                    });
+                }
+            }
+            if(pasa){
+                promises.forEach(element => {
+                if(element.accion=="create"){
+                    Semestre.create().then((self) => {
+                        // here self is your instance, but updated
+                        //res.status(200).send({ message: "success", id: self.id });
+                    }).catch(err => {
+                        res.status(500).send({ message: err.message });
+                        pasa=false;
+                    });
+                } else {
+                    Semestre.update({
+                        
+                    }).then((self) => {
+                        // here self is your instance, but updated
+                        //res.status(200).send({ message: "success", id: self.id });
+                    }).catch(err => {
+                        console.log("UPDATE=>","ERROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOR");
+                        res.status(500).send({ message: err.message });
+                        pasa=false;
+                    });
+                }
+                }); 
+                    
+                
+            }
+            if(pasa)
+                res.status(200).send({ message: "success",  });
+        })
+    })
 }

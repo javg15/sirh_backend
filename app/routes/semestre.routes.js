@@ -25,4 +25,8 @@ module.exports = function(app) {
         "/api/semestre/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+    app.post(
+        "/api/semestre/setUpdateFromWebService", [authJwt.verifyToken],
+        controller.setUpdateFromWebService
+    );
 };

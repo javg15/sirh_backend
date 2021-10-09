@@ -401,6 +401,8 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 //si el estatus es diferente, entonces duplicar
+
+                //ya no toma efecto esta situación para poner en D, atender video de quincena activa y si es que ya se cobró la quincena
                 if (personalhoras.id_catestatushora != req.body.dataPack.id_catestatushora) {
                     //actualizar el state=D, se queda registrado aunque se hayan equivocado
                     personalhoras.update({ state: "D" }).then((self) => {

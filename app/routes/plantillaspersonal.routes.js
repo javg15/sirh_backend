@@ -43,4 +43,6 @@ module.exports = function(app) {
         "/api/plantillaspersonal/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+    
+    
 };
