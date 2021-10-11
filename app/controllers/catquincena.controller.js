@@ -375,10 +375,10 @@ exports.setUpdateFromWebService = async(req, res) => {
                             quincena: d.quincena.substr(4, 2),
                             id_catestatusquincena: d.idestatusquincena,
                             periodovacacional: d.periodovacacional,
-                            fechacierre: moment.utc(d.fechacierre, 'DD/MM/YYYY').format("YYYY-MM-DD"), //.toDate('YYYY-MM-DD'),
+                            fechacierre: moment(d.fechadepago, 'DD/MM/YYYY'),
                             observaciones: d.observaciones,
                             observaciones2: d.observaciones2,
-                            fechadepago: moment.utc(d.fechadepago, 'DD/MM/YYYY').format("YYYY-MM-DD"), //.toDate('YYYY-MM-DD'),
+                            fechadepago: moment(d.fechadepago, 'DD/MM/YYYY'),
                             adicional: d.adicional
 
                         }).catch(err => {
@@ -394,10 +394,10 @@ exports.setUpdateFromWebService = async(req, res) => {
                             quincena: d.quincena.substr(4, 2),
                             id_catestatusquincena: d.idestatusquincena,
                             periodovacacional: d.periodovacacional,
-                            fechacierre: moment.utc(d.fechacierre, 'DD/MM/YYYY').format("YYYY-MM-DD"), //.toDate('YYYY-MM-DD'),
+                            fechacierre: moment(d.fechadepago, 'DD/MM/YYYY'),
                             observaciones: d.observaciones,
                             observaciones2: d.observaciones2,
-                            fechadepago: moment.utc(d.fechadepago, 'DD/MM/YYYY').format("YYYY-MM-DD"), //.toDate('YYYY-MM-DD'),
+                            fechadepago: moment(d.fechadepago, 'DD/MM/YYYY'),
                             adicional: d.adicional
                         }).catch(err => {
                             res.status(500).send({ message: err.message });

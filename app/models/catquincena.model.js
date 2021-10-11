@@ -56,7 +56,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         fechadepago: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         observaciones: {
@@ -64,7 +64,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         fechacierre: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: true
         },
         observaciones2: {
