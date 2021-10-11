@@ -101,6 +101,25 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.getActual = async(req, res) => {
+
+    Semestre.findOne({
+            where: {
+                actual: 1
+            }
+        })
+        .then(semestre => {
+            if (!semestre) {
+                return res.status(404).send({ message: "Semestre Not found." });
+            }
+
+            res.status(200).send(semestre);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.getCatalogo = async(req, res) => {
 
     Semestre.findAll({
@@ -276,7 +295,7 @@ exports.setRecord = async(req, res) => {
 
 exports.setUpdateFromWebService = async(req, res) => {
     let promises = [];
-    
+
     //obtener los datos
     //obtener token
     request.post({
@@ -294,78 +313,65 @@ exports.setUpdateFromWebService = async(req, res) => {
                 'access-token': JSON.parse(body).body[0].token
             },
             method: 'GET',
-        }, function(err, httpResponse, body) {
+        }, async function(err, httpResponse, body) {
             body = JSON.parse(body).body;
-            pasa=true;
+            pasa = true;
 
-            //recorrer la estructura y recolectar en promises las acciones a realizar
-            for(i=0;i<body.length;i++){
-                if(pasa){
-                    //buscar si existe el registro
-                    Semestre.findOne({
+            //Revisar y ejecutar todos los registros
+            await Promise.all(body.map(async function(d) {
+                if (pasa) {
+                    const obj = await Semestre.findOne({
                         where: {
-                            [Op.and]: [{ id: body[i].idsemestre }, {
+                            [Op.and]: [{ id: d.idsemestre }, {
                                 id: {
                                     [Op.gt]: 0
                                 }
                             }],
                         }
-                    })
-                    .then(semestre => {
-                        if (!semestre) {
-                            promises.push({
-                                id:body[i].idsemestre,
-                                id_usuarios_r : req.userId,
-                                state:'A',
-                                tipo:body[i].tiposemestre,
-                                anio:body[i].aniosemestre,
-                                accion:"create"
-                            })
-                        }
-                        else{
-                            promises.push({
-                                id_usuarios_r : req.userId,
-                                state:'A',
-                                tipo:body[i].tiposemestre,
-                                anio:body[i].aniosemestre,
-                                accion:"update"
-                            })
-                        }
-                    })
-                    .catch(err => {
-                        res.status(500).send({ message: err.message });
-                        pasa=false;
                     });
+
+                    if (obj) {
+                        return obj.update({
+                            state: 'A',
+                            id_usuarios_r: req.userId,
+                            tipo: d.tiposemestre,
+                            anio: d.aniosemestre,
+                            id_catquincena_ini: d.idquincenaini,
+                            id_catquincena_fin: d.idquincenafin,
+                            id_catquincena_fininterinas: d.idquincenafininterinas,
+                            permitemodificacion: d.permitemodificacion,
+                            permitecargadeplantillas: d.permitecargadeplantillas,
+                            qnainiciosemestre: d.qnainiciosemestre,
+                            qnafinsemestre: d.qnafinsemestre,
+                            actual: d.actual
+                        }).catch(err => {
+                            res.status(500).send({ message: err.message });
+                            pasa = false;
+                        });
+                    } else {
+                        return Semestre.create({
+                            id: d.idsemestre,
+                            id_usuarios_r: req.userId,
+                            state: 'A',
+                            tipo: d.tiposemestre,
+                            anio: d.aniosemestre,
+                            id_catquincena_ini: d.idquincenaini,
+                            id_catquincena_fin: d.idquincenafin,
+                            id_catquincena_fininterinas: d.idquincenafininterinas,
+                            permitemodificacion: d.permitemodificacion,
+                            permitecargadeplantillas: d.permitecargadeplantillas,
+                            qnainiciosemestre: d.qnainiciosemestre,
+                            qnafinsemestre: d.qnafinsemestre,
+                            actual: d.actual
+                        }).catch(err => {
+                            res.status(500).send({ message: err.message });
+                            pasa = false;
+                        });
+                    }
                 }
-            }
-            if(pasa){
-                promises.forEach(element => {
-                if(element.accion=="create"){
-                    Semestre.create().then((self) => {
-                        // here self is your instance, but updated
-                        //res.status(200).send({ message: "success", id: self.id });
-                    }).catch(err => {
-                        res.status(500).send({ message: err.message });
-                        pasa=false;
-                    });
-                } else {
-                    Semestre.update({
-                        
-                    }).then((self) => {
-                        // here self is your instance, but updated
-                        //res.status(200).send({ message: "success", id: self.id });
-                    }).catch(err => {
-                        console.log("UPDATE=>","ERROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOR");
-                        res.status(500).send({ message: err.message });
-                        pasa=false;
-                    });
-                }
-                }); 
-                    
-                
-            }
-            if(pasa)
-                res.status(200).send({ message: "success",  });
+            }));
+            if (pasa)
+                res.status(200).send({ message: "success", });
         })
     })
 }

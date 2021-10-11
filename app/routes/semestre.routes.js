@@ -22,6 +22,11 @@ module.exports = function(app) {
         controller.getRecord
     );
     app.post(
+        "/api/semestre/getActual", [authJwt.verifyToken],
+        controller.getActual
+    );
+
+    app.post(
         "/api/semestre/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );

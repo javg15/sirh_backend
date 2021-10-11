@@ -47,7 +47,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        idestatusquincena: {
+        id_catestatusquincena: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -56,7 +56,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         fechadepago: {
-            type: DataTypes.STRING(7),
+            type: DataTypes.DATE,
             allowNull: true
         },
         observaciones: {
@@ -64,7 +64,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         fechacierre: {
-            type: DataTypes.STRING(7),
+            type: DataTypes.DATE,
             allowNull: true
         },
         observaciones2: {

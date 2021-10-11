@@ -21,7 +21,7 @@ module.exports = function(app) {
         "/api/catquincena/getCatalogoSegunSemestre", [authJwt.verifyToken],
         controller.getCatalogoSegunSemestre
     );
-    
+
     app.post(
         "/api/catquincena/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
@@ -30,8 +30,13 @@ module.exports = function(app) {
         "/api/catquincena/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
+
     app.post(
         "/api/catquincena/setRecord", [authJwt.verifyToken],
         controller.setRecord
+    );
+    app.post(
+        "/api/catquincena/setUpdateFromWebService", [authJwt.verifyToken],
+        controller.setUpdateFromWebService
     );
 };

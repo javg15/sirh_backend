@@ -3,6 +3,9 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Catquincena = db.catquincena;
+const configsvc = require("../config/service.config.js");
+const request = require('request');
+
 var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
@@ -327,4 +330,84 @@ exports.setRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+}
+
+exports.setUpdateFromWebService = async(req, res) => {
+    //obtener token
+    request.post({
+        url: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicetoken,
+        form: {
+            usuario: configsvc.usuario,
+            contrasena: configsvc.contrasena
+        }
+    }, function(err, httpResponse, body) {
+        //llamar al servicio con el token e id usuario
+        request({
+            uri: 'http://' + configsvc.HOST + ':' + configsvc.PORT + configsvc.servicequincenas + '/' + req.body.id_semestre,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset = utf-8',
+                'access-token': JSON.parse(body).body[0].token
+            },
+            method: 'GET',
+        }, async function(err, httpResponse, body) {
+            body = JSON.parse(body).body;
+            pasa = true;
+
+            //Revisar y ejecutar todos los registros
+            await Promise.all(body.map(async function(d) {
+                if (pasa) {
+                    const obj = await Catquincena.findOne({
+                        where: {
+                            [Op.and]: [{ id: d.idquincena }, {
+                                id: {
+                                    [Op.gt]: 0
+                                }
+                            }],
+                        }
+                    });
+
+                    if (obj) {
+                        return obj.update({
+                            state: 'A',
+                            id_usuarios_r: req.userId,
+                            state: 'A',
+                            id_semestre: d.idsemestre,
+                            quincena: d.quincena.substr(4, 2),
+                            id_catestatusquincena: d.idestatusquincena,
+                            periodovacacional: d.periodovacacional,
+                            fechacierre: moment(d.fechacierre, 'DD/MM/YYYY').toDate('YYYY-MM-DD'),
+                            observaciones: d.observaciones,
+                            observaciones2: d.observaciones2,
+                            fechadepago: moment(d.fechadepago, 'DD/MM/YYYY').toDate('YYYY-MM-DD'),
+                            adicional: d.adicional
+
+                        }).catch(err => {
+                            res.status(500).send({ message: err.message });
+                            pasa = false;
+                        });
+                    } else {
+                        return Catquincena.create({
+                            id: d.idquincena,
+                            id_usuarios_r: req.userId,
+                            state: 'A',
+                            id_semestre: d.idsemestre,
+                            quincena: d.quincena.substr(4, 2),
+                            id_catestatusquincena: d.idestatusquincena,
+                            periodovacacional: d.periodovacacional,
+                            fechacierre: moment(d.fechacierre, 'DD/MM/YYYY').toDate('YYYY-MM-DD'),
+                            observaciones: d.observaciones,
+                            observaciones2: d.observaciones2,
+                            fechadepago: moment(d.fechadepago, 'DD/MM/YYYY').toDate('YYYY-MM-DD'),
+                            adicional: d.adicional
+                        }).catch(err => {
+                            res.status(500).send({ message: err.message });
+                            pasa = false;
+                        });
+                    }
+                }
+            }));
+            if (pasa)
+                res.status(200).send({ message: "success", });
+        })
+    })
 }
