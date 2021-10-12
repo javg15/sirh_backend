@@ -69,4 +69,5 @@ module.exports = {
     horasAcumuladas: "Las horas acumuladas de '{actual}' en la zona del plantel, superan a las horas autorizadas de '{expected}'",
     unique: "El valor '{actual}' ya existe en la Base de Datos",
     uniqueRecord: "El registro ya existe en la Base de Datos",
+    quincenaCalculada: "La quincena inicial ya fue calculada, por lo tanto ya no se pueden hacer modificaciones extras a la quincena de cierre",
 };

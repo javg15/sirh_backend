@@ -26,10 +26,15 @@ module.exports = function(app) {
         controller.getRecord
     );
     app.post(
+        "/api/personalhoras/getAdminSubResumen", [authJwt.verifyToken],
+        controller.getAdminSubResumen
+    );
+
+    app.post(
         "/api/personalhoras/getRecordTitularEnLicencia", [authJwt.verifyToken],
         controller.getRecordTitularEnLicencia
     );
-    
+
     app.post(
         "/api/personalhoras/setRecord", [authJwt.verifyToken],
         controller.setRecord

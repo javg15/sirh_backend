@@ -30,6 +30,10 @@ module.exports = function(app) {
         "/api/catquincena/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
+    app.post(
+        "/api/catquincena/getQuincenaActiva", [authJwt.verifyToken],
+        controller.getQuincenaActiva
+    );
 
     app.post(
         "/api/catquincena/setRecord", [authJwt.verifyToken],

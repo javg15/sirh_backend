@@ -181,7 +181,13 @@ exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
         " FROM categorias as c " +
         " LEFT JOIN cattipocategoria as cc ON c.id_cattipocategoria=cc.id " +
         " WHERE  cc.id_catplantillas=:id_catplantillas " +
-        " AND (fn_categorias_disponibles_plantillas(:id_catplanteles,c.id,:id_plazas)->>'plazas_disponibles')::integer>0";
+        "   AND ( " +
+        "    case when cc.id=2 then " + //plnatilla de docentes
+        "        (fn_categorias_disponibles_plantillas_horas(:id_catplanteles,c.id,:id_plazas)->>'horas_disponiblesT')::integer>0 " +
+        "    else " +
+        "        (fn_categorias_disponibles_plantillas(:id_catplanteles,c.id,:id_plazas)->>'plazas_disponibles')::integer>0 " +
+        "   end " +
+        ") ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -207,13 +213,13 @@ exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 
 exports.getCatalogoVigenteEnPlantilla = async(req, res) => {
 
-    let query = "SELECT DISTINCT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " 
-    + "FROM categorias as c "
-    + "     inner JOIN plantillasdocsnombramiento as pdn on pdn.id_categorias=c.id "
-    + "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  "
-    + "WHERE  a.id=:id_catplantillas "
-    + " AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "
-    + " AND pdn.state in ('A','B') ";
+    let query = "SELECT DISTINCT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+        "FROM categorias as c " +
+        "     inner JOIN plantillasdocsnombramiento as pdn on pdn.id_categorias=c.id " +
+        "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  " +
+        "WHERE  a.id=:id_catplantillas " +
+        " AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  " +
+        " AND pdn.state in ('A','B') ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent

@@ -165,6 +165,7 @@ require('./app/routes/horasclase.routes')(app);
 require('./app/routes/horasclaseasignar.routes')(app);
 require('./app/routes/horasclasedetalle.routes')(app);
 require('./app/routes/catestatushora.routes')(app);
+require('./app/routes/catestatusquincena.routes')(app);
 require('./app/routes/cattipohorasmateria.routes')(app);
 require('./app/routes/catnombramientos.routes')(app);
 require('./app/routes/permgrupos.routes')(app);

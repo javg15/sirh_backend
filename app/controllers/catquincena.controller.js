@@ -103,10 +103,35 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.getQuincenaActiva = async(req, res) => {
+    console.log("pasooooooooooooooooooooooooooooo")
+    Catquincena.findOne({
+            where: {
+                [Op.and]: [{ id_catestatusquincena: 1 }, {
+                        id: {
+                            [Op.gt]: 0
+                        },
+                    },
+                    { state: "A" },
+                ],
+            }
+        })
+        .then(catquincena => {
+            if (!catquincena) {
+                return res.status(404).send({ message: "Catquincena Not found." });
+            }
+
+            res.status(200).send(catquincena);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.getCatalogo = async(req, res) => {
     let query = "select c.id,concat(anio, lpad(c.quincena::text,2,0::text)) as text,c.anio,c.quincena " +
         "from catquincena as c " +
-        "where c.adicional=0 AND (c.anio=9999 OR c.idestatusquincena>0)  " + //OR c.idestatusquincena<4
+        "where c.adicional=0 AND (c.anio=9999 OR c.id_catestatusquincena>0)  " + //OR c.id_catestatusquincena<4
         "and c.state in ('A','B') " +
         "order by concat(anio, lpad(c.quincena::text,2,0::text)) DESC ";
 
@@ -239,7 +264,6 @@ exports.setRecord = async(req, res) => {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
-                if (datosUnique.length > 0) errors.push({ type: "uniqueRecord" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -250,7 +274,7 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        bimestre: {
+        id_catestatusquincena: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
@@ -367,13 +391,22 @@ exports.setUpdateFromWebService = async(req, res) => {
                     });
 
                     if (obj) {
+                        if (d.id_catestatusquincena == 1) //si el registro se va a actualizar a abierta
+                            await Catquincena.update({ id_catestatusquincena: 3 }, // actualizar todas las que esten abiertas a calculadas
+                            {
+                                where: {
+                                    [Op.and]: [{ id_catestatusquincena: 1 }, {
+                                        state: 'A'
+                                    }],
+                                }
+                            });
                         return obj.update({
                             state: 'A',
                             id_usuarios_r: req.userId,
                             state: 'A',
                             id_semestre: d.idsemestre,
                             quincena: d.quincena.substr(4, 2),
-                            id_catestatusquincena: d.idestatusquincena,
+                            id_catestatusquincena: d.id_catestatusquincena,
                             periodovacacional: d.periodovacacional,
                             fechacierre: moment(d.fechadepago, 'DD/MM/YYYY'),
                             observaciones: d.observaciones,
@@ -392,7 +425,7 @@ exports.setUpdateFromWebService = async(req, res) => {
                             state: 'A',
                             id_semestre: d.idsemestre,
                             quincena: d.quincena.substr(4, 2),
-                            id_catestatusquincena: d.idestatusquincena,
+                            id_catestatusquincena: d.id_catestatusquincena,
                             periodovacacional: d.periodovacacional,
                             fechacierre: moment(d.fechadepago, 'DD/MM/YYYY'),
                             observaciones: d.observaciones,

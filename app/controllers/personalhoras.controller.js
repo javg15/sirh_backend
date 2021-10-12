@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
 const Personalhoras = db.personalhoras;
+const Catquincena = db.catquincena;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -107,7 +108,7 @@ exports.getAdminSub = async(req, res) => {
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +
             "&ordensentido=DESC" +
-            "&state=" + params.opcionesAdicionales.state +
+            //"&state=" + params.opcionesAdicionales.state +
             "&fkey=" + params.opcionesAdicionales.fkey +
             "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
@@ -159,6 +160,41 @@ exports.getAdminSub = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
+exports.getAdminSubResumen = async(req, res) => {
+    params = req.body;
+    query = "SELECT * FROM fn_horas_cuenta_resumen(:id_personal,:id_catplanteles,:id_gruposclase,:id_materiasclase,:id_catestatushora,:id_semestre)"; //el modo no existe, solo es para obtener un registro
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: params.id_personal,
+            id_semestre: params.id_semestre,
+            id_catplanteles: 0,
+            id_gruposclase: 0,
+            id_materiasclase: 0,
+            id_catestatushora: 0,
+
+            start: (typeof params.start !== typeof undefined ? params.start : 0),
+            length: (typeof params.start !== typeof undefined ? params.length : 1),
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    //console.log(JSON.stringify(respuesta));
+    res.status(200).send(datos);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+}
+
 
 exports.getRecord = async(req, res) => {
 
@@ -199,16 +235,17 @@ exports.getCatalogo = async(req, res) => {
 }
 
 exports.getRecordTitularEnLicencia = async(req, res) => {
-        //:id_personalhoras<>0 es edición
-        let query = "select p.id as id_personalhoras,pe.id, pe.rfc ,pe.numeemp ,fn_idesc_personal(pe.id) as nombre "
-        + "from personalhoras as p  "
-        + "    left join personal as pe on p.id_personal =pe.id "
-        + "WHERE p.id_catplanteles=:id_catplanteles    "
-            + "AND p.id_gruposclase=:id_gruposclase "
-            + "AND p.id_materiasclase=:id_materiasclase "    
-            + "AND p.id_catestatushora =5  " //--en licencia
-            + "AND p.id_semestre =:id_semestre "    
-        + "AND p.state IN ('A','B') ";
+    //:id_personalhoras<>0 es edición
+    let query = "select p.id as id_personalhoras,pe.id, pe.rfc ,pe.numeemp ,fn_idesc_personal(pe.id) as nombre " +
+        "from personalhoras as p  " +
+        "    left join personal as pe on p.id_personal =pe.id " +
+        "WHERE p.id_catplanteles=:id_catplanteles    " +
+        "AND p.id_gruposclase=:id_gruposclase " +
+        "AND p.id_materiasclase=:id_materiasclase " +
+        "AND p.id_catestatushora =5  " //--en licencia
+        +
+        "AND p.id_semestre =:id_semestre " +
+        "AND p.state IN ('A','B') ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -242,6 +279,19 @@ exports.setRecord = async(req, res) => {
             key == "horas" || key == "horaestatus" || key == "frenteagrupo") {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+    })
+
+    //obtener la quincena activa
+    const quincenaActiva = await Catquincena.findOne({
+        where: {
+            [Op.and]: [{ id_catestatusquincena: 1 }, {
+                    id: {
+                        [Op.gt]: 0
+                    },
+                },
+                { state: "A" },
+            ],
         }
     })
 
@@ -395,37 +445,32 @@ exports.setRecord = async(req, res) => {
                     res.status(500).send({ message: err.message });
                 });
             } else {
+                //Si la quincena inicial es mayor a la quincena activa
+                if (req.body.dataPack['id_catquincena_ini'] < quincenaActiva.id &&
+                    req.body.actionForm.toUpperCase() == "EDITAR") {
+                    //como prevención solo dejar la quincena final    
+                    delete req.body.dataPack.id_personal;
+                    delete req.body.dataPack.id_catplanteles;
+                    delete req.body.dataPack.id_semestre;
+                    delete req.body.dataPack.id_catestatushora;
+                    delete req.body.dataPack.id_catnombramientos;
+                    delete req.body.dataPack.cantidad;
+                    delete req.body.dataPack.id_gruposclase;
+                    delete req.body.dataPack.id_materiasclase;
+                    delete req.body.dataPack.id_catquincena_ini;
+                    delete req.body.dataPack.id_cattipohorasdocente;
+                }
+
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                //si el estatus es diferente, entonces duplicar
+                personalhoras.update(req.body.dataPack).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                });
 
-                //ya no toma efecto esta situación para poner en D, atender video de quincena activa y si es que ya se cobró la quincena
-                if (personalhoras.id_catestatushora != req.body.dataPack.id_catestatushora) {
-                    //actualizar el state=D, se queda registrado aunque se hayan equivocado
-                    personalhoras.update({ state: "D" }).then((self) => {
-                        // here self is your instance, but updated
-                        res.status(200).send({ message: "success", id: self.id });
-                    });
-
-                    //duplicar
-                    delete req.body.dataPack.id;
-                    Personalhoras.create(
-                        req.body.dataPack
-                    ).then((self) => {
-                        // here self is your instance, but updated
-                        res.status(200).send({ message: "success", id: self.id });
-                    }).catch(err => {
-                        res.status(500).send({ message: err.message });
-                    });
-                } else {
-                    personalhoras.update(req.body.dataPack).then((self) => {
-                        // here self is your instance, but updated
-                        res.status(200).send({ message: "success", id: self.id });
-                    });
-                }
             }
 
 
