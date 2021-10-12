@@ -104,7 +104,6 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.getQuincenaActiva = async(req, res) => {
-    console.log("pasooooooooooooooooooooooooooooo")
     Catquincena.findOne({
             where: {
                 [Op.and]: [{ id_catestatusquincena: 1 }, {
