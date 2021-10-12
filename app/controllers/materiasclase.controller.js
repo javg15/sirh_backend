@@ -147,6 +147,9 @@ exports.getCatalogoSegunGrupo = async(req, res) => {
     res.status(200).send(datos);
 }
 
+
+
+
 exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
     let query = "select distinct mc.id,mc.nombre as text,cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer) as horasdisponibles " +
         "from horasclase as h " +

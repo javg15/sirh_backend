@@ -79,6 +79,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true
         },
+        frenteagrupo: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'personalhoras',
