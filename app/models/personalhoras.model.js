@@ -80,7 +80,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         frenteagrupo: {
-            type: DataTypes.DATE,
+            type: DataTypes.INTEGER,
             allowNull: true
         },
     }, {
