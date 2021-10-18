@@ -209,28 +209,29 @@ exports.getCatalogo = async(req, res) => {
 }
 
 exports.getCatalogoSinAdmin = async(req, res) => {
+    //retornar las zonas geograficas permitidas
+    let query = "SELECT * FROM fn_plantel_catalogo_sinadmin(:id_usuario)";
+    //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
 
-    Catplanteles.findAll({
-            attributes: ['id', 'descripcion', 'ubicacion', 'clave', 'tipoplantel', [db.sequelize.literal("clave || ' - ' || ubicacion"), "text"]],
-            where: {
-                clave: {
-                    [Op.lt]: '90'
-                }
-            },
-            order: [
-                ['clave', 'ASC'],
-            ]
-        }).then(catplanteles => {
-            if (!catplanteles) {
-                return res.status(404).send({ message: "Catplanteles Not found." });
-            }
+        replacements: {
+            id_usuario: req.body.id_usuario,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
 
-            res.status(200).send(catplanteles);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    res.status(200).send(datos);
 }
+
 
 exports.getCatalogoSegunPersonal = async(req, res) => {
 

@@ -621,17 +621,16 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         " FROM(" +
         "   select distinct p.id, fn_plaza_clave(p.id) as text,pp.id_catplantillas  " +
         "   from plazas as p " +
-        "      left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A') " +
         "      left join catestatusplaza as ce on p.id_catestatusplaza=ce.id " +
+        "      left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A','B') " +
         "     left join plantillaspersonal as pp on pp.id=pn.id_plantillaspersonal " +
         "   where p.id_categorias =:id_categorias " +
-        "      and (pn.id is null " + //no esten asignadas
-        "          or (pn.id is not null and (ce.id in (1,2) or ce.tipo=2)) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
-        "         or coalesce(pn.id_plazas,0) =:id_plazas " +
-        "         or (case when pp.id_catplantillas=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2
-        "      ) " + //una plaza en especifico
         "     and p.id_catplanteles =:id_catplanteles " +
-        "     and p.state IN ('A') " +
+        "      and ((ce.id in (1,2) or ce.tipo=2) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
+        "         or coalesce(pn.id_plazas,0) =:id_plazas " +
+        "      ) " + //una plaza en especifico
+        "     and (case when pp.id_catplantillas=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
+        "     and p.state IN ('A','B') " +
         ") AS a " +
         "WHERE CASE WHEN " +
         "   a.id_catplantillas=2 then (fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesT')::integer>0 " + //segundo filtro, con horas disponibles
