@@ -168,7 +168,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             } else {
                 delete req.body.dataPack.created_at;
@@ -193,6 +193,30 @@ exports.getCatalogo = async(req, res) => {
 
     Catplanteles.findAll({
             attributes: ['id', 'descripcion', 'ubicacion', 'clave', 'tipoplantel', [db.sequelize.literal("clave || ' - ' || ubicacion"), "text"]],
+            order: [
+                ['clave', 'ASC'],
+            ]
+        }).then(catplanteles => {
+            if (!catplanteles) {
+                return res.status(404).send({ message: "Catplanteles Not found." });
+            }
+
+            res.status(200).send(catplanteles);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.getCatalogoSinAdmin = async(req, res) => {
+
+    Catplanteles.findAll({
+            attributes: ['id', 'descripcion', 'ubicacion', 'clave', 'tipoplantel', [db.sequelize.literal("clave || ' - ' || ubicacion"), "text"]],
+            where: {
+                clave: {
+                    [Op.lt]: '90'
+                }
+            },
             order: [
                 ['clave', 'ASC'],
             ]

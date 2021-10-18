@@ -178,8 +178,8 @@ exports.getRecordParaCombo = async(req, res) => {
 exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 
     let query = "SELECT cc.id AS id_cattipocategoria, c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
-    ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesA' AS horas " +
-    ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesB' AS horasb " +
+        ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesA' AS horas " +
+        ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesB' AS horasb " +
         " FROM categorias as c " +
         " LEFT JOIN cattipocategoria as cc ON c.id_cattipocategoria=cc.id " +
         " WHERE  cc.id_catplantillas=:id_catplantillas " +
@@ -190,8 +190,7 @@ exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
         "        (fn_categorias_disponibles_plantillas(:id_catplanteles,c.id,:id_plazas)->>'plazas_disponibles')::integer>0 " +
         "   end " +
         "   ) " +
-        " ORDER BY c.clave "
-        ;
+        " ORDER BY c.clave ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -346,7 +345,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             } else {
                 delete req.body.dataPack.created_at;
@@ -357,6 +356,8 @@ exports.setRecord = async(req, res) => {
                 categorias.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             }
 

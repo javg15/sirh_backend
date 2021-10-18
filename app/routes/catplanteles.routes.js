@@ -31,5 +31,10 @@ module.exports = function(app) {
         "/api/catplanteles/getCatalogoSegunPersonal", [authJwt.verifyToken],
         controller.getCatalogoSegunPersonal
     );
+    app.post(
+        "/api/catplanteles/getCatalogoSinAdmin", [authJwt.verifyToken],
+        controller.getCatalogoSinAdmin
+    );
+
 
 };

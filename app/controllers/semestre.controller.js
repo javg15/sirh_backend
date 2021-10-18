@@ -31,10 +31,15 @@ exports.getAdmin = async(req, res) => {
         query = "SELECT * FROM s_semestre_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
-            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir + "')";
+            "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor;
 
+        if (req.body.draw == 1) {
+            query += "&ordencampo=Tipo" +
+                "&ordensentido=DESC')";
+        } else {
+            query += "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
+                "&ordensentido=" + req.body.order[0].dir + "')";
+        }
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
             // Will get called for every SQL query that gets sent
@@ -272,7 +277,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             } else {
                 delete req.body.dataPack.created_at;

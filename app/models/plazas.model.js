@@ -88,7 +88,8 @@ module.exports = function(sequelize, DataTypes) {
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: true
-        }
+        },
+
     }, {
         sequelize,
         tableName: 'plazas',

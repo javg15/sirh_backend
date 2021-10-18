@@ -103,6 +103,30 @@ exports.getClave = async(req, res) => {
     res.status(200).send(datos);
 };
 
+exports.getBaseClave = async(req, res) => {
+    let query = "select  fn_plaza_base_clave(:id_personal,:id_semestre) as clave ";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+            id_semestre: req.body.id_semestre,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos[0]);
+};
+
 exports.getPlazaSegunPersonal = async(req, res) => {
     let query = "select p.*,fn_plaza_clave(p.id) as clave " +
         "from plazas as p " +
