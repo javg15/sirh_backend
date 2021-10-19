@@ -280,6 +280,9 @@ exports.setRecord = async(req, res) => {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
     })
 
     //obtener la quincena activa
@@ -295,6 +298,20 @@ exports.setRecord = async(req, res) => {
         }
     })
 
+    //existe semestre,plantel,grupo,materia,estatus
+    const personalhorasExiste = await Personalhoras.findOne({
+        where: {
+            [Op.and]: [{ id_semestre: req.body.dataPack.id_semestre },
+                { id_catplanteles: req.body.dataPack.id_catplanteles },
+                { id_gruposclase: req.body.dataPack.id_gruposclase },
+                { id_materiasclase: req.body.dataPack.id_materiasclase },
+                { id_catestatushora: req.body.dataPack.id_catestatushora },
+                { id_cattipohorasdocente: req.body.dataPack.id_cattipohorasdocente },
+                { state: "A" },
+            ],
+        }
+    })
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -304,6 +321,7 @@ exports.setRecord = async(req, res) => {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
+                if (personalhorasExiste) errors.push({ type: "uniqueRecord" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -449,6 +467,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
+                    console.log("err.errors=>", err)
                     res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             } else {
