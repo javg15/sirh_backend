@@ -34,4 +34,9 @@ module.exports = function(app) {
         "/api/gruposclase/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+    app.post(
+        "/api/gruposclase/getCatalogoConHorasDisponiblesSegunCopia", [authJwt.verifyToken],
+        controller.getCatalogoConHorasDisponiblesSegunCopia
+    );
+
 };

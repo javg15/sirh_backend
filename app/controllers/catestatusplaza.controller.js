@@ -105,9 +105,9 @@ exports.getCatalogo = async(req, res) => {
             attributes: ['id', 'descripcion', 'convigencia', 'conlicencia', 'esinterina', 'esnombramiento'],
             where: {
                 [Op.and]: [{
-                        id: {
+                        /*id: {
                             [Op.notIn]: [1, 2, 7, 8]
-                        }
+                        }*/
                     },
                     {
                         tipo: {

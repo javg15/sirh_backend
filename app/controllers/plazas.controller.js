@@ -124,8 +124,59 @@ exports.getBaseClave = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
-    res.status(200).send(datos[0]);
+    res.status(200).send(datos[0].clave);
 };
+
+exports.getNombramientosVigentes = async(req, res) => {
+    let query = "select  fn_nombramientos_vigentes(:id_personal,:id_semestre) as nombramientos ";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+            id_semestre: req.body.id_semestre,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos[0].nombramientos);
+};
+
+exports.getRecordParaCombo = async(req, res) => {
+
+    let query = "SELECT id, fn_plaza_clave(id) as text " +
+        " FROM plazas" +
+        " WHERE  id=:id_plazas ";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_plazas: req.body.id_plazas,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
 
 exports.getPlazaSegunPersonal = async(req, res) => {
     let query = "select p.*,fn_plaza_clave(p.id) as clave " +

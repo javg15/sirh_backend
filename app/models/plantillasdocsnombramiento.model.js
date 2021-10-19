@@ -118,7 +118,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true,
             defaultValue: 0
         },
-
+        esplazabase: {
+            type: DataTypes.SMALLINT,
+            allowNull: true,
+            defaultValue: 0
+        },
     }, {
         sequelize,
         tableName: 'plantillasdocsnombramiento',
