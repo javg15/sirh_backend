@@ -28,6 +28,7 @@ exports.getAdmin = async(req, res) => {
         query = "SELECT * FROM s_plazas_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
+            "&state=" + req.body.opcionesAdicionales.state +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
             "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
             "&ordensentido=" + req.body.order[0].dir + "')";
@@ -630,11 +631,25 @@ exports.setRecord = async(req, res) => {
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+                if(req.body.dataPack.state=="A"){//si es editar
+                    plazas.update(req.body.dataPack).then((self) => {
+                        // here self is your instance, but updated
+                        res.status(200).send({ message: "success", id: self.id });
+                    });
+                }
+                else{
+                    //afectar tambien al campo estatus de la tabla 
+                    let estatusDato="A";
+                    if(req.body.dataPack.state=="D") estatusDato="I"
 
-                plazas.update(req.body.dataPack).then((self) => {
-                    // here self is your instance, but updated
-                    res.status(200).send({ message: "success", id: self.id });
-                });
+                    plazas.update({
+                        state:req.body.dataPack.state,
+                        estatus:estatusDato
+                    }).then((self) => {
+                        // here self is your instance, but updated
+                        res.status(200).send({ message: "success", id: self.id });
+                    });
+                }
             }
 
 
