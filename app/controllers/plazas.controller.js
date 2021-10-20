@@ -642,7 +642,7 @@ exports.getCatalogoVigenteSegunCategoria = async(req, res) => {
         "FROM plazas as c " +
         "    inner JOIN plantillasdocsnombramiento as pdn on pdn.id_plazas=c.id " +
         "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  " +
-        "WHERE  a.id=:id_catplantillas " +
+        "WHERE  a.id=:id_plantillaspersonal " +
         " AND pdn.state in ('A','B') " +
         " and c.id_categorias =:id_categorias ";
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
@@ -654,7 +654,7 @@ exports.getCatalogoVigenteSegunCategoria = async(req, res) => {
 
         replacements: {
             id_categorias: req.body.id_categorias,
-            id_catplantillas: req.body.id_catplantillas, //cuando quiero desplegar tambien el de la plaza buscada
+            id_plantillaspersonal: req.body.id_plantillaspersonal, //cuando quiero desplegar tambien el de la plaza buscada
         },
         // If plain is true, then sequelize will only return the first
         // record of the result set. In case of false it will return all records.
