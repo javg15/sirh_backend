@@ -171,9 +171,61 @@ exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
         replacements: {
             id_catplanteles: req.body.id_catplanteles,
             id_personalhoras: req.body.id_personalhoras,
-            tiposemestre:req.body.tipo,
+            tiposemestre: req.body.tipo,
             id_cattiposemestre: req.body.id_cattiposemestre,
             id_semestre: req.body.id_semestre,
+        },
+
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
+exports.getCatalogoConHorasDisponiblesSegunCopia = async(req, res) => {
+    //:id_personalhoras<>0 es edición
+    let query = "select distinct gc.id,concat(gc.grupo ,'-',gc.tiposemestre) as text " +
+        "from horasclase as h " +
+        "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
+        "where h.id_catplanteles =:id_catplanteles " +
+        "   AND (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
+        "   AND gc.tiposemestre  =:tiposemestre " +
+        "   AND h.state IN ('A','B') " +
+        "   AND gc.id NOT IN ( " + //no este el grupo ya asignado a la curricula del empleado
+        "    SELECT id_gruposclase " +
+        "    FROM personalhoras " +
+        "    WHERE id_semestre=:id_semestre " +
+        "        AND id_personal=:id_personal " +
+        "        AND id_catplanteles=:id_catplanteles " +
+        "        AND id_materiasclase=:id_materiasclase " +
+        "        AND id_catestatushora=:id_catestatushora " +
+        "        AND id_cattipohorasdocente=:id_cattipohorasdocente " +
+        "        AND state IN ('A','B') " +
+        ") " +
+        "order by concat(gc.grupo ,'-',gc.tiposemestre) ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_semestre: req.body.id_semestre,
+            id_catplanteles: req.body.id_catplanteles,
+            id_personalhoras: req.body.id_personalhoras,
+            tiposemestre: req.body.tipo,
+            id_cattiposemestre: req.body.id_cattiposemestre,
+            id_materiasclase: req.body.id_materiasclase,
+            id_catestatushora: req.body.id_catestatushora,
+            id_cattipohorasdocente: req.body.id_cattipohorasdocente,
+            id_personal: req.body.id_personal
         },
 
         // If plain is true, then sequelize will only return the first
@@ -271,7 +323,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             } else {
                 delete req.body.dataPack.created_at;

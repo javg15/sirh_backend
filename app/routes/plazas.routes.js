@@ -51,6 +51,21 @@ module.exports = function(app) {
         "/api/plazas/getHistorial", [authJwt.verifyToken],
         controller.getHistorial
     );
+    app.post(
+        "/api/plazas/getBaseClave", [authJwt.verifyToken],
+        controller.getBaseClave
+    );
+    app.post(
+        "/api/plazas/getNombramientosVigentes", [authJwt.verifyToken],
+        controller.getNombramientosVigentes
+    );
+
+    app.post(
+        "/api/plazas/getRecordParaCombo", [authJwt.verifyToken],
+        controller.getRecordParaCombo
+    );
+
+
 
 
     app.post(

@@ -240,7 +240,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
             } else {
                 delete req.body.dataPack.created_at;

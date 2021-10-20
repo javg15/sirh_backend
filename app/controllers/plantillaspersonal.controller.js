@@ -116,7 +116,7 @@ exports.getHistorialNomina = async(req, res) => {
         ']';
 
     var columnNames = ["plazapp", "abrevtipoemp", "claveplantelplaza", "abrevesquemapago", "siglassindicato", "nombrefuncionpri", "nombrefuncionsec",
-        "tiposemestre", "qnaini", "qnafin", "descmotgralbaja", "fechafin","acciones"
+        "tiposemestre", "qnaini", "qnafin", "descmotgralbaja", "fechafin", "acciones"
     ]
 
 
@@ -219,14 +219,8 @@ exports.getRecordPersonal = async(req, res) => {
 
                     res.status(200).send(personal);
                 })
-                .catch(err => {
-                    res.status(500).send({ message: err.message });
-                });
-
-            //res.status(200).send(plantillaspersonal);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
+        }).catch(err => {
+            res.status(200).send({ error: true, message: [err.errors[0].message] });
         });
 }
 
@@ -502,7 +496,7 @@ exports.setRecord = async(req, res) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 }).catch(err => {
-                    res.status(500).send({ message: err.message });
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
 
             } else {
