@@ -637,7 +637,7 @@ exports.setRecord = async(req, res) => {
                         res.status(200).send({ message: "success", id: self.id });
                     });
                 }
-                else{
+                else{//desactivar
                     //afectar tambien al campo estatus de la tabla 
                     let estatusDato="A";
                     if(req.body.dataPack.state=="D") estatusDato="I"
