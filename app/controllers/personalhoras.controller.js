@@ -396,7 +396,7 @@ exports.setRecord = async(req, res) => {
                 dateFin = value
                 dateIni = req.body.dataPack.id_catquincena_ini
 
-                if (dateFin < dateIni)
+                if (value != 0 && dateFin < dateIni)
                     errors.push({ type: "quincenaFin", field: "id_catquincena_fin" })
 
                 return value; // Sanitize: remove all special chars except numbers
