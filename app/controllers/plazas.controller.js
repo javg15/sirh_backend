@@ -154,7 +154,7 @@ exports.getNombramientosVigentes = async(req, res) => {
 
 exports.getRecordParaCombo = async(req, res) => {
 
-    let query = "SELECT id, fn_plaza_clave(id) as text " +
+    let query = "SELECT id, fn_plaza_clave(id) as text,id_categorias " +
         " FROM plazas" +
         " WHERE  id=:id_plazas ";
     datos = await db.sequelize.query(query, {
@@ -631,20 +631,19 @@ exports.setRecord = async(req, res) => {
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
-                if(req.body.dataPack.state=="A"){//si es editar
+                if (req.body.dataPack.state == "A") { //si es editar
                     plazas.update(req.body.dataPack).then((self) => {
                         // here self is your instance, but updated
                         res.status(200).send({ message: "success", id: self.id });
                     });
-                }
-                else{//desactivar
+                } else { //desactivar
                     //afectar tambien al campo estatus de la tabla 
-                    let estatusDato="A";
-                    if(req.body.dataPack.state=="D") estatusDato="I"
+                    let estatusDato = "A";
+                    if (req.body.dataPack.state == "D") estatusDato = "I"
 
                     plazas.update({
-                        state:req.body.dataPack.state,
-                        estatus:estatusDato
+                        state: req.body.dataPack.state,
+                        estatus: estatusDato
                     }).then((self) => {
                         // here self is your instance, but updated
                         res.status(200).send({ message: "success", id: self.id });
@@ -685,7 +684,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesA' AS horas" +
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesB' AS horasb" +
         " FROM(" +
-        "   select distinct p.id, fn_plaza_clave(p.id) as text,pp.id_catplantillas  " +
+        "   select distinct p.id, fn_plaza_clave(p.id) as text,pp.id_catplantillas,p.id_categorias  " +
         "   from plazas as p " +
         "      left join catestatusplaza as ce on p.id_catestatusplaza=ce.id " +
         "      left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A','B') " +
@@ -727,7 +726,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
 
 exports.getCatalogoVigenteSegunCategoria = async(req, res) => {
 
-    let query = "SELECT DISTINCT c.id, fn_plaza_clave(c.id) as text " +
+    let query = "SELECT DISTINCT c.id, fn_plaza_clave(c.id) as text,c.id_categorias " +
         "FROM plazas as c " +
         "    inner JOIN plantillasdocsnombramiento as pdn on pdn.id_plazas=c.id " +
         "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  " +

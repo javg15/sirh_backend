@@ -88,9 +88,9 @@ exports.getRecord = async(req, res) => {
             }
         })
         .then(personal => {
-            if (!personal) {
+            /*if (!personal) {
                 return res.status(404).send({ message: "Personal Not found." });
-            }
+            }*/
 
             res.status(200).send(personal);
         })
