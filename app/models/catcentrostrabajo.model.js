@@ -65,7 +65,11 @@ module.exports = function(sequelize, DataTypes) {
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: true
-        }
+        },
+        id_personal_analista: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'catcentrostrabajo',

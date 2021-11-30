@@ -150,7 +150,25 @@ module.exports = function(sequelize, DataTypes) {
         updated_at: {
             type: DataTypes.DATE,
             allowNull: true
-        }
+        },
+        fechaingreso: {
+            type: DataTypes.DATEONLY,
+            allowNull: true
+        },
+        primaantiguedad: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        id_catbanco_deposito: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        cuentadeposito: {
+            type: DataTypes.STRING(30),
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'personal',
