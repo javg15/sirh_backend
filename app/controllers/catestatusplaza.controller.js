@@ -102,7 +102,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catestatusplaza.findAll({
-            attributes: ['id', 'descripcion', 'convigencia', 'conlicencia', 'esinterina', 'esnombramiento'],
+            attributes: ['id', 'descripcion', 'convigencia', 'conlicencia', 'esinterina', 'esnombramiento',['descripcion',"text"]],
             where: {
                 [Op.and]: [{
                         /*id: {
