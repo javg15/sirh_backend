@@ -170,6 +170,7 @@ require('./app/routes/catestatusquincena.routes')(app);
 require('./app/routes/cattipohorasmateria.routes')(app);
 require('./app/routes/catnombramientos.routes')(app);
 require('./app/routes/permgrupos.routes')(app);
+require('./app/routes/personalexpediente.routes')(app);
 /*app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });*/
