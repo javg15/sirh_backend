@@ -1,7 +1,7 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Catestados = db.catestados;
+const Catdocumentos = db.catdocumentos;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -14,10 +14,12 @@ let dataValidator = new Validator({
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
-        query = "";
+        query = "",
+        params = req.body.dataTablesParameters;
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catestados_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        params = req.body;
+        query = "SELECT * FROM s_personalexpediente_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -25,12 +27,14 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catestados_mgr('" +
-            "&modo=3&id_usuario=:id_usuario" +
+        query = "SELECT * FROM s_personalexpediente_mgr('" +
+            "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
-            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir + "')";
+            "&ordencampo=ID" +
+            "&ordensentido=DESC" +
+            //"&state=" + params.opcionesAdicionales.state +
+            "&fkey=" + params.opcionesAdicionales.fkey +
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -40,8 +44,10 @@ exports.getAdmin = async(req, res) => {
 
             replacements: {
                 id_usuario: req.userId,
-                start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
-                length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
+                modo: params.opcionesAdicionales.modo,
+
+                start: (typeof params.start !== typeof undefined ? params.start : 0),
+                length: (typeof params.start !== typeof undefined ? params.length : 1),
 
             },
             // If plain is true, then sequelize will only return the first
@@ -66,7 +72,7 @@ exports.getAdmin = async(req, res) => {
     }
 
     respuesta = {
-            draw: req.body.opcionesAdicionales.raw,
+            draw: params.opcionesAdicionales.raw,
             recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
             data: datos,
@@ -81,17 +87,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catestados.findOne({
+    Catdocumentos.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catestados => {
-            if (!catestados) {
-                return res.status(404).send({ message: "Catestados Not found." });
+        .then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
             }
 
-            res.status(200).send(catestados);
+            res.status(200).send(catdocumentos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -100,17 +106,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getRecordSegunClaveCurp = async(req, res) => {
 
-    Catestados.findOne({
+    Catdocumentos.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catestados => {
-            if (!catestados) {
-                return res.status(404).send({ message: "Catestados Not found." });
+        .then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
             }
 
-            res.status(200).send(catestados);
+            res.status(200).send(catdocumentos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -118,18 +124,17 @@ exports.getRecordSegunClaveCurp = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
-
-    Catestados.findAll({
-            attributes: ['id', 'descripcion', 'clave_curp'],
+    Catdocumentos.findAll({
+            attributes: ['id', 'descripcion', ['descripcion', 'text'], 'razon'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(catestados => {
-            if (!catestados) {
-                return res.status(404).send({ message: "Catestados Not found." });
+        }).then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
             }
 
-            res.status(200).send(catestados);
+            res.status(200).send(catdocumentos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });

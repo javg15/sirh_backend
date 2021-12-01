@@ -1,24 +1,20 @@
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('catcentrostrabajo', {
+    return sequelize.define('personalexpediente', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        clave: {
+        id_personal: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        descripcion: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        zona: {
+        id_catdocumentos: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_cattipoct: {
+        id_archivos: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -26,32 +22,8 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
-        id_catplanteles: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_qnaini: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_qnafin: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        id_ctant: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        titular: {
+        observaciones: {
             type: DataTypes.STRING,
-            allowNull: true
-        },
-        id_categoriaasoc: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
-        ficticia: {
-            type: DataTypes.INTEGER,
             allowNull: true
         },
         created_at: {
@@ -65,14 +37,10 @@ module.exports = function(sequelize, DataTypes) {
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: true
-        },
-        id_personal_analista: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
+        }
     }, {
         sequelize,
-        tableName: 'catcentrostrabajo',
+        tableName: 'personalexpediente',
         schema: 'public',
         //timestamps: false
 

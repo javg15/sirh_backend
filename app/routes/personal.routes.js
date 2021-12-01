@@ -21,6 +21,11 @@ module.exports = function(app) {
         "/api/personal/getRecordSegunUsuario", [authJwt.verifyToken],
         controller.getRecordSegunUsuario
     );
+    app.post(
+        "/api/personal/getRecordAntiguedad", [authJwt.verifyToken],
+        controller.getRecordAntiguedad
+    );
+
 
     app.post(
         "/api/personal/setRecord", [authJwt.verifyToken],

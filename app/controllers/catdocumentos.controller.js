@@ -1,7 +1,7 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Catestados = db.catestados;
+const Catdocumentos = db.catdocumentos;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -17,7 +17,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catestados_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_catdocumentos_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -25,7 +25,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_catestados_mgr('" +
+        query = "SELECT * FROM s_catdocumentos_mgr('" +
             "&modo=3&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -81,17 +81,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catestados.findOne({
+    Catdocumentos.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catestados => {
-            if (!catestados) {
-                return res.status(404).send({ message: "Catestados Not found." });
+        .then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
             }
 
-            res.status(200).send(catestados);
+            res.status(200).send(catdocumentos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -100,17 +100,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getRecordSegunClaveCurp = async(req, res) => {
 
-    Catestados.findOne({
+    Catdocumentos.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catestados => {
-            if (!catestados) {
-                return res.status(404).send({ message: "Catestados Not found." });
+        .then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
             }
 
-            res.status(200).send(catestados);
+            res.status(200).send(catdocumentos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -118,18 +118,17 @@ exports.getRecordSegunClaveCurp = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
-
-    Catestados.findAll({
-            attributes: ['id', 'descripcion', 'clave_curp'],
+    Catdocumentos.findAll({
+            attributes: ['id', 'descripcion', ['descripcion', 'text'], 'razon'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(catestados => {
-            if (!catestados) {
-                return res.status(404).send({ message: "Catestados Not found." });
+        }).then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
             }
 
-            res.status(200).send(catestados);
+            res.status(200).send(catdocumentos);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });

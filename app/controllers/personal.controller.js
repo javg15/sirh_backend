@@ -4,6 +4,7 @@ const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
 const Personal = db.personal;
 const Request = require("request");
+var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -138,6 +139,41 @@ exports.getRecordSegunCURP = async(req, res) => {
         });
 }
 
+exports.getRecordAntiguedad = async(req, res) => {
+    let datos = "",
+        query = "";
+
+    query = "SELECT fn_getquincena(:fecha::date) as quincena, " +
+        "DATE_PART('year', AGE(now(), :fecha)) AS anios, " +
+        "DATE_PART('month', AGE(now(), :fecha)) AS meses, " +
+        "DATE_PART('day', AGE(now(), :fecha)) AS dias";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            fecha: req.body.fechaingreso,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+
+    //console.log(JSON.stringify(respuesta));
+    res.status(200).send(datos[0]);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
@@ -160,7 +196,7 @@ exports.setRecord = async(req, res) => {
         personalConUsuario = "",
         usuarioConPersonal = "";
 
-    if (req.body.dataPack.id_usuarios_sistema > 0) {
+    if (req.body.dataPack.id_usuarios_sistema != null && req.body.dataPack.id_usuarios_sistema > 0) {
 
 
         query = "SELECT p.curp,u.username " +
@@ -221,20 +257,39 @@ exports.setRecord = async(req, res) => {
         telefono: {
             type: "string",
             custom(value, errors, schema) {
-                if (value.length != 10) {
-                    errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                if (value == null)
+                    errors.push({ type: "stringMin", expected: 10, actual: 0 });
+                else {
+                    if (value.length != 10) {
+                        errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                    }
                 }
                 return value
             }
         },
         id_usuarios_sistema: {
             type: "number",
+            optional: true,
             custom(value, errors, schema) {
                 if (personalConUsuario != "") {
                     errors.push({ type: "usuarioLibre", expected: usuarioConPersonal, actual: personalConUsuario });
                 }
                 return value
             }
+        },
+        fechaingreso: {
+            type: "string",
+            custom(value, errors) {
+                let dateIni = new Date(value)
+                let dateFin = new Date()
+
+                if (dateIni > dateFin)
+                    errors.push({ type: "dateMax", field: "fechaingreso", expected: dateFin.toISOString().split('T')[0] })
+
+                if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
+                    errors.push({ type: "date" })
+                return value;
+            },
         },
     };
 
