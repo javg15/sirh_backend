@@ -1,7 +1,8 @@
 const db = require("../models");
+const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
-const Catdocumentos = db.catdocumentos;
+const Personalexpediente = db.personalexpediente;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -87,59 +88,23 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Catdocumentos.findOne({
+    Personalexpediente.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(catdocumentos => {
-            if (!catdocumentos) {
-                return res.status(404).send({ message: "Catdocumentos Not found." });
+        .then(personalexpediente => {
+            if (!personalexpediente) {
+                return res.status(404).send({ message: "Personalexpediente Not found." });
             }
 
-            res.status(200).send(catdocumentos);
+            res.status(200).send(personalexpediente);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
 
-exports.getRecordSegunClaveCurp = async(req, res) => {
-
-    Catdocumentos.findOne({
-            where: {
-                id: req.body.id
-            }
-        })
-        .then(catdocumentos => {
-            if (!catdocumentos) {
-                return res.status(404).send({ message: "Catdocumentos Not found." });
-            }
-
-            res.status(200).send(catdocumentos);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.getCatalogo = async(req, res) => {
-    Catdocumentos.findAll({
-            attributes: ['id', 'descripcion', ['descripcion', 'text'], 'razon'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(catdocumentos => {
-            if (!catdocumentos) {
-                return res.status(404).send({ message: "Catdocumentos Not found." });
-            }
-
-            res.status(200).send(catdocumentos);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
@@ -154,8 +119,15 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string" },
-        descripcion: { type: "string", min: 5 },
+        id_personal: { type: "number" },
+        id_catdocumentos: { type: "number" },
+        id_archivos: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
     };
 
     var vres = true;
@@ -185,5 +157,46 @@ exports.setRecord = async(req, res) => {
             message: errors
         };*/
     }
-    res.status(200).send("Created");
+
+    //buscar si existe el registro
+    Personalexpediente.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, {
+                    id: {
+                        [Op.gt]: 0
+                    }
+                }],
+            }
+        })
+        .then(personalexpediente => {
+            if (!personalexpediente) {
+                delete req.body.dataPack.id;
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                Personalexpediente.create(
+                    req.body.dataPack
+                ).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
+                });
+            } else {
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                personalexpediente.update(req.body.dataPack).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
 }

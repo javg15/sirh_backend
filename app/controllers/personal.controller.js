@@ -356,7 +356,6 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 personal.update(req.body.dataPack).then((self) => {
-                    console.log("self.id=>", self.id)
                         // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

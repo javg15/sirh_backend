@@ -29,6 +29,10 @@ module.exports = function(sequelize, DataTypes) {
             type: Sequelize.BLOB('long'),
             allowNull: true
         },
+        ruta: {
+            type: DataTypes.STRING(200),
+            allowNull: true
+        },
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: false,

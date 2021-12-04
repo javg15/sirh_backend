@@ -119,7 +119,7 @@ exports.getRecordSegunClaveCurp = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
     Catdocumentos.findAll({
-            attributes: ['id', 'descripcion', ['descripcion', 'text'], 'razon'],
+            attributes: ['id', 'descripcion', ['descripcion', 'text']],
             order: [
                 ['descripcion', 'ASC'],
             ]
@@ -127,7 +127,6 @@ exports.getCatalogo = async(req, res) => {
             if (!catdocumentos) {
                 return res.status(404).send({ message: "Catdocumentos Not found." });
             }
-
             res.status(200).send(catdocumentos);
         })
         .catch(err => {

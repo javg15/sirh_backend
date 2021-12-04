@@ -139,6 +139,57 @@ exports.upload = async(req, res) => {
         });
 }
 
+exports.uploadFisico = async(req, res) => {
+    //buscar si existe el registro
+    let path = uploadDir + '/' + req.body.ruta;
+    /*nombre: req.file.originalname,
+    datos: req.file.buffer*/
+
+    if (!fs.existsSync(path)) {
+        fs.mkdirSync(path, { recursive: true });
+    }
+    req.file.originalname = req.file.originalname.replace(/%20/g, ' '); //reemplaza espacios
+    // open the file in writing mode, adding a callback function where we do the actual writing
+    fs.open(path + '/' + req.file.originalname, 'w', function(err, fd) {
+        if (err) {
+            throw 'could not open file: ' + err;
+        }
+
+        // write the contents of the buffer, from position 0 to the end, to the file descriptor returned in opening our file
+        fs.write(fd, req.file.buffer, 0, req.file.buffer.length, null, function(err) {
+            if (err) res.status(500).send({ message: err.message });
+            fs.close(fd, function() {
+                console.log('wrote the file successfully');
+                res.status(200).send({ message: "success", ruta: path, nombrearchivo: req.file.originalname, tipo: req.file.mimetype });
+            });
+        });
+    });
+}
+
+exports.downloadFisico = async(req, res) => {
+    //let ruta = Buffer.from(req.params.ruta, 'base64').toString();
+    let re = /\!/g; //reemplazar diagonal
+    let ruta = req.params.ruta;
+    ruta = ruta.replace(re, "/");
+    console.log("ruta=>", ruta)
+        //No need for special headers
+    res.download(ruta);
+    /*const file = req.body;
+    console.log("ruta=>", ruta)
+    const base64data = file.content.replace(/^data:.*,/, '');
+    fs.writeFile(ruta, base64data, 'base64', (err) => {
+        if (err) {
+            console.log(err);
+            res.sendStatus(500);
+        } else {
+            res.set('Location', ruta);
+            res.status(200);
+            res.send(file);
+        }
+    });*/
+
+}
+
 exports.listFiles = async(req, res) => {
         Archivos.findAll({
             attributes: ['id', 'nombre', 'tipo'],

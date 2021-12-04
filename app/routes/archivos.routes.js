@@ -10,6 +10,7 @@ module.exports = function(app) {
         );
         next();
     });
+    
     app.post(
         "/api/archivos/upload", [authJwt.verifyToken],
         upload.single("file"), controller.upload
@@ -35,5 +36,12 @@ module.exports = function(app) {
         "/api/archivos/:id", [authJwt.verifyToken],
         controller.download
     );
-
+    app.post(
+        "/api/archivos/uploadFisico", [authJwt.verifyToken],
+        upload.single("file"), controller.uploadFisico
+    );
+    app.get(
+        "/api/archivos/:ruta", [authJwt.verifyToken],
+        controller.downloadFisico
+    );
 };
