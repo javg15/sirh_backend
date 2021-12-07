@@ -1,4 +1,5 @@
 const db = require("../models");
+const globales = require("../config/global.config");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 var stream = require('stream');
@@ -12,6 +13,8 @@ let dataValidator = new Validator({
     messages: mensajesValidacion
 });
 
+const fs = require('fs');
+let uploadDir = './uploads';
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
@@ -142,8 +145,9 @@ exports.upload = async(req, res) => {
 exports.uploadFisico = async(req, res) => {
     //buscar si existe el registro
     let path = uploadDir + '/' + req.body.ruta;
-    /*nombre: req.file.originalname,
-    datos: req.file.buffer*/
+    console.log("ruta=>", path)
+        /*nombre: req.file.originalname,
+        datos: req.file.buffer*/
 
     if (!fs.existsSync(path)) {
         fs.mkdirSync(path, { recursive: true });
@@ -192,7 +196,7 @@ exports.downloadFisico = async(req, res) => {
 
 exports.listFiles = async(req, res) => {
         Archivos.findAll({
-            attributes: ['id', 'nombre', 'tipo'],
+            attributes: ['id', 'nombre', 'tipo', 'ruta'],
             where: {
                 id: req.params.id,
             }
@@ -274,6 +278,48 @@ exports.setRecordReferencia = async(req, res) => {
             }
 
 
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
+exports.setRecord = async(req, res) => {
+    //buscar si existe el registro
+    Archivos.findOne({
+            where: {
+                id: req.body.dataPack.id
+            }
+        })
+        .then(archivos => {
+            if (!archivos) {
+                delete req.body.dataPack.id;
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                Archivos.create(
+                    req.body.dataPack
+                ).then(self => {
+                    res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    console.log(err);
+                    res.status(500).send({ message: err.message });
+                });
+            } else {
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                archivos.update(req.body.dataPack).then(self => {
+                    res.status(200).send({ message: "success", id: self.id });
+                }).catch(err => {
+                    console.log(err);
+                    res.status(500).send({ message: err.message });
+                });
+            }
         })
         .catch(err => {
             res.status(500).send({ message: err.message });

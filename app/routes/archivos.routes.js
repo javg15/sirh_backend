@@ -10,7 +10,7 @@ module.exports = function(app) {
         );
         next();
     });
-    
+
     app.post(
         "/api/archivos/upload", [authJwt.verifyToken],
         upload.single("file"), controller.upload
@@ -23,6 +23,10 @@ module.exports = function(app) {
     app.post(
         "/api/archivos/getAvatar", [authJwt.verifyToken],
         controller.getAvatar
+    );
+    app.post(
+        "/api/archivos/setRecord", [authJwt.verifyToken],
+        controller.setRecord
     );
     app.post(
         "/api/archivos/setRecordReferencia", [authJwt.verifyToken],
@@ -41,7 +45,7 @@ module.exports = function(app) {
         upload.single("file"), controller.uploadFisico
     );
     app.get(
-        "/api/archivos/:ruta", [authJwt.verifyToken],
+        "/api/archivos/df/:ruta", [authJwt.verifyToken], //df=download fisico
         controller.downloadFisico
     );
 };
