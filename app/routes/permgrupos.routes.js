@@ -17,7 +17,10 @@ module.exports = function(app) {
         "/api/permgrupos/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
-
+    app.post(
+        "/api/permgrupos/getTreePermisos", [authJwt.verifyToken],
+        controller.getTreePermisos
+    );
     app.post(
         "/api/permgrupos/setRecord", [authJwt.verifyToken],
         controller.setRecord

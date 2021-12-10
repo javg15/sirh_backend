@@ -27,6 +27,11 @@ module.exports = function(app) {
         controller.getMenu
     );
     app.post(
+        "/api/user/getTreePermisos", [authJwt.verifyToken],
+        controller.getTreePermisos
+    );
+    
+    app.post(
         "/api/user/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
