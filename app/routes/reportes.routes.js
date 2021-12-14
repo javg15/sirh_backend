@@ -20,4 +20,8 @@ module.exports = function(app) {
         controller.getPlazasListado
     );
 
+    app.get("/api/reportes/plantilla_nombramiento", // [authJwt.verifyToken],
+        controller.getPlantillaNombramiento
+    );
+
 };

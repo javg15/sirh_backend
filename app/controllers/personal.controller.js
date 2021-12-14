@@ -186,6 +186,9 @@ exports.setRecord = async(req, res) => {
         if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
             req.body.dataPack[key] = null;
         }
+        if (key == "fechanaculthijo" && req.body.dataPack[key] == '') {
+            req.body.dataPack[key] = null;
+        }
     })
 
     //let curpValido = await checkCurp(req.body.dataPack.curp);
@@ -356,7 +359,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 personal.update(req.body.dataPack).then((self) => {
-                        // here self is your instance, but updated
+                    // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
             }

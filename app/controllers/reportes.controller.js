@@ -4,7 +4,8 @@ jasper = require('node-jasper')({
     path: '../../lib/jasperreports-6.16.0',
     reports: {
         categorias: { jasper: '../../reports/categorias.jasper' },
-        plazas_listado: { jasper: '../../reports/plazas_listado.jasper' }
+        plazas_listado: { jasper: '../../reports/plazas_listado.jasper' },
+        plantilla_nombramiento: { jasper: '../../reports/plantilla_nombramiento.jasper' }
     },
     drivers: {
         pg: {
@@ -53,6 +54,23 @@ exports.getPlazasListado = async(req, res, next) => {
             id_tipoplaza: 0, //parseInt(req.query.id_tipoplaza),
             id_categorias: parseInt(req.query.id_categorias),
             id_catestatusplaza: parseInt(req.query.id_catestatusplaza)
+        }
+    };
+    let pdf = jasper.pdf(report);
+    res.set({
+        'Content-type': 'application/pdf',
+        'Content-Length': pdf.length,
+        //'Content-Disposition': 'attachment; filename=filename.pdf'
+    });
+    res.send(pdf);
+}
+
+exports.getPlantillaNombramiento = async(req, res, next) => {
+    let report = {
+        report: 'plantilla_nombramiento',
+        //parametros
+        data: {
+            id_plantillasdocsnombramiento: parseInt(req.query.id_plantillasdocsnombramiento),
         }
     };
     let pdf = jasper.pdf(report);
