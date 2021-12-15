@@ -266,8 +266,13 @@ exports.setRecord = async(req, res) => {
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
-
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                console.log("datosCatestatusplaza=>", datosCatestatusplaza)
+                if (datosCatestatusplaza.length > 0 &&
+                    (datosCatestatusplaza[0].esnombramiento == 1 ||
+                        datosCatestatusplaza[0].esinterina == 1 ||
+                        datosCatestatusplaza[0].conlicencia == 1
+                    ) &&
+                    value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -292,18 +297,27 @@ exports.setRecord = async(req, res) => {
         id_categorias: {
             type: "number",
             custom(value, errors) {
-
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                //if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
         id_plazas: {
             type: "number",
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
-                return value; // Sanitize: remove all special chars except numbers
+                //if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except number
             }
         },
+        /*        id_plazas_afectada: {
+                    type: "number",
+                    optional: (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 0 ? true : false),
+                    custom(value, errors) {
+                        if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 1 && value <= 0) errors.push({ type: "selection" })
+                        return value; // Sanitize: remove all special chars except numbers
+                    }
+                },*/
         id_personal_titular: {
             type: "number",
             optional: (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 0 ? true : false),

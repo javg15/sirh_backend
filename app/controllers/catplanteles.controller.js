@@ -240,7 +240,7 @@ exports.getCatalogoSegunPersonal = async(req, res) => {
         "from catplanteles as c " +
         "    left join plazas as p on c.id = p.id_catplanteles " +
         "    left join categorias as ca on p.id_categorias = ca.id " +
-        "   left join plantillasdocsnombramiento as pn on p.id = pn.id_plazas_afectada  " +
+        "   left join plantillasdocsnombramiento as pn on p.id = pn.id_plazas  " +
         "   left join plantillaspersonal as pp on pp.id = pn.id_plantillaspersonal  " +
         "   left join catestatusplaza as ce on ce.id = p.id_catestatusplaza  " +
         "where pp.id_personal = :id_personal " +

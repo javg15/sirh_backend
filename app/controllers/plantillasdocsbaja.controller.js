@@ -164,6 +164,22 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
+        id_categorias: {
+            type: "number",
+            custom(value, errors) {
+                //if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_plazas: {
+            type: "number",
+            custom(value, errors) {
+                //if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esnombramiento == 1 && value <= 0) errors.push({ type: "selection" })
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except number
+            }
+        },
     };
 
     var vres = true;

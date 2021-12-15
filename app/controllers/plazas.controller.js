@@ -180,13 +180,21 @@ exports.getRecordParaCombo = async(req, res) => {
 
 
 exports.getPlazaSegunPersonal = async(req, res) => {
-    let query = "select p.*,fn_plaza_clave(p.id) as clave " +
+    let query =
+        "WITH tabla_json(arr) AS ( " +
+        "    VALUES (fn_nombramientos_vigentes(:id_personal,0)) " +
+        ") " +
+        ", tabla_elements(elem) AS ( " +
+        "    SELECT json_array_elements(arr) FROM tabla_json " +
+        ") " +
+        "select p.*,fn_plaza_clave(p.id) as text " +
         "from plazas as p " +
         " left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas " +
         " left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  " +
-        "where pp.id_personal = :id_personal " +
-        "and pp.state in ('A','B') " +
-        " and pn.state in ('A') ";
+        " inner join tabla_elements AS s ON s.elem->>'id_plaza'=p.id::varchar"
+    "where pp.id_personal = :id_personal " +
+    "and pp.state in ('A','B') " +
+    " and pn.state in ('A') ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
