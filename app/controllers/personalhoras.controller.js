@@ -162,7 +162,7 @@ exports.getAdminSub = async(req, res) => {
 
 exports.getAdminSubResumen = async(req, res) => {
     params = req.body;
-    query = "SELECT * FROM fn_horas_cuenta_resumen(:id_personal,:id_catplanteles,:id_gruposclase,:id_materiasclase,:id_catestatushora,:id_semestre)"; //el modo no existe, solo es para obtener un registro
+    query = "SELECT * FROM fn_horas_cuenta_resumen(:id_personal,:id_catplanteles,:id_gruposclase,:id_materiasclase,:id_catestatushora,:id_semestre,:id_plaza)"; //el modo no existe, solo es para obtener un registro
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -177,6 +177,7 @@ exports.getAdminSubResumen = async(req, res) => {
             id_gruposclase: 0,
             id_materiasclase: 0,
             id_catestatushora: 0,
+            id_plaza:params.id_plaza,
 
             start: (typeof params.start !== typeof undefined ? params.start : 0),
             length: (typeof params.start !== typeof undefined ? params.length : 1),

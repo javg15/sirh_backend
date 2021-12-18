@@ -87,6 +87,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        id_plazas: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'personalhoras',
