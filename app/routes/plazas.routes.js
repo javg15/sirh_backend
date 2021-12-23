@@ -64,9 +64,10 @@ module.exports = function(app) {
         "/api/plazas/getRecordParaCombo", [authJwt.verifyToken],
         controller.getRecordParaCombo
     );
-
-
-
+    app.post(
+        "/api/plazas/getHorasDisponibleSegunPlaza", [authJwt.verifyToken],
+        controller.getHorasDisponibleSegunPlaza
+    );
 
     app.post(
         "/api/plazas/getCatalogoDisponibleSegunCategoria", [authJwt.verifyToken],

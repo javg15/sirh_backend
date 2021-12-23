@@ -154,7 +154,7 @@ exports.getNombramientosVigentes = async(req, res) => {
 
 exports.getRecordParaCombo = async(req, res) => {
 
-    let query = "SELECT id, fn_plaza_clave(id) as text,id_categorias " +
+    let query = "SELECT *, fn_plaza_clave(id) as text,fn_plaza_eshomologada(id_categorias)->>'eshomologada' AS eshomologada " +
         " FROM plazas" +
         " WHERE  id=:id_plazas ";
     datos = await db.sequelize.query(query, {
@@ -175,6 +175,34 @@ exports.getRecordParaCombo = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
+    res.status(200).send(datos);
+}
+
+exports.getHorasDisponibleSegunPlaza = async(req, res) => {
+
+    let query = "select e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles "
+        + "from json_array_elements(fn_horas_disponibles_enplaza(:id_personal, 0, :id_semestre, :id_plazas)) as e ";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+            id_semestre: req.body.id_semestre,
+            id_plazas: req.body.id_plazas,
+
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+console.log("datos=>",datos)
     res.status(200).send(datos);
 }
 
