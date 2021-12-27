@@ -266,7 +266,7 @@ exports.setRecord = async(req, res) => {
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
-                console.log("datosCatestatusplaza=>", datosCatestatusplaza)
+
                 if (datosCatestatusplaza.length > 0 &&
                     (datosCatestatusplaza[0].esnombramiento == 1 ||
                         datosCatestatusplaza[0].esinterina == 1 ||

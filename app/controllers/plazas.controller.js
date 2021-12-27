@@ -180,8 +180,8 @@ exports.getRecordParaCombo = async(req, res) => {
 
 exports.getHorasDisponibleSegunPlaza = async(req, res) => {
 
-    let query = "select e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles "
-        + "from json_array_elements(fn_horas_disponibles_enplaza(:id_personal, 0, :id_semestre, :id_plazas)) as e ";
+    let query = "select e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
+        "from json_array_elements(fn_horas_disponibles_enplaza(:id_personal, 0, :id_semestre, :id_plazas)) as e ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -202,7 +202,7 @@ exports.getHorasDisponibleSegunPlaza = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-console.log("datos=>",datos)
+    console.log("datos=>", datos)
     res.status(200).send(datos);
 }
 
@@ -219,10 +219,10 @@ exports.getPlazaSegunPersonal = async(req, res) => {
         "from plazas as p " +
         " left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas " +
         " left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  " +
-        " inner join tabla_elements AS s ON s.elem->>'id_plaza'=p.id::varchar"
-    "where pp.id_personal = :id_personal " +
-    "and pp.state in ('A','B') " +
-    " and pn.state in ('A') ";
+        " inner join tabla_elements AS s ON s.elem->>'id_plaza'=p.id::varchar " +
+        "where pp.id_personal = :id_personal " +
+        "and pp.state in ('A','B') " +
+        " and pn.state in ('A') ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
