@@ -151,7 +151,7 @@ exports.getCatalogoSegunGrupo = async(req, res) => {
 
 
 exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
-    let query = "select distinct mc.id,mc.nombre as text,cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer) as horasdisponibles " +
+    let query = "select distinct mc.id,mc.nombre,concat(mc.nombre,' (',h.horas::text,' hrs)') as text,cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer) as horasdisponibles,mc.claveasignatura,mc.nogrupo " +
         "from horasclase as h " +
         "   left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "   left join materiasclase as mc on h.id_materiasclase =mc.id " +
@@ -159,7 +159,7 @@ exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
         "   and h.id_gruposclase =:id_gruposclase " +
         "   and (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0)" +
         "   and h.state IN ('A','B') " +
-        "order by mc.nombre ";
+        "order by concat(mc.nombre,' (',h.horas::text,' hrs)') ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

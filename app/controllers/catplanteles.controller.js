@@ -236,7 +236,7 @@ exports.getCatalogoSinAdmin = async(req, res) => {
 exports.getCatalogoSegunPersonal = async(req, res) => {
 
 
-    let query = "select distinct c.id,concat(fn_idesc_plantel(c.id) ,' - ' ,ca.denominacion) as text,p.id as id_plaza " +
+    let query = "select distinct c.id,fn_idesc_plantel(c.id) as text,p.id as id_plaza " +
         "from catplanteles as c " +
         "    left join plazas as p on c.id = p.id_catplanteles " +
         "    left join categorias as ca on p.id_categorias = ca.id " +

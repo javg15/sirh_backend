@@ -461,8 +461,8 @@ exports.setRecord = async(req, res) => {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
-                if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && plazasHorasSueltas.length == 0) errors.push({ type: "plazaHorasSueltasNoExiste" })
-                if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && req.body.cantidadHaciaHorasSueltas == req.body.dataPack.cantidad) errors.push({ type: "horasNoDisponiblesEnPlaza" })
+                if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && req.body.cantidadHaciaHorasSueltas < 0) errors.push({ type: "horasNoDisponiblesEnPlaza" })
+                if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && plazasHorasSueltas.length == 0 && req.body.cantidadHaciaHorasSueltas > 0) errors.push({ type: "plazaHorasSueltasNoExiste" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         }

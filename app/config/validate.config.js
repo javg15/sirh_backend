@@ -70,6 +70,6 @@ module.exports = {
     unique: "El valor '{actual}' ya existe en la Base de Datos",
     uniqueRecord: "El registro ya existe en la Base de Datos",
     quincenaCalculada: "La quincena inicial ya fue calculada, por lo tanto ya no se pueden hacer modificaciones extras a la quincena de cierre",
-    plazaHorasSueltasNoExiste: "No existe una plaza del tipo 'Horas sueltas' asignada al profesor, requerida para asignar las horas restantes",
     horasNoDisponiblesEnPlaza: "No existen horas disponibles para la plaza de jornada, seleccione una plaza de horas sueltas en la vista anterior",
+    plazaHorasSueltasNoExiste: "No existe una plaza del tipo 'Horas sueltas' asignada al profesor, requerida para asignar las horas restantes",
 };

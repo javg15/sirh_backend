@@ -123,6 +123,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true,
             defaultValue: 0
         },
+
+        id_catplanteles_aplicacion: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'plantillasdocsnombramiento',
