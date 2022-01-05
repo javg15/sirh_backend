@@ -174,6 +174,71 @@ exports.getRecordAntiguedad = async(req, res) => {
 
 }
 
+exports.getAntiguedadEnQuincenas = async(req, res) => {
+    let datos = "",
+        query = "";
+
+    query = "SELECT sum(anios) AS anios " +
+        ",SUM(meses) AS meses " +
+        ",SUM(dias) AS dias " +
+        ",MIN(quincena_ini) AS quincena_ini " +
+        ",MIN(id_quincena_ini) AS id_quincena_ini " +
+        "FROM fn_antiguedad(:id_personal) ";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    let anios = meses = dias = 0;
+    if (datos.length > 0) {
+        anios = datos[0].anios;
+        meses = datos[0].meses;
+        dias = datos[0].dias;
+
+        if (dias / 30 == 0) {
+            meses += dias / 30;
+            dias = 0;
+        } else if (dias > 30) {
+            meses += dias / 30; //al dividir / 30 se estrae solo la parte entera
+            //al dividir / 30 se estrae solo la parte entera
+            //ejemp 45-(45/30*30)=45-(30)=15
+            meses = meses - (meses / 30 * 30);
+        }
+
+        if (meses / 12 == 0) {
+            anios += meses / 12;
+            meses = 0;
+        } else if (meses > 12) {
+            anios += meses / 12; //al dividir / 12 se estrae solo la parte entera
+            //al dividir / 12 se estrae solo la parte entera
+            //ejemp 13-(13/12*12)=13-(12)=1
+            meses = meses - (meses / 12 * 12);
+        }
+        datos[0].anios = anios;
+        datos[0].meses = meses;
+        datos[0].dias = dias;
+    }
+    //console.log(JSON.stringify(respuesta));
+    res.status(200).send(datos[0]);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {

@@ -25,6 +25,11 @@ module.exports = function(app) {
         "/api/personal/getRecordAntiguedad", [authJwt.verifyToken],
         controller.getRecordAntiguedad
     );
+    app.post(
+        "/api/personal/getAntiguedadEnQuincenas", [authJwt.verifyToken],
+        controller.getAntiguedadEnQuincenas
+    );
+
 
 
     app.post(

@@ -465,7 +465,8 @@ exports.setRecord = async(req, res) => {
                 if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && plazasHorasSueltas.length == 0 && req.body.cantidadHaciaHorasSueltas > 0) errors.push({ type: "plazaHorasSueltasNoExiste" })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        }
+        },
+
     };
 
     var vres = true;
