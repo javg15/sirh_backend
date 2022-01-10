@@ -1,4 +1,5 @@
 const db = require("../models");
+const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
 const globales = require("../config/global.config");
 const Catdocumentos = db.catdocumentos;
@@ -133,6 +134,29 @@ exports.getCatalogo = async(req, res) => {
             res.status(500).send({ message: err.message });
         });
 }
+
+exports.getCatalogoProfesional = async(req, res) => {
+    Catdocumentos.findAll({
+            attributes: ['id', 'descripcion', ['descripcion', 'text']],
+            where: {
+                clave: {
+                    [Op.like]: '03%'
+                }
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(catdocumentos => {
+            if (!catdocumentos) {
+                return res.status(404).send({ message: "Catdocumentos Not found." });
+            }
+            res.status(200).send(catdocumentos);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
