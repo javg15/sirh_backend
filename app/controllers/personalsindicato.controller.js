@@ -2,7 +2,7 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Plantillasdocsfamiliares = db.plantillasdocsfamiliares;
+const Personalsindicato = db.personalsindicato;
 var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -22,7 +22,7 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_plantillasdocsfamiliares_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_personalsindicato_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -31,7 +31,7 @@ exports.getAdmin = async(req, res) => {
         });
     } else {
 
-        query = "SELECT * FROM s_plantillasdocsfamiliares_mgr('" +
+        query = "SELECT * FROM s_personalsindicato_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +
@@ -92,96 +92,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Plantillasdocsfamiliares.findOne({
+    Personalsindicato.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(plantillasdocsfamiliares => {
-            if (!plantillasdocsfamiliares) {
-                return res.status(404).send({ message: "Plantillasdocsfamiliares Not found." });
+        .then(personalsindicato => {
+            if (!personalsindicato) {
+                return res.status(404).send({ message: "Personalsindicato Not found." });
             }
 
-            res.status(200).send(plantillasdocsfamiliares);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.getRecordPersonal = async(req, res) => {
-
-    Plantillasdocsfamiliares.findOne({
-            where: {
-                id: req.body.id
-            }
-        })
-        .then(plantillasdocsfamiliares => {
-            if (!plantillasdocsfamiliares) {
-                return res.status(404).send({ message: "Plantillasdocsfamiliares Not found." });
-            }
-            //Personal
-            Personal.findOne({
-                    where: {
-                        id: plantillasdocsfamiliares.id_personal
-                    }
-                })
-                .then(personal => {
-                    if (!personal) {
-                        return res.status(404).send({ message: "Personal Not found." });
-                    }
-
-                    res.status(200).send(personal);
-                }).catch(err => {
-                    res.status(200).send({ error: true, message: [err.errors[0].message] });
-                });
-
-            //res.status(200).send(plantillasdocsfamiliares);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-
-exports.getCatalogo = async(req, res) => {
-
-    Plantillasdocsfamiliares.findAll({
-            attributes: ['id', 'descripcion'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(plantillasdocsfamiliares => {
-            if (!plantillasdocsfamiliares) {
-                return res.status(404).send({ message: "Plantillasdocsfamiliares Not found." });
-            }
-
-            res.status(200).send(plantillasdocsfamiliares);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-exports.getConsecutivo = async(req, res) => {
-
-    Plantillasdocsfamiliares.max('consecutivo', {
-            where: {
-                [Op.and]: [{
-                        id_catplanteles: req.body.idCatplanteles
-                    },
-                    {
-                        id_catplantillas: req.body.idCatplantillas
-                    }
-                ]
-            }
-        })
-        .then(max => {
-            if (!max) {
-                return res.status(200).send("1");
-            }
-
-            res.status(200).send((max + 1).toString());
+            res.status(200).send(personalsindicato);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -203,39 +124,22 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        nombre: { type: "string", empty: false },
-        apellidopaterno: { type: "string", empty: false },
-        apellidomaterno: { type: "string", empty: false },
-        curp: {
-            type: "string",
-            min: 18,
-            max: 18,
-            pattern: /^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/,
-            /*custom(value, errors, schema) {
-
-                if (JSON.parse(curpValido).Response.toUpperCase() == "ERROR") {
-                    errors.push({ type: "curp" });
-                }
-                return value
-            }*/
-        },
-        rfc: { type: "string", max: 10, pattern: /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01]))$/ },
-        homoclave: { type: "string", optional: true, pattern: /^|([A-Z\d]{2})([A\d])$/ },
-        id_archivos: {
+        id_catsindicato: { type: "number" },
+        /*id_archivos: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
-        fechanacimiento: {
+        },*/
+        fechainscripcion: {
             type: "string",
             custom(value, errors) {
                 let dateIni = new Date(value)
                 let dateFin = new Date()
 
                 if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fechanacimiento", expected: dateFin.toISOString().split('T')[0] })
+                    errors.push({ type: "dateMax", field: "fechainscripcion", expected: dateFin.toISOString().split('T')[0] })
 
                 if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
@@ -273,7 +177,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Plantillasdocsfamiliares.findOne({
+    Personalsindicato.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -282,15 +186,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(plantillasdocsfamiliares => {
-            if (!plantillasdocsfamiliares) {
+        .then(personalsindicato => {
+            if (!personalsindicato) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Plantillasdocsfamiliares.create(
+                Personalsindicato.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -304,7 +208,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                plantillasdocsfamiliares.update(req.body.dataPack).then((self) => {
+                personalsindicato.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

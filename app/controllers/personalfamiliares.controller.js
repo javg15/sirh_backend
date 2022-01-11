@@ -2,7 +2,7 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Plantillasdocssindicato = db.plantillasdocssindicato;
+const Personalfamiliares = db.personalfamiliares;
 var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -22,7 +22,7 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_plantillasdocssindicato_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_personalfamiliares_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             plain: false,
@@ -31,7 +31,7 @@ exports.getAdmin = async(req, res) => {
         });
     } else {
 
-        query = "SELECT * FROM s_plantillasdocssindicato_mgr('" +
+        query = "SELECT * FROM s_personalfamiliares_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +
@@ -92,46 +92,22 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Plantillasdocssindicato.findOne({
+    Personalfamiliares.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(plantillasdocssindicato => {
-            if (!plantillasdocssindicato) {
-                return res.status(404).send({ message: "Plantillasdocssindicato Not found." });
+        .then(personalfamiliares => {
+            if (!personalfamiliares) {
+                return res.status(404).send({ message: "Personalfamiliares Not found." });
             }
 
-            res.status(200).send(plantillasdocssindicato);
+            res.status(200).send(personalfamiliares);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
-
-
-
-
-exports.getCatalogo = async(req, res) => {
-
-    Plantillasdocssindicato.findAll({
-            attributes: ['id', 'descripcion'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(plantillasdocssindicato => {
-            if (!plantillasdocssindicato) {
-                return res.status(404).send({ message: "Plantillasdocssindicato Not found." });
-            }
-
-            res.status(200).send(plantillasdocssindicato);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
-
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
@@ -148,22 +124,32 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        id_catsindicato: { type: "number" },
-        /*id_archivos: {
-            type: "number",
-            custom(value, errors) {
-                if (value <= 0) errors.push({ type: "file", expected: 'Archivo .pdf' })
-                return value; // Sanitize: remove all special chars except numbers
-            }
-        },*/
-        fechainscripcion: {
+        nombre: { type: "string", empty: false },
+        apellidopaterno: { type: "string", empty: false },
+        apellidomaterno: { type: "string", empty: false },
+        curp: {
+            type: "string",
+            min: 18,
+            max: 18,
+            pattern: /^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/,
+            /*custom(value, errors, schema) {
+
+                if (JSON.parse(curpValido).Response.toUpperCase() == "ERROR") {
+                    errors.push({ type: "curp" });
+                }
+                return value
+            }*/
+        },
+        rfc: { type: "string", max: 10, pattern: /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01]))$/ },
+        homoclave: { type: "string", optional: true, pattern: /^|([A-Z\d]{2})([A\d])$/ },
+        fechanacimiento: {
             type: "string",
             custom(value, errors) {
                 let dateIni = new Date(value)
                 let dateFin = new Date()
 
                 if (dateIni > dateFin)
-                    errors.push({ type: "dateMax", field: "fechainscripcion", expected: dateFin.toISOString().split('T')[0] })
+                    errors.push({ type: "dateMax", field: "fechanacimiento", expected: dateFin.toISOString().split('T')[0] })
 
                 if (!moment(value).isValid() || !moment(value).isBefore(new Date()) || !moment(value).isAfter('1900-01-01'))
                     errors.push({ type: "date" })
@@ -201,7 +187,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Plantillasdocssindicato.findOne({
+    Personalfamiliares.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -210,15 +196,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(plantillasdocssindicato => {
-            if (!plantillasdocssindicato) {
+        .then(personalfamiliares => {
+            if (!personalfamiliares) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Plantillasdocssindicato.create(
+                Personalfamiliares.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -232,7 +218,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                plantillasdocssindicato.update(req.body.dataPack).then((self) => {
+                personalfamiliares.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

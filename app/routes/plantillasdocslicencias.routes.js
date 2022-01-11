@@ -9,10 +9,7 @@ module.exports = function(app) {
         );
         next();
     });
-    app.post(
-        "/api/plantillasdocslicencias/getCatalogo", [authJwt.verifyToken],
-        controller.getCatalogo
-    );
+
     app.post(
         "/api/plantillasdocslicencias/getAdmin", [authJwt.verifyToken],
         controller.getAdmin

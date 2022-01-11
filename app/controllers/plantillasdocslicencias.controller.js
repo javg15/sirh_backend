@@ -143,25 +143,6 @@ exports.getRecord = async(req, res) => {
         });
 }
 
-exports.getCatalogo = async(req, res) => {
-
-    Plantillasdocslicencias.findAll({
-            attributes: ['id', 'descripcion'],
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        }).then(plantillasdocslicencias => {
-            if (!plantillasdocslicencias) {
-                return res.status(404).send({ message: "Plantillasdocslicencias Not found." });
-            }
-
-            res.status(200).send(plantillasdocslicencias);
-        })
-        .catch(err => {
-            res.status(500).send({ message: err.message });
-        });
-}
-
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {

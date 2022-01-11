@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/plantillasdocssindicato.controller");
+const controller = require("../controllers/personalfamiliares.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,20 +10,16 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/plantillasdocssindicato/getCatalogo", [authJwt.verifyToken],
-        controller.getCatalogo
-    );
-    app.post(
-        "/api/plantillasdocssindicato/getAdmin", [authJwt.verifyToken],
+        "/api/personalfamiliares/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/plantillasdocssindicato/getRecord", [authJwt.verifyToken],
+        "/api/personalfamiliares/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
 
     app.post(
-        "/api/plantillasdocssindicato/setRecord", [authJwt.verifyToken],
+        "/api/personalfamiliares/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
 };

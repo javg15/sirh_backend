@@ -2,14 +2,14 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('plantillasdocssindicato', {
+    return sequelize.define('personalsindicato', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        id_plantillaspersonal: {
+        id_personal: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
@@ -47,7 +47,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     }, {
         sequelize,
-        tableName: 'plantillasdocssindicato',
+        tableName: 'personalsindicato',
         schema: 'public',
         //timestamps: false,
         createdAt: 'created_at',

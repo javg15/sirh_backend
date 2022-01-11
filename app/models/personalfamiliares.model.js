@@ -2,19 +2,23 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('plantillasdocsfamiliares', {
+    return sequelize.define('personalfamiliares', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true
         },
-        id_plantillaspersonal: {
+        id_personal: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
         },
         id_archivos: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        id_catdocumentos: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -47,7 +51,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         sexo: {
-            type: DataTypes.CHAR(1),
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         id_usuarios_r: {
@@ -70,7 +74,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     }, {
         sequelize,
-        tableName: 'plantillasdocsfamiliares',
+        tableName: 'personalfamiliares',
         schema: 'public',
         //timestamps: false,
         createdAt: 'created_at',
