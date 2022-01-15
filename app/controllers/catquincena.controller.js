@@ -168,7 +168,7 @@ exports.getCatalogoSegunAnio = async(req, res) => {
 
     let query = "select c.id,concat(anio, lpad(c.quincena::text,2,0::text)) as text " +
         "from catquincena as c " +
-        "where c.adicional=0 AND (c.anio=9999 OR c.anio=:anio OR c.anio BETWEEN :anio - 10 AND :anio + 2)  " +
+        "where c.adicional=0 AND (c.anio=9999 OR c.anio=:anio OR c.anio BETWEEN :anio - 20 AND :anio + 2)  " +
         "and c.state in ('A','B') " +
         "order by concat(anio, lpad(c.quincena::text,2,0::text)) desc";
 

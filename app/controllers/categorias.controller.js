@@ -182,7 +182,7 @@ exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesB' AS horasb " +
         " FROM categorias as c " +
         " LEFT JOIN cattipocategoria as cc ON c.id_cattipocategoria=cc.id " +
-        " WHERE  cc.id_catplantillas=:id_catplantillas " +
+        " WHERE  (cc.id_catplantillas=:id_catplantillas OR :id_catplantillas=0) " +
         "   AND ( " +
         "    case when cc.id=2 then " + //plnatilla de docentes
         "        (fn_categorias_disponibles_plantillas_horas(:id_catplanteles,c.id,:id_plazas)->>'horas_disponiblesT')::integer>0 " +
