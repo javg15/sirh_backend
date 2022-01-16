@@ -221,7 +221,10 @@ exports.getCatalogoVigenteEnPlantilla = async(req, res) => {
         "     inner JOIN plantillasdocsnombramiento as pdn on pdn.id_categorias=c.id " +
         "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  " +
         "WHERE  a.id=:id_catplantillas " +
-        " AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  " +
+        " AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767 " +
+        "     or COALESCE(pdn.id_catquincena_fin,0) = 0 " +
+        "     or fn_nombramiento_estaactiva(:id_catplantillas, pdn.id) = 1 " +
+        ")  " +
         " AND pdn.state in ('A','B') ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
