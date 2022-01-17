@@ -35,6 +35,11 @@ module.exports = function(app) {
         controller.getHorasDisponibleSegunDescarga
     );
 
+    app.post(
+        "/api/personalhoras/getCatalogoMateriasDescargadas", [authJwt.verifyToken],
+        controller.getCatalogoMateriasDescargadas
+    );
+
 
     app.post(
         "/api/personalhoras/getRecordTitularEnLicencia", [authJwt.verifyToken],

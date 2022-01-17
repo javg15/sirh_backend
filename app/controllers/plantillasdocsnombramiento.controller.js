@@ -236,12 +236,14 @@ exports.setRecord = async(req, res) => {
 
 
     //obtener datos de las quincenas
+    req.body.dataPack['id_catquincena_ini'] = req.body.dataPack['id_catquincena_ini'] == 0 ? 32767 : req.body.dataPack['id_catquincena_ini']
     const quincenaInicial = await Catquincena.findOne({
         where: {
             id: req.body.dataPack['id_catquincena_ini']
         },
     });
 
+    req.body.dataPack['id_catquincena_fin'] = req.body.dataPack['id_catquincena_fin'] == 0 ? 32767 : req.body.dataPack['id_catquincena_fin']
     const quincenaFinal = await Catquincena.findOne({
         where: {
             id: req.body.dataPack['id_catquincena_fin']

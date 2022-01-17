@@ -241,9 +241,50 @@ exports.getHorasDisponibleSegunDescarga = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-    console.log("datos=>", datos)
+
     res.status(200).send(datos);
 }
+
+exports.getCatalogoMateriasDescargadas = async(req, res) => {
+    let horasDisp = (req.body.modo == "nuevo" ? "' - ',fn_horas_disponibles_segundescarga(p.id)->>'disponibles',' hrs. disp'" : "")
+    let whereHorasDisp = (req.body.modo == "nuevo" ? " AND (fn_horas_disponibles_segundescarga(p.id)->>'disponibles')::int>0 " : "")
+
+    let query = "select p.id, concat(m.nombre ,' - ',g.grupo,' - ', p.cantidad ,' hrs.'" + horasDisp + ") as text " +
+        "from personalhoras as p " +
+        "    left join materiasclase as m on p.id_materiasclase =m.id " +
+        "    left join gruposclase as g on p.id_gruposclase =g.id " +
+        "where (p.id_personal =:id_personal or :id_personal=0) " +
+        "   and (p.id_catplanteles =:id_catplanteles or :id_catplanteles=0) " +
+        "   and (p.id_semestre = :id_semestre or :id_semestre=0) " +
+        "   and (p.id_plazas = :id_plazas or :id_plazas=0) " +
+        "   and p.descargada=1 " +
+        whereHorasDisp + //cojn horas disponibles de descarga
+        "   and p.state in ('D')"
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+            id_semestre: req.body.id_semestre,
+            id_plazas: req.body.id_plazas,
+            id_catplanteles: req.body.id_planteles,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
+
 
 exports.getCatalogo = async(req, res) => {
 
@@ -374,12 +415,14 @@ exports.setRecord = async(req, res) => {
     });
 
     //obtener datos de las quincenas
+    req.body.dataPack['id_catquincena_ini'] = req.body.dataPack['id_catquincena_ini'] == 0 ? 32767 : req.body.dataPack['id_catquincena_ini']
     const quincenaInicial = await Catquincena.findOne({
         where: {
             id: req.body.dataPack['id_catquincena_ini']
         },
     });
 
+    req.body.dataPack['id_catquincena_fin'] = req.body.dataPack['id_catquincena_fin'] == 0 ? 32767 : req.body.dataPack['id_catquincena_fin']
     const quincenaFinal = await Catquincena.findOne({
         where: {
             id: req.body.dataPack['id_catquincena_fin']
@@ -508,6 +551,13 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
+        id_personalhoras_descarga: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0 && req.body.dataPack["descargada"] == 1) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
 
     };
 
@@ -627,6 +677,7 @@ exports.setRecord = async(req, res) => {
                     dataPackHoraSuelta.id_plazas = plazasHorasSueltas[0].id; //plaza de Hora suelta
                     dataPackHoraSuelta.cantidad = req.body.cantidadHaciaHorasSueltas;
                     dataPackHoraSuelta.horassueltas = 1;
+                    dataPackHoraSuelta.id_personalhoras_descarga = 0;
 
                     Personalhoras.create(
                         dataPackHoraSuelta
