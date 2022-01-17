@@ -4,6 +4,7 @@ const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Plantillasdocsnombramiento = db.plantillasdocsnombramiento;
 const Categoriasdetalle = db.categoriasdetalle;
+const Catquincena = db.catquincena;
 var moment = require('moment');
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
