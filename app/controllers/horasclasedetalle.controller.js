@@ -132,6 +132,19 @@ exports.setRecord = async(req, res) => {
         }
     })
 
+    //obtener datos de las quincenas
+    const quincenaInicial = await Catquincena.findOne({
+        where: {
+            id: req.body.dataPack['id_catquincena_ini']
+        },
+    });
+
+    const quincenaFinal = await Catquincena.findOne({
+        where: {
+            id: req.body.dataPack['id_catquincena_fin']
+        },
+    });
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -165,8 +178,8 @@ exports.setRecord = async(req, res) => {
 
                 if (value <= 0) errors.push({ type: "selection" })
                     ///////////////
-                dateFin = value
-                dateIni = req.body.dataPack.id_catquincena_ini
+                dateFin = quincenaFinal.anio.toString() + quincenaFinal.quincena.toString().padStart(2, "0")
+                dateIni = quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0")
 
                 if (dateFin < dateIni)
                     errors.push({ type: "quincenaFin", field: "id_catquincena_fin" })

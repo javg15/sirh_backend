@@ -105,6 +105,7 @@ exports.getAdminSub = async(req, res) => {
     } else {
         query = "SELECT * FROM s_personalhorassub_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
+            "&state=" + params.opcionesAdicionales.state +
             "&inicio=:start&largo=:length" +
             "&ordencampo=ID" +
             "&ordensentido=DESC" +
@@ -214,6 +215,34 @@ exports.getRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+}
+
+exports.getHorasDisponibleSegunDescarga = async(req, res) => {
+
+    let query = "select e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
+        "from json_array_elements(fn_horas_disponibles_endescarga(:id_personal, 0, :id_semestre, :id_plazas)) as e ";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.id_personal,
+            id_semestre: req.body.id_semestre,
+            id_plazas: req.body.id_plazas,
+
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    console.log("datos=>", datos)
+    res.status(200).send(datos);
 }
 
 exports.getCatalogo = async(req, res) => {
@@ -342,7 +371,20 @@ exports.setRecord = async(req, res) => {
                 { state: "A" },
             ],
         }
-    })
+    });
+
+    //obtener datos de las quincenas
+    const quincenaInicial = await Catquincena.findOne({
+        where: {
+            id: req.body.dataPack['id_catquincena_ini']
+        },
+    });
+
+    const quincenaFinal = await Catquincena.findOne({
+        where: {
+            id: req.body.dataPack['id_catquincena_fin']
+        },
+    });
 
     //existe semestre,plantel,grupo,materia,estatus
     const personalhorasExiste = await Personalhoras.findOne({
@@ -440,8 +482,8 @@ exports.setRecord = async(req, res) => {
                 if (req.body.dataPack.id_catnombramientos != 1) {
                     if (value <= 0) errors.push({ type: "selection" })
                         ///////////////
-                    dateFin = value
-                    dateIni = req.body.dataPack.id_catquincena_ini
+                    dateFin = quincenaFinal.anio.toString() + quincenaFinal.quincena.toString().padStart(2, "0")
+                    dateIni = quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0")
 
                     if (dateFin < dateIni)
                         errors.push({ type: "quincenaFin", field: "id_catquincena_fin" })
@@ -543,9 +585,10 @@ exports.setRecord = async(req, res) => {
                 }
             } else {
                 //Si la quincena inicial es mayor a la quincena activa
-                if (req.body.dataPack['id_catquincena_ini'] < quincenaActiva.id &&
+                if (quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0") <
+                    quincenaActiva.anio.toString() + quincenaActiva.quincena.toString().padStart(2, "0") &&
                     req.body.actionForm.toUpperCase() == "EDITAR") {
-                    //como prevención solo dejar la quincena final    
+                    //como prevención solo dejar la quincena final para la actualización    
                     delete req.body.dataPack.id_personal;
                     delete req.body.dataPack.id_catplanteles;
                     delete req.body.dataPack.id_semestre;
