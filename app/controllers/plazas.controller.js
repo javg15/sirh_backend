@@ -729,7 +729,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "     and p.id_catplanteles =:id_catplanteles " +
         "      and ((ce.id in (1,2) or ce.tipo=2) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
         "         or coalesce(pn.id_plazas,0) =:id_plazas " + //una plaza en especifico
-        "         or pp.id_catplantillas=2 " + //sea plaza de docentes
+        "         or pp.id_catplantillas=2 " + //las plazas de docentes es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
         "      ) " +
         "     and (case when pp.id_catplantillas=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
         "     and p.state IN ('A','B') " +
