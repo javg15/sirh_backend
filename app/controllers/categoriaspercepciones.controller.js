@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
 const Categoriaspercepciones = db.categoriaspercepciones;
+const Catquincena = db.catquincena;
 var moment = require('moment');
 
 const { QueryTypes } = require('sequelize');
@@ -157,6 +158,21 @@ exports.setRecord = async(req, res) => {
         }
     })
 
+    //obtener datos de las quincenas
+    req.body.dataPack['id_catquincena_ini'] = req.body.dataPack['id_catquincena_ini'] == 0 ? 32767 : req.body.dataPack['id_catquincena_ini']
+    const quincenaInicial = await Catquincena.findOne({
+        where: {
+            id: req.body.dataPack['id_catquincena_ini']
+        },
+    });
+
+    req.body.dataPack['id_catquincena_fin'] = req.body.dataPack['id_catquincena_fin'] == 0 ? 32767 : req.body.dataPack['id_catquincena_fin']
+    const quincenaFinal = await Catquincena.findOne({
+        where: {
+            id: req.body.dataPack['id_catquincena_fin']
+        },
+    });
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -219,8 +235,8 @@ exports.setRecord = async(req, res) => {
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                     ///////////////
-                dateFin = value
-                dateIni = req.body.dataPack.id_catquincena_ini
+                dateFin = quincenaFinal.anio.toString() + quincenaFinal.quincena.toString().padStart(2, "0")
+                dateIni = quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0")
 
                 if (dateFin < dateIni)
                     errors.push({ type: "quincenaFin", field: "id_catquincena_fin" })

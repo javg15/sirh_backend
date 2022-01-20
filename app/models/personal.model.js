@@ -169,10 +169,6 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(30),
             allowNull: true
         },
-        fechanaculthijo: {
-            type: DataTypes.DATEONLY,
-            allowNull: true
-        },
         formacobro: {
             type: DataTypes.INTEGER,
             allowNull: false,
