@@ -16,7 +16,7 @@ let dataValidator = new Validator({
     messages: mensajesValidacion
 });
 
-let jsonPermisos=[];
+let jsonPermisos = [];
 
 exports.getAdmin = async(req, res) => {
     let datos = "",
@@ -124,7 +124,7 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.getRecordUsuariosZonas = async(req, res) => {
-    let query = "select c.id,c.descripcion " +
+    let query = "select c.id,c.descripcion as text " +
         "from catzonageografica as c " +
         "inner join usuarios_zonas as uz on c.id=uz.id_catzonageografica " +
         "where uz.id_usuarios=:id_usuarios  ";
@@ -193,7 +193,7 @@ exports.getMenu = async(req, res) => {
 
 exports.getTreePermisos = async(req, res) => {
     let datos = "",
-    query = "";
+        query = "";
 
     query = "SELECT fn_permisosusuario_seleccion(:id_usuario,0) AS treejson";
 
@@ -463,11 +463,11 @@ exports.setPerfil = async(req, res) => {
                             });
                         }
                     });
-                
-                 // Actualizar los permisos
-                 jsonPermisos=[];
-                 this.loopPermisos(req.body.nodes,this.setJsonPermisos);    
-                 this.updatePermisos(req.body.dataPack.id);
+
+                // Actualizar los permisos
+                jsonPermisos = [];
+                this.loopPermisos(req.body.nodes, this.setJsonPermisos);
+                this.updatePermisos(req.body.dataPack.id);
 
                 res.status(200).send({ message: "success", id: req.body.dataPack.id });
             } else {
@@ -480,31 +480,31 @@ exports.setPerfil = async(req, res) => {
         });
 }
 
-exports.loopPermisos = (o,func) => {
+exports.loopPermisos = (o, func) => {
     for (var i in o) {
-        if(i=="checked" && o[i]==true)
-          func.apply(this,[o["id_item"].split("-")[0],o["id_item"].split("-")[1]]);  
-        if (o[i] !== null && typeof(o[i])=="object") {
+        if (i == "checked" && o[i] == true)
+            func.apply(this, [o["id_item"].split("-")[0], o["id_item"].split("-")[1]]);
+        if (o[i] !== null && typeof(o[i]) == "object") {
             //going one step down in the object tree!!
-            this.loopPermisos(o[i],func);
+            this.loopPermisos(o[i], func);
         }
     }
 }
 
-exports.setJsonPermisos = (id,permiso) => {
+exports.setJsonPermisos = (id, permiso) => {
 
-    for (var i = 0; i < jsonPermisos.length; i++){
+    for (var i = 0; i < jsonPermisos.length; i++) {
         // look for the entry with a matching `code` value
-        if (jsonPermisos[i].id_item == id){
-           // we found it
-           jsonPermisos[i].permisos=jsonPermisos[i].permisos+ "," + permiso ;
-           return;
+        if (jsonPermisos[i].id_item == id) {
+            // we found it
+            jsonPermisos[i].permisos = jsonPermisos[i].permisos + "," + permiso;
+            return;
         }
     }
-    jsonPermisos.push({"id_item":id,permisos:permiso})
+    jsonPermisos.push({ "id_item": id, permisos: permiso })
 }
 
-exports.updatePermisos = async (id_usuario) => {
+exports.updatePermisos = async(id_usuario) => {
     //vaciar los permisos
     await Permusuariosmodulos.destroy({
         where: {
@@ -515,12 +515,12 @@ exports.updatePermisos = async (id_usuario) => {
     })
 
     //buscar si existe el registro
-    for (var i = 0; i < jsonPermisos.length; i++){
+    for (var i = 0; i < jsonPermisos.length; i++) {
         // look for the entry with a matching `code` value
-        await Permusuariosmodulos.create(
-            { id_usuarios: id_usuario, 
-            id_modulos:jsonPermisos[i].id_item,
-            privilegios:jsonPermisos[i].permisos 
+        await Permusuariosmodulos.create({
+            id_usuarios: id_usuario,
+            id_modulos: jsonPermisos[i].id_item,
+            privilegios: jsonPermisos[i].permisos
         }).then((self) => {
             // here self is your instance, but updated
             //res.status(200).send({ message: "success", id: self.id });
