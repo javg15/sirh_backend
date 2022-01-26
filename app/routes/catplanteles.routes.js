@@ -36,5 +36,10 @@ module.exports = function(app) {
         controller.getCatalogoSinAdmin
     );
 
+    //json
+    app.post(
+        "/api/catplanteles/getCatalogoJSON",
+        controller.getCatalogoJSON
+    );
 
 };

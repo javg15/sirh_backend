@@ -270,3 +270,29 @@ exports.getCatalogoSegunPersonal = async(req, res) => {
 
     res.status(200).send(datos);
 }
+
+exports.getCatalogoJSON = async(req, res) => {
+    //retornar las zonas geograficas permitidas
+    let query = "SELECT c.id,c.clave,c.ubicacion,c.domicilio,c.latitud,c.longitud " +
+        "     FROM catplanteles AS c " +
+        "     WHERE coalesce(c.latitud,'')<>'' ";
+    //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    res.status(200).send(datos);
+}
