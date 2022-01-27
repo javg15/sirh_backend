@@ -292,8 +292,20 @@ exports.setRecord = async(req, res) => {
         denominacion: { type: "string", min: 5 },
         nivelsalarial: { type: "string", max: 5 },
         aplicaa: { type: "number" },
-        id_cattipocategoria: { type: "number" },
-        id_tiponomina: { type: "number" },
+        id_cattipocategoria: { 
+            type: "number",
+            custom(value, errors) {
+                    if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            } 
+        },
+        id_tiponomina: { 
+            type: "number",
+            custom(value, errors) {
+                    if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            } 
+        },
     };
 
     var vres = true;

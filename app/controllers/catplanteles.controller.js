@@ -273,7 +273,7 @@ exports.getCatalogoSegunPersonal = async(req, res) => {
 
 exports.getCatalogoJSON = async(req, res) => {
     //retornar las zonas geograficas permitidas
-    let query = "SELECT c.id,c.clave,c.ubicacion,c.domicilio,c.latitud,c.longitud " +
+    let query = "SELECT c.id,c.ubicacion,c.latitud,c.longitud,tipoplantel,fn_nombramientos_enplantel(c.id) as descripcion " +
         "     FROM catplanteles AS c " +
         "     WHERE coalesce(c.latitud,'')<>'' ";
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    

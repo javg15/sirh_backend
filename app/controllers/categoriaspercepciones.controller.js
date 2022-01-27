@@ -225,7 +225,7 @@ exports.setRecord = async(req, res) => {
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
-                if (value == 0)
+                if ((value <= 0 || value==32767))
                     errors.push({ type: "required" })
                 return value;
             },

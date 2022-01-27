@@ -508,7 +508,7 @@ exports.setRecord = async(req, res) => {
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if ((value <= 0 || value==32767)) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

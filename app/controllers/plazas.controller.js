@@ -600,7 +600,7 @@ exports.setRecord = async(req, res) => {
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
-                if (value <= 0) errors.push({ type: "selection" })
+                if ((value <= 0 || value==32767)) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -720,23 +720,25 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesA' AS horas" +
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesB' AS horasb" +
         " FROM(" +
-        "   select distinct p.id, fn_plaza_clave(p.id) as text,pp.id_catplantillas,p.id_categorias  " +
+        "   select distinct p.id, fn_plaza_clave(p.id) as text,pp.id_catplantillas,p.id_categorias,c.id_cattipocategoria  " +
         "   from plazas as p " +
         "      left join catestatusplaza as ce on p.id_catestatusplaza=ce.id " +
         "      left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas and pn.id_categorias = :id_categorias and pn.state in ('A','B') " +
-        "     left join plantillaspersonal as pp on pp.id=pn.id_plantillaspersonal " +
+        "      left join plantillaspersonal as pp on pp.id=pn.id_plantillaspersonal " +
+        "      left join categorias as c on p.id_categorias =c.id " +
         "   where p.id_categorias =:id_categorias " +
         "     and p.id_catplanteles =:id_catplanteles " +
         "      and ((ce.id in (1,2) or ce.tipo=2) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
         "         or coalesce(pn.id_plazas,0) =:id_plazas " + //una plaza en especifico
-        "         or or fn_plaza_eshomologada(p.id_categorias)->>'eshomologada'='true' " + //las categorias homologadas es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
+        "         or fn_plaza_eshomologada(p.id_categorias)->>'eshomologada'='true' " + //las categorias homologadas es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
         "      ) " +
-        "     and (case when pp.id_catplantillas=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
+        "     and (case when c.id_cattipocategoria=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
         "     and p.state IN ('A','B') " +
         ") AS a " +
         "WHERE CASE WHEN " +
-        "   a.id_catplantillas=2 then (fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesT')::integer>0 " + //segundo filtro, con horas disponibles
-        "ELSE true END";
+        "   a.id_cattipocategoria=2 then (fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesT')::integer>0 " + //segundo filtro, con horas disponibles
+        "ELSE true END"
+        ;
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
