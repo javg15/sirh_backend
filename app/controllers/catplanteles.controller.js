@@ -273,15 +273,17 @@ exports.getCatalogoSegunPersonal = async(req, res) => {
 
 exports.getCatalogoOpen = async(req, res) => {
     //retornar las zonas geograficas permitidas
-    let query = "SELECT c.id,c.ubicacion as text,c.latitud,c.longitud,c.id_catregion" +
-        ",c.clave,c.ubicacion,c.tipoplantel,c.id_catzonageografica,l.descripcion AS localidad,c.domicilio,c.clavectse,c.telefono,c.email" +
-        ",fn_nombramientos_enplantel(c.id) as directivos " +
-        "     FROM catplanteles AS c " +
-        "       LEFT JOIN catlocalidades AS l ON c.id_catlocalidades=l.id " +
-        "     WHERE coalesce(c.latitud,'')<>'' " +
-        "       AND (c.id_catregion=:id_catregion OR coalesce(:id_catregion,0)=0) " +
-        "       AND (c.id=:id_catplanteles OR coalesce(:id_catplanteles,0)=0) " +
-        "     ORDER BY c.ubicacion " 
+    let query = "SELECT pl.id,pl.ubicacion as text,pl.latitud,pl.longitud" +
+        ",zg.clave as clave_zona, pl.clave as clave_plantel, pl.ubicacion, pl.tipoplantel, m.descripcion as municipio" +
+        ",pl.aniocreacion, pl.clavectse, pl.telefono, pl.email " +
+        ",fn_nombramientos_enplantel(pl.id) as directivos " +
+        "     FROM catplanteles AS pl " +
+        "       LEFT JOIN catzonageografica AS zg ON pl.id_catzonageografica = zg.id"+
+        "       LEFT JOIN catmunicipios AS m ON pl.id_catmunicipios=m.id " +
+        "     WHERE coalesce(pl.latitud,'')<>'' " +
+        "       AND (pl.id_catregion=:id_catregion OR coalesce(:id_catregion,0)=0) " +
+        "       AND (pl.id=:id_catplanteles OR coalesce(:id_catplanteles,0)=0) " +
+        "     ORDER BY pl.ubicacion " 
         ;
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
     datos = await db.sequelize.query(query, {
