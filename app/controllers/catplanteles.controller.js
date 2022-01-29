@@ -271,11 +271,18 @@ exports.getCatalogoSegunPersonal = async(req, res) => {
     res.status(200).send(datos);
 }
 
-exports.getCatalogoJSON = async(req, res) => {
+exports.getCatalogoOpen = async(req, res) => {
     //retornar las zonas geograficas permitidas
-    let query = "SELECT c.id,c.ubicacion,c.latitud,c.longitud,tipoplantel,fn_nombramientos_enplantel(c.id) as descripcion " +
+    let query = "SELECT c.id,c.ubicacion as text,c.latitud,c.longitud,c.id_catregion" +
+        ",c.clave,c.ubicacion,c.tipoplantel,c.id_catzonageografica,l.descripcion AS localidad,c.domicilio,c.clavectse,c.telefono,c.email" +
+        ",fn_nombramientos_enplantel(c.id) as directivos " +
         "     FROM catplanteles AS c " +
-        "     WHERE coalesce(c.latitud,'')<>'' ";
+        "       LEFT JOIN catlocalidades AS l ON c.id_catlocalidades=l.id " +
+        "     WHERE coalesce(c.latitud,'')<>'' " +
+        "       AND (c.id_catregion=:id_catregion OR coalesce(:id_catregion,0)=0) " +
+        "       AND (c.id=:id_catplanteles OR coalesce(:id_catplanteles,0)=0) " +
+        "     ORDER BY c.ubicacion " 
+        ;
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -284,7 +291,8 @@ exports.getCatalogoJSON = async(req, res) => {
         logging: console.log,
 
         replacements: {
-
+            id_catregion: req.body.id_catregion,
+            id_catplanteles: req.body.id_catplanteles
         },
         // If plain is true, then sequelize will only return the first
         // record of the result set. In case of false it will return all records.

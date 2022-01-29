@@ -38,8 +38,8 @@ module.exports = function(app) {
 
     //json
     app.post(
-        "/api/catplanteles/getCatalogoJSON",
-        controller.getCatalogoJSON
+        "/api/catplanteles/getCatalogoOpen",
+        controller.getCatalogoOpen
     );
 
 };

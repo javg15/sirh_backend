@@ -116,6 +116,25 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getCatalogoOpen = async(req, res) => {
+
+    Catregiones.findAll({
+            attributes: ['id', 'descripcion',['descripcion','text'] ],
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(catregiones => {
+            if (!catregiones) {
+                return res.status(404).send({ message: "Catregiones Not found." });
+            }
+
+            res.status(200).send(catregiones);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
