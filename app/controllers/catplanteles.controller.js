@@ -278,13 +278,12 @@ exports.getCatalogoOpen = async(req, res) => {
         ",pl.aniocreacion, pl.clavectse, pl.telefono, pl.email " +
         ",fn_nombramientos_enplantel(pl.id) as directivos " +
         "     FROM catplanteles AS pl " +
-        "       LEFT JOIN catzonageografica AS zg ON pl.id_catzonageografica = zg.id"+
+        "       LEFT JOIN catzonageografica AS zg ON pl.id_catzonageografica = zg.id" +
         "       LEFT JOIN catmunicipios AS m ON pl.id_catmunicipios=m.id " +
         "     WHERE coalesce(pl.latitud,'')<>'' " +
-        "       AND (pl.id_catregion=:id_catregion OR coalesce(:id_catregion,0)=0) " +
+        "       AND (pl.id_catzonageografica=:id_catzonageografica OR coalesce(:id_catzonageografica,0)=0) " +
         "       AND (pl.id=:id_catplanteles OR coalesce(:id_catplanteles,0)=0) " +
-        "     ORDER BY pl.ubicacion " 
-        ;
+        "     ORDER BY pl.ubicacion ";
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -293,7 +292,7 @@ exports.getCatalogoOpen = async(req, res) => {
         logging: console.log,
 
         replacements: {
-            id_catregion: req.body.id_catregion,
+            id_catzonageografica: req.body.id_catzonageografica,
             id_catplanteles: req.body.id_catplanteles
         },
         // If plain is true, then sequelize will only return the first

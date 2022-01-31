@@ -14,11 +14,6 @@ module.exports = function(app) {
         controller.getCatalogo
     );
     app.post(
-        "/api/catregiones/getCatalogoOpen",
-        controller.getCatalogoOpen
-    );
-    
-    app.post(
         "/api/catregiones/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );

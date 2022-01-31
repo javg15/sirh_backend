@@ -14,6 +14,10 @@ module.exports = function(app) {
         controller.getCatalogo
     );
     app.post(
+        "/api/catzonageografica/getCatalogoOpen",
+        controller.getCatalogoOpen
+    );
+    app.post(
         "/api/catzonageografica/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
