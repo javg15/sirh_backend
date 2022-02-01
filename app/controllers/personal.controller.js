@@ -450,8 +450,6 @@ exports.setRecord2 = async(req, res) => {
 
     //let curpValido = await checkCurp(req.body.dataPack.curp);
 
-
-
     //let curpValido = false;
     //console.log(JSON.parse(curpValido).Response)
     /* customer validator shema */
@@ -459,15 +457,33 @@ exports.setRecord2 = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        emailoficial: { type: "email", empty: true },
+        emailoficial: {
+            type: "email",
+            empty: true,
+            custom(value, errors, schema) {
+                if (req.body.campoEdit == "emailoficial") {
+                    if (value == null)
+                        errors.push({ type: "stringMin", expected: 10, actual: 0 });
+                    else {
+                        if (value.length > 0 && value.length < 10) {
+                            errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                        }
+                    }
+                }
+                return value
+            }
+        },
         telefonomovil: {
             type: "string",
+            empty: true,
             custom(value, errors, schema) {
-                if (value == null)
-                    errors.push({ type: "stringMin", expected: 10, actual: 0 });
-                else {
-                    if (value.length != 10) {
-                        errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                if (req.body.campoEdit == "telefonomovil") {
+                    if (value == null)
+                        errors.push({ type: "stringMin", expected: 10, actual: 0 });
+                    else {
+                        if (value.length > 0 && value.length < 10) {
+                            errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                        }
                     }
                 }
                 return value
@@ -478,11 +494,8 @@ exports.setRecord2 = async(req, res) => {
 
 
 
-    var vres = true;
-    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
-        req.body.actionForm.toUpperCase() == "EDITAR") {
-        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
-    }
+    var vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+
 
     /* validation failed */
     if (!(vres === true)) {

@@ -24,6 +24,11 @@ module.exports = function(app) {
     );
 
     app.post(
+        "/api/catplanteles/setRecord2", [authJwt.verifyToken],
+        controller.setRecord2
+    );
+
+    app.post(
         "/api/catplanteles/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );

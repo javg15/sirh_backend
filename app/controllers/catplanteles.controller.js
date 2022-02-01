@@ -189,6 +189,108 @@ exports.setRecord = async(req, res) => {
         });
 }
 
+exports.setRecord2 = async(req, res) => {
+    Object.keys(req.body.dataPack).forEach(function(key) {
+        if (key.indexOf("id_", 0) >= 0) {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+    })
+
+    /* customer validator shema */
+    const dataVSchema = {
+        /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
+
+        id: { type: "number" },
+        email: {
+            type: "email",
+            custom(value, errors, schema) {
+                if (req.body.campoEdit == "email") {
+                    if (value == null)
+                        errors.push({ type: "stringMin", expected: 10, actual: 0 });
+                    else {
+                        if (value.length < 10) {
+                            errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                        }
+                    }
+                }
+                return value
+            }
+        },
+        telefono: {
+            type: "string",
+            custom(value, errors, schema) {
+                if (req.body.campoEdit == "telefono") {
+                    if (value == null)
+                        errors.push({ type: "stringMin", expected: 10, actual: 0 });
+                    else {
+                        if (value.length != 10) {
+                            errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                        }
+                    }
+                }
+                return value
+            }
+        },
+    };
+
+    var vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+
+    /* validation failed */
+    if (!(vres === true)) {
+        let errors = {},
+            item;
+
+        for (const index in vres) {
+            item = vres[index];
+
+            errors[item.field] = item.message;
+        }
+
+        res.status(200).send({
+            error: true,
+            message: errors
+        });
+        return;
+        /*throw {
+            name: "ValidationError",
+            message: errors
+        };*/
+    }
+
+    //buscar si existe el registro
+    Catplanteles.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, {
+                    id: {
+                        [Op.gt]: 0
+                    }
+                }],
+            }
+        })
+        .then(catplanteles => {
+            if (!catplanteles) {
+                res.status(500).send({ message: "No existe el plantel" });
+            } else {
+                let plantelEdit = new Catplanteles();
+                plantelEdit.id = req.body.dataPack.id;
+                plantelEdit.id_usuarios_r = req.userId;
+                plantelEdit.telefono = req.body.dataPack.telefono;
+                plantelEdit.email = req.body.dataPack.email;
+
+                catplanteles.update(req.body.dataPack).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                });
+            }
+
+
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.getCatalogo = async(req, res) => {
 
     Catplanteles.findAll({
