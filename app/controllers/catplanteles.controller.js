@@ -273,13 +273,14 @@ exports.getCatalogoSegunPersonal = async(req, res) => {
 
 exports.getCatalogoOpen = async(req, res) => {
     //retornar las zonas geograficas permitidas
-    let query = "SELECT pl.id,pl.ubicacion as text,pl.latitud,pl.longitud" +
+    let query = "SELECT pl.id,CONCAT(pl.clave, '-',pl.ubicacion) as text,pl.latitud,pl.longitud" +
         ",zg.clave as clave_zona, pl.clave as clave_plantel, pl.ubicacion, pl.tipoplantel, m.descripcion as municipio" +
-        ",pl.aniocreacion, pl.clavectse, pl.telefono, pl.email " +
+        ",q.anio AS aniocreacion, pl.clavectse, pl.telefono, pl.email " +
         ",fn_nombramientos_enplantel(pl.id) as directivos " +
         "     FROM catplanteles AS pl " +
         "       LEFT JOIN catzonageografica AS zg ON pl.id_catzonageografica = zg.id" +
         "       LEFT JOIN catmunicipios AS m ON pl.id_catmunicipios=m.id " +
+        "       LEFT JOIN catquincena AS q ON pl.aniocreacion=q.id " +
         "     WHERE coalesce(pl.latitud,'')<>'' " +
         "       AND (pl.id_catzonageografica=:id_catzonageografica OR coalesce(:id_catzonageografica,0)=0) " +
         "       AND (pl.id=:id_catplanteles OR coalesce(:id_catplanteles,0)=0) " +

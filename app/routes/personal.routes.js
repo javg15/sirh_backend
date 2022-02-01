@@ -36,6 +36,10 @@ module.exports = function(app) {
         "/api/personal/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+    app.post(
+        "/api/personal/setRecord2", [authJwt.verifyToken],
+        controller.setRecord2
+    );
 
     app.post(
         "/api/personal/getCatalogo", [authJwt.verifyToken],

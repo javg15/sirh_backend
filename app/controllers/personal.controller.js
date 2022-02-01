@@ -437,6 +437,110 @@ exports.setRecord = async(req, res) => {
 
 }
 
+exports.setRecord2 = async(req, res) => {
+    Object.keys(req.body.dataPack).forEach(function(key) {
+        if (key.indexOf("id_", 0) >= 0) {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
+    })
+
+    //let curpValido = await checkCurp(req.body.dataPack.curp);
+
+
+
+    //let curpValido = false;
+    //console.log(JSON.parse(curpValido).Response)
+    /* customer validator shema */
+    const dataVSchema = {
+        /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
+
+        id: { type: "number" },
+        emailoficial: { type: "email", empty: true },
+        telefonomovil: {
+            type: "string",
+            custom(value, errors, schema) {
+                if (value == null)
+                    errors.push({ type: "stringMin", expected: 10, actual: 0 });
+                else {
+                    if (value.length != 10) {
+                        errors.push({ type: "stringMin", expected: 10, actual: value.length });
+                    }
+                }
+                return value
+            }
+        },
+
+    };
+
+
+
+    var vres = true;
+    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
+        req.body.actionForm.toUpperCase() == "EDITAR") {
+        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+    }
+
+    /* validation failed */
+    if (!(vres === true)) {
+        let errors = {},
+            item;
+
+        for (const index in vres) {
+            item = vres[index];
+
+            errors[item.field] = item.message;
+        }
+
+        res.status(200).send({
+            error: true,
+            message: errors
+        });
+        return;
+        /*throw {
+            name: "ValidationError",
+            message: errors
+        };*/
+    }
+
+    //buscar si existe el registro
+    Personal.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, {
+                    id: {
+                        [Op.gt]: 0
+                    }
+                }],
+            }
+        })
+        .then(personal => {
+            if (!personal) {
+                res.status(500).send({ message: "No existe la persona" });
+
+            } else {
+                let personalEdit = new Personal();
+                personalEdit.id = req.body.dataPack.id;
+                personalEdit.id_usuarios_r = req.userId;
+                personalEdit.telefonomovil = req.body.dataPack.telefonomovil;
+                personalEdit.emailoficial = req.body.dataPack.emailoficial;
+
+                personal.update(req.body.dataPack).then((self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                });
+            }
+
+
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+
+}
+
 function checkCurp(curp) {
 
     return new Promise(function(resolve, reject) {
