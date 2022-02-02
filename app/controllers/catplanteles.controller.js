@@ -377,7 +377,7 @@ exports.getCatalogoOpen = async(req, res) => {
     //retornar las zonas geograficas permitidas
     let query = "SELECT pl.id,CONCAT(pl.clave, '-',pl.ubicacion) as text,pl.latitud,pl.longitud" +
         ",zg.clave as clave_zona, pl.clave as clave_plantel, pl.ubicacion, pl.tipoplantel, m.descripcion as municipio" +
-        ",q.anio AS aniocreacion, pl.clavectse, pl.telefono, pl.email " +
+        ",q.anio AS aniocreacion, pl.clavectse, pl.telefono, pl.email,pl.id_catzonageografica " +
         ",fn_nombramientos_enplantel(pl.id) as directivos " +
         "     FROM catplanteles AS pl " +
         "       LEFT JOIN catzonageografica AS zg ON pl.id_catzonageografica = zg.id" +
@@ -386,7 +386,7 @@ exports.getCatalogoOpen = async(req, res) => {
         "     WHERE coalesce(pl.latitud,'')<>'' " +
         "       AND (pl.id_catzonageografica=:id_catzonageografica OR coalesce(:id_catzonageografica,0)=0) " +
         "       AND (pl.id=:id_catplanteles OR coalesce(:id_catplanteles,0)=0) " +
-        "     ORDER BY pl.ubicacion ";
+        "     ORDER BY CONCAT(pl.clave, '-',pl.ubicacion) ";
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
