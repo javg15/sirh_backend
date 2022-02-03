@@ -317,6 +317,9 @@ exports.setRecord = async(req, res) => {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
     })
     let recordAsignado,
         personalAsignado = false,
@@ -419,7 +422,7 @@ exports.setRecord = async(req, res) => {
                 type: "selection"
             });
 
-        //revisar que si haya un cambio de plantilla
+        //revisar que si haya un cambio de plantilla o de plantel
         await Plantillaspersonal.findOne({
                 where: {
                     [Op.and]: [{ id: req.body.dataPack.id }, {
@@ -430,9 +433,10 @@ exports.setRecord = async(req, res) => {
                 }
             })
             .then(plantillaspersonal => {
-                if (plantillaspersonal.id_catplantillas == req.body.dataPack.id_catplantillas)
+                if (!((plantillaspersonal.id_catplantillas != req.body.dataPack.id_catplantillas)
+                        ||(plantillaspersonal.id_catplanteles != req.body.dataPack.id_catplanteles)))
                     vres.push({
-                        message: "La plantilla a actualizar debe ser diferente a la actual",
+                        message: "La plantilla o plantel a actualizar debe ser diferente a la actual",
                         field: "id_catplantillas",
                         type: "required"
                     });
@@ -493,8 +497,12 @@ exports.setRecord = async(req, res) => {
                 Plantillaspersonal.create(
                     req.body.dataPack
                 ).then((self) => {
-                    // here self is your instance, but updated
+                    Personal.update(
+                        { numeemp: req.body.dataPack.consecutivo.toString().padStart(5,"0") },
+                        { where: { id: req.body.dataPack.id_personal } }
+                    );
                     res.status(200).send({ message: "success", id: self.id });
+                    
                 }).catch(err => {
                     res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
@@ -506,6 +514,12 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
                 plantillaspersonal.update(req.body.dataPack).then(async(self) => {
+                    //actualizar numero de empleado
+                    Personal.update(
+                        { numeemp: req.body.dataPack.consecutivo.toString().padStart(5,"0") },
+                        { where: { id: req.body.dataPack.id_personal } }
+                    );
+
                     if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
                         query = "SELECT fn_set_plantillas_update(" + self.id + "," + req.body.record_id_catquincena + ")"; //el modo no existe, solo es para obtener un registro
                         console.log("query:", query)
