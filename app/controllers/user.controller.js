@@ -149,7 +149,7 @@ exports.getRecordUsuariosZonas = async(req, res) => {
 
     res.status(200).send(datos);
 
-    Usuarios_zonas.findOne({
+    /*Usuarios_zonas.findOne({
             //attributes: ['id', ['username', 'text']],
             //attributes: { exclude: ['pass'] },
             where: {
@@ -164,7 +164,7 @@ exports.getRecordUsuariosZonas = async(req, res) => {
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
-        });
+        });*/
 }
 
 exports.getMenu = async(req, res) => {
