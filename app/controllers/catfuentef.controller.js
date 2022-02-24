@@ -16,9 +16,12 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_catfuentef_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_catfuentef_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
+            replacements: {
+                id_usuario: req.userId,
+            },
             plain: false,
             raw: true,
             type: QueryTypes.SELECT

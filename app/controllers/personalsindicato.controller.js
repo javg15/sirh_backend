@@ -22,9 +22,12 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_personalsindicato_mgr('&modo=10')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_personalsindicato_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
+            replacements: {
+                id_usuario: req.userId,
+            },
             plain: false,
             raw: true,
             type: QueryTypes.SELECT
