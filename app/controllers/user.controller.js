@@ -4,6 +4,7 @@ const globales = require("../config/global.config");
 const User = db.user;
 const Usuarios_zonas = db.usuarios_zonas;
 const Personal = db.personal;
+const Permusuariosmodulos = db.permusuariosmodulos;
 const Op = db.Sequelize.Op;
 
 const { QueryTypes } = require('sequelize');
@@ -431,62 +432,63 @@ exports.setPerfil = async(req, res) => {
                     });
             }
 
+            this.setPerfilExtra(req,record_catzonasgeograficas)
 
-            if (pasa && req.body.onlypass != 1) { //pasa y se actualiza todo
-                //Eliminar las zonas
-                Usuarios_zonas.destroy({
-                    where: {
-                        id_usuarios: req.body.dataPack.id
-                    },
-                });
-
-                //ingresar las zonas
-                for (let i = 0; i < record_catzonasgeograficas.length; i++) {
-                    Usuarios_zonas.create({
-                        id_usuarios: req.body.dataPack.id,
-                        id_catzonageografica: record_catzonasgeograficas[i].id,
-                        id_usuarios_r: req.userId,
-                    });
-                }
-
-                //actualiza el id_usuario_sistema en la tabla personal
-                Personal.findOne({
-                        where: {
-                            [Op.and]: [{ id: req.body["id_personal"] }, {
-                                id: {
-                                    [Op.gt]: 0
-                                }
-                            }],
-                        }
-                    })
-                    .then(personal => {
-                        if (personal) {
-                            personal.update({ id_usuarios_sistema: req.body.dataPack.id }).then(self => {}).catch(err => {
-                                pasa = false;
-                            });
-                        }
-                    });
-
-                // Actualizar los permisos
-                jsonPermisos = [];
-                this.loopPermisos(req.body.nodes, this.setJsonPermisos);
-                this.updatePermisos(req.body.dataPack.id);
-
-                res.status(200).send({ message: "success", id: req.body.dataPack.id });
-            } else {
-                res.status(200).send({ message: "success", id: req.body.dataPack.id });
-            }
-
+            res.status(200).send({ message: "success", id: req.body.dataPack.id });
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 }
 
+exports.setPerfilExtra = async(req,record_catzonasgeograficas) => {
+    if (req.body.onlypass != 1) { //pasa y se actualiza todo
+        //Eliminar las zonas
+        await Usuarios_zonas.destroy({
+            where: {
+                id_usuarios: req.body.dataPack.id
+            },
+        });
+
+        //ingresar las zonas
+        for (let i = 0; i < record_catzonasgeograficas.length; i++) {
+            await Usuarios_zonas.create({
+                id_usuarios: req.body.dataPack.id,
+                id_catzonageografica: record_catzonasgeograficas[i].id,
+                id_usuarios_r: req.userId,
+            });
+        }
+
+        //actualiza el id_usuario_sistema en la tabla personal
+        await Personal.findOne({
+                where: {
+                    [Op.and]: [{ id: req.body["id_personal"] }, {
+                        id: {
+                            [Op.gt]: 0
+                        }
+                    }],
+                }
+            })
+            .then(personal => {
+                if (personal) {
+                    personal.update({ id_usuarios_sistema: req.body.dataPack.id }).then(self => {}).catch(err => {
+                        pasa = false;
+                    });
+                }
+            });
+
+        // Actualizar los permisos
+        jsonPermisos = [];
+        this.loopPermisos(req.body.nodes, this.setJsonPermisos);//se pasa como parametro la funcion
+        this.updatePermisos(req.body.dataPack.id);
+
+    }
+}
+
 exports.loopPermisos = (o, func) => {
     for (var i in o) {
         if (i == "checked" && o[i] == true)
-            func.apply(this, [o["id_item"].split("-")[0], o["id_item"].split("-")[1]]);
+            func.apply(this, [o["id_item"].split("-")[0], o["id_item"].split("-")[1]]); //se llama a la función con los parametros
         if (o[i] !== null && typeof(o[i]) == "object") {
             //going one step down in the object tree!!
             this.loopPermisos(o[i], func);

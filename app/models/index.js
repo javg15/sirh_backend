@@ -104,6 +104,7 @@ db.cattipohorasmateria = require("../models/cattipohorasmateria.model.js")(seque
 db.catnombramientos = require("../models/catnombramientos.model.js")(sequelize, Sequelize);
 db.permgrupos = require("../models/permgrupos.model.js")(sequelize, Sequelize);
 db.permgruposmodulos = require("../models/permgruposmodulos.model.js")(sequelize, Sequelize);
+db.permusuariosmodulos = require("../models/permusuariosmodulos.model.js")(sequelize, Sequelize);
 db.catbancos = require("../models/catbancos.model.js")(sequelize, Sequelize);
 db.catdocumentos = require("../models/catdocumentos.model.js")(sequelize, Sequelize);
 db.personalexpediente = require("../models/personalexpediente.model.js")(sequelize, Sequelize);
