@@ -738,7 +738,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "         or coalesce(pn.id_plazas,0) =:id_plazas " + //una plaza en especifico
         "         or fn_plaza_eshomologada(p.id_categorias)->>'eshomologada'='true' " + //las categorias homologadas es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
         "      ) " +
-        "     and (case when c.id_cattipocategoria=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
+        //"     and (case when c.id_cattipocategoria=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
         "     and p.state IN ('A','B') " +
         ") AS a " +
         "WHERE CASE WHEN " +
