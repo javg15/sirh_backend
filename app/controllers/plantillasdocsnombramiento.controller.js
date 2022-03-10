@@ -375,13 +375,13 @@ exports.setRecord = async(req, res) => {
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
-        id_catcentrostrabajo: {
+        /*id_catcentrostrabajo: {
             type: "number",
             custom(value, errors) {
                 if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].tipo == 1 && value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
+        },*/
         id_catfuncionprimaria: {
             type: "number",
             custom(value, errors) {
