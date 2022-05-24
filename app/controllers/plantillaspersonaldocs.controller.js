@@ -37,8 +37,8 @@ exports.getAdmin = async(req, res) => {
         query = "SELECT * FROM s_plantillaspersonaldocs_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&ordencampo=Inicio" +
-            "&ordensentido=DESC" +
+            "&ordencampo=Inicio|Fin" +
+            "&ordensentido=DESC|DESC" +
             "&fkey=" + params.opcionesAdicionales.fkey +
             "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 

@@ -38,7 +38,7 @@ exports.getAdmin = async(req, res) => {
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor;
 
-        if (req.body.draw == 1) {
+        if (req.body.columns[req.body.order[0].column].data == 'id') {
             query += "&ordencampo=Semestre|Quincena" +
                 "&ordensentido=DESC|DESC')";
         } else {
@@ -46,7 +46,7 @@ exports.getAdmin = async(req, res) => {
                 "&ordensentido=" + req.body.order[0].dir + "')";
         }
 
-        console.log("query=>", query)
+
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
             // Will get called for every SQL query that gets sent
@@ -116,7 +116,9 @@ exports.getRecord = async(req, res) => {
 exports.getQuincenaActiva = async(req, res) => {
     Catquincena.findOne({
             where: {
-                [Op.and]: [{ id_catestatusquincena: 1 }, {
+                [Op.and]: [{
+                        [Op.or]: [{ id_catestatusquincena: 1 }, { id_catestatusquincena: 2 }]
+                    }, {
                         id: {
                             [Op.gt]: 0
                         },
@@ -400,7 +402,7 @@ exports.setUpdateFromWebService = async(req, res) => {
                     });
 
                     if (obj) {
-                        if (d.id_catestatusquincena == 1) //si el registro se va a actualizar a abierta
+                        if (d.idestatusquincena == 1 || d.idestatusquincena == 2) //si el registro se va a actualizar a abierta
                             await Catquincena.update({ id_catestatusquincena: 3 }, // actualizar todas las que esten abiertas a calculadas
                             {
                                 where: {
@@ -415,12 +417,12 @@ exports.setUpdateFromWebService = async(req, res) => {
                             state: 'A',
                             id_semestre: d.idsemestre,
                             quincena: d.quincena.substr(4, 2),
-                            id_catestatusquincena: d.id_catestatusquincena,
+                            id_catestatusquincena: d.idestatusquincena,
                             periodovacacional: d.periodovacacional,
-                            fechacierre: moment(d.fechadepago, 'DD/MM/YYYY'),
+                            fechacierre: d.fechacierre != 'NULL' ? moment(d.fechacierre, 'DD/MM/YYYY') : null,
                             observaciones: d.observaciones,
                             observaciones2: d.observaciones2,
-                            fechadepago: moment(d.fechadepago, 'DD/MM/YYYY'),
+                            fechadepago: d.fechadepago != 'NULL' ? moment(d.fechadepago, 'DD/MM/YYYY') : null,
                             adicional: d.adicional
 
                         }).catch(err => {
@@ -434,12 +436,12 @@ exports.setUpdateFromWebService = async(req, res) => {
                             state: 'A',
                             id_semestre: d.idsemestre,
                             quincena: d.quincena.substr(4, 2),
-                            id_catestatusquincena: d.id_catestatusquincena,
+                            id_catestatusquincena: d.idestatusquincena,
                             periodovacacional: d.periodovacacional,
-                            fechacierre: moment(d.fechadepago, 'DD/MM/YYYY'),
+                            fechacierre: d.fechacierre != 'NULL' ? moment(d.fechacierre, 'DD/MM/YYYY') : null,
                             observaciones: d.observaciones,
                             observaciones2: d.observaciones2,
-                            fechadepago: moment(d.fechadepago, 'DD/MM/YYYY'),
+                            fechadepago: d.fechadepago != 'NULL' ? moment(d.fechadepago, 'DD/MM/YYYY') : null,
                             adicional: d.adicional
                         }).catch(err => {
                             res.status(500).send({ message: err.message });
