@@ -103,7 +103,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catzonageografica.findAll({
-            attributes: ['id', 'descripcion'],
+            attributes: ['id', 'descripcion', ['descripcion', 'text']],
             order: [
                 ['descripcion', 'ASC'],
             ]

@@ -432,7 +432,7 @@ exports.setPerfil = async(req, res) => {
                     });
             }
 
-            this.setPerfilExtra(req,record_catzonasgeograficas)
+            this.setPerfilExtra(req, record_catzonasgeograficas)
 
             res.status(200).send({ message: "success", id: req.body.dataPack.id });
         })
@@ -441,7 +441,7 @@ exports.setPerfil = async(req, res) => {
         });
 }
 
-exports.setPerfilExtra = async(req,record_catzonasgeograficas) => {
+exports.setPerfilExtra = async(req, record_catzonasgeograficas) => {
     if (req.body.onlypass != 1) { //pasa y se actualiza todo
         //Eliminar las zonas
         await Usuarios_zonas.destroy({
@@ -454,7 +454,7 @@ exports.setPerfilExtra = async(req,record_catzonasgeograficas) => {
         for (let i = 0; i < record_catzonasgeograficas.length; i++) {
             await Usuarios_zonas.create({
                 id_usuarios: req.body.dataPack.id,
-                id_catzonageografica: record_catzonasgeograficas[i].id,
+                id_catzonageografica: record_catzonasgeograficas[i],
                 id_usuarios_r: req.userId,
             });
         }
@@ -479,7 +479,7 @@ exports.setPerfilExtra = async(req,record_catzonasgeograficas) => {
 
         // Actualizar los permisos
         jsonPermisos = [];
-        this.loopPermisos(req.body.nodes, this.setJsonPermisos);//se pasa como parametro la funcion
+        this.loopPermisos(req.body.nodes, this.setJsonPermisos); //se pasa como parametro la funcion
         this.updatePermisos(req.body.dataPack.id);
 
     }

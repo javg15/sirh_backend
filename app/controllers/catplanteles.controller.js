@@ -295,8 +295,52 @@ exports.setRecord2 = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
+    //obtener las zonas permitidas
+    let query = "select aa->>'zonasgeograficas' AS zonas from fn_permisos_usuario(:id_usuario,'')as aa";
+    //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
 
-    Catplanteles.findAll({
+        replacements: {
+            id_usuario: req.body.id_usuario,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    query = 'select id, descripcion, ubicacion, clave, tipoplantel, clave || \' - \' || ubicacion AS "text" ' +
+        'FROM catplanteles ' +
+        'WHERE id_catzonageografica IN(' + datos[0].zonas + ') ' +
+        'ORDER BY clave ';
+    //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+
+    /*Catplanteles.findAll({
             attributes: ['id', 'descripcion', 'ubicacion', 'clave', 'tipoplantel', [db.sequelize.literal("clave || ' - ' || ubicacion"), "text"]],
             order: [
                 ['clave', 'ASC'],
@@ -310,7 +354,7 @@ exports.getCatalogo = async(req, res) => {
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
-        });
+        });*/
 }
 
 exports.getCatalogoSinAdmin = async(req, res) => {
