@@ -89,6 +89,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        id_catplanteles_comision: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
 
     }, {
         sequelize,

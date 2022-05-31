@@ -155,6 +155,7 @@ require('./app/routes/catplantillas.routes')(app);
 require('./app/routes/archivos.routes')(app);
 require('./app/routes/catfuncionprimaria.routes')(app);
 require('./app/routes/catfuncionsecundaria.routes')(app);
+require('./app/routes/catfuncionplantilla.routes')(app);
 require('./app/routes/catesquemapago.routes')(app);
 require('./app/routes/cattiposemestre.routes')(app);
 require('./app/routes/catsindicato.routes')(app);

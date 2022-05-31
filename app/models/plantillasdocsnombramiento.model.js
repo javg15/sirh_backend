@@ -128,6 +128,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        id_catfuncionplantilla: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'plantillasdocsnombramiento',

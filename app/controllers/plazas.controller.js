@@ -606,7 +606,7 @@ exports.setRecord = async(req, res) => {
         id_catquincena_ini: {
             type: "number",
             custom(value, errors) {
-                if ((value <= 0 || value==32767)) errors.push({ type: "selection" })
+                if ((value <= 0 || value == 32767)) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -733,7 +733,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "      left join plantillaspersonal as pp on pp.id=pn.id_plantillaspersonal " +
         "      left join categorias as c on p.id_categorias =c.id " +
         "   where p.id_categorias =:id_categorias " +
-        "     and p.id_catplanteles =:id_catplanteles " +
+        "     and (p.id_catplanteles =:id_catplanteles OR p.id_catplanteles_comision =:id_catplanteles) " +
         "      and ((ce.id in (1,2) or ce.tipo=2) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
         "         or coalesce(pn.id_plazas,0) =:id_plazas " + //una plaza en especifico
         "         or fn_plaza_eshomologada(p.id_categorias)->>'eshomologada'='true' " + //las categorias homologadas es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
@@ -743,8 +743,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         ") AS a " +
         "WHERE CASE WHEN " +
         "   a.id_cattipocategoria=2 then (fn_categorias_disponibles_plantillas_horas(:id_catplanteles, :id_categorias, :id_plazas)->>'horas_disponiblesT')::integer>0 " + //segundo filtro, con horas disponibles
-        "ELSE true END"
-        ;
+        "ELSE true END";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

@@ -87,6 +87,7 @@ db.personalsindicato = require("./personalsindicato.model.js")(sequelize, Sequel
 db.catplantillas = require("../models/catplantillas.model.js")(sequelize, Sequelize);
 db.catfuncionprimaria = require("../models/catfuncionprimaria.model.js")(sequelize, Sequelize);
 db.catfuncionsecundaria = require("../models/catfuncionsecundaria.model.js")(sequelize, Sequelize);
+db.catfuncionplantilla = require("../models/catfuncionplantilla.model.js")(sequelize, Sequelize);
 db.cattiposemestre = require("../models/cattiposemestre.model.js")(sequelize, Sequelize);
 db.catesquemapago = require("../models/catesquemapago.model.js")(sequelize, Sequelize);
 db.catsindicato = require("../models/catsindicato.model.js")(sequelize, Sequelize);
