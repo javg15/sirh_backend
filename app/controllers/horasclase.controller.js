@@ -128,6 +128,9 @@ exports.setRecord = async(req, res) => {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
     })
 
     /* customer validator shema */
