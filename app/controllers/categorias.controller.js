@@ -156,6 +156,10 @@ exports.getRecordParaCombo = async(req, res) => {
 
     let query = "SELECT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
         " FROM categorias as c " +
+            " LEFT JOIN ( " +
+                "SELECT e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
+                "FROM json_array_elements(fn_horas_disponibles_encategoria( :id_plantel, :id_semestre, :id_categoria)) as e " +
+            " ) AS e"
         " WHERE  c.id=:id_categoria ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

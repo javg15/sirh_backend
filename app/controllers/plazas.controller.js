@@ -157,7 +157,7 @@ exports.getNombramientosVigentes = async(req, res) => {
 
 exports.getRecordParaCombo = async(req, res) => {
 
-    let query = "SELECT *, fn_plaza_clave(id) as text,fn_plaza_eshomologada(id_categorias)->>'eshomologada' AS eshomologada " +
+    let query = "SELECT *, fn_plaza_clave(id) as text,fn_categoria_eshomologada(id_categorias)->>'eshomologada' AS eshomologada,fn_plazas_datos(id)->>'categoria' AS categoria " +
         " FROM plazas" +
         " WHERE  id=:id_plazas ";
     datos = await db.sequelize.query(query, {
@@ -736,7 +736,7 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
         "     and (p.id_catplanteles =:id_catplanteles OR p.id_catplanteles_comision =:id_catplanteles) " +
         "      and ((ce.id in (1,2) or ce.tipo=2) " + //esten asignadas, pero su estatus de plaza sea vacante o licencia
         "         or coalesce(pn.id_plazas,0) =:id_plazas " + //una plaza en especifico
-        "         or fn_plaza_eshomologada(p.id_categorias)->>'eshomologada'='true' " + //las categorias homologadas es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
+        "         or fn_categoria_eshomologada(p.id_categorias)->>'eshomologada'='true' " + //las categorias homologadas es por horas, entonces, solo se asigna 1 plaza, y se descuentan las horas
         "      ) " +
         //"     and (case when c.id_cattipocategoria=2 then coalesce(p.horas,0)>0 or coalesce(p.horasb,0)>0 else true end) " + //primer filtro en caso de ser plantilla de docentes=2        
         "     and p.state IN ('A','B') " +
