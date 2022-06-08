@@ -14,6 +14,14 @@ module.exports = function(app) {
         controller.getCatalogo
     );
     app.post(
+        "/api/categorias/getHorasprogramadas", [authJwt.verifyToken],
+        controller.getHorasprogramadas
+    );
+    app.post(
+        "/api/categorias/getEstaEnTablaHomologadas", [authJwt.verifyToken],
+        controller.getEstaEnTablaHomologadas
+    );
+    app.post(
         "/api/categorias/getRecordParaCombo", [authJwt.verifyToken],
         controller.getRecordParaCombo
     );
@@ -29,7 +37,7 @@ module.exports = function(app) {
         "/api/categorias/getCatalogoVigenteEnPlantilla", [authJwt.verifyToken],
         controller.getCatalogoVigenteEnPlantilla
     );
-    
+
     app.post(
         "/api/categorias/getCatalogoDocentes", [authJwt.verifyToken],
         controller.getCatalogoDocentes

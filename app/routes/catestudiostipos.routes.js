@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/estudios.controller");
+const controller = require("../controllers/catestudiostipos.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,19 +10,15 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/estudios/getCatalogo", [authJwt.verifyToken],
+        "/api/catestudiostipos/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
     app.post(
-        "/api/estudios/getAdmin", [authJwt.verifyToken],
+        "/api/catestudiostipos/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/estudios/getRecord", [authJwt.verifyToken],
+        "/api/catestudiostipos/getRecord", [authJwt.verifyToken],
         controller.getRecord
-    );
-    app.post(
-        "/api/estudios/setRecord", [authJwt.verifyToken],
-        controller.setRecord
     );
 };

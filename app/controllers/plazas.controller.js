@@ -157,7 +157,10 @@ exports.getNombramientosVigentes = async(req, res) => {
 
 exports.getRecordParaCombo = async(req, res) => {
 
-    let query = "SELECT *, fn_plaza_clave(id) as text,fn_categoria_eshomologada(id_categorias)->>'eshomologada' AS eshomologada,fn_plazas_datos(id)->>'categoria' AS categoria " +
+    let query = "SELECT *, fn_plaza_clave(id) as text," +
+        "fn_categoria_eshomologada(id_categorias)->>'eshomologada' AS eshomologada," +
+        "fn_plazas_datos(id)->>'categoria' AS categoria, " +
+        "fn_horas_disponibles_enplaza(0,0,0,id)->0->>'horasprogramadas' AS horas_programadas " +
         " FROM plazas" +
         " WHERE  id=:id_plazas ";
     datos = await db.sequelize.query(query, {
@@ -183,7 +186,7 @@ exports.getRecordParaCombo = async(req, res) => {
 
 exports.getHorasDisponibleSegunPlaza = async(req, res) => {
 
-    let query = "select e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
+    let query = "select e->>'horasprogramadas' as horasprogramadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
         "from json_array_elements(fn_horas_disponibles_enplaza(:id_personal, 0, :id_semestre, :id_plazas)) as e ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -205,7 +208,6 @@ exports.getHorasDisponibleSegunPlaza = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-    console.log("datos=>", datos)
     res.status(200).send(datos);
 }
 
@@ -389,8 +391,6 @@ exports.getHistorial = async(req, res) => {
     // res.status(500).send({ message: err.message });
 }
 
-
-
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0 || key.indexOf("horas", 0) >= 0) {
@@ -441,7 +441,7 @@ exports.setRecord = async(req, res) => {
     /*************
      * horas AB
      */
-    query = "SELECT * FROM categorias " +
+    query = "SELECT *,fn_categoria_estaen_tablahomologada(id) AS estaen_homologada FROM categorias " +
         "WHERE id=:id_categorias";
 
     datos = await db.sequelize.query(query, {
@@ -461,7 +461,7 @@ exports.setRecord = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-    if (datos[0].id_cattipocategoria == 2 && datos[0].horasasignadas == 0 && datos[0].state == 'A')
+    if (datos[0].id_cattipocategoria == 2 && datos[0].estaen_homologada >= 1 && datos[0].state == 'A')
         varHorasAB = true;
 
     /*************

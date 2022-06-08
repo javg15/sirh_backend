@@ -133,7 +133,7 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
         aplicaa.push(1)
 
     Categorias.findAll({
-            attributes: ['id', 'clave', 'denominacion', 'id_cattipocategoria', 'horasasignadas', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
+            attributes: ['id', 'clave', 'denominacion', 'id_cattipocategoria', [db.sequelize.literal("COALESCE(clave, '.') || ' - ' || COALESCE(denominacion, '.')"), "text"]],
             where: {
                 aplicaa: aplicaa,
             },
@@ -154,13 +154,13 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
 
 exports.getRecordParaCombo = async(req, res) => {
 
-    let query = "SELECT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+    let query = "SELECT c.id, c.clave, c.denominacion, COALESCE(e.horasprogramadas,0) AS horasprogramadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
         " FROM categorias as c " +
-            " LEFT JOIN ( " +
-                "SELECT e->>'horasasignadas' as horasasignadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
-                "FROM json_array_elements(fn_horas_disponibles_encategoria( :id_plantel, :id_semestre, :id_categoria)) as e " +
-            " ) AS e"
-        " WHERE  c.id=:id_categoria ";
+        " LEFT JOIN ( " +
+        "SELECT e->>'horasprogramadas' as horasprogramadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
+        "FROM json_array_elements(fn_horas_disponibles_encategoria( :id_plantel, :id_semestre, :id_categoria)) as e " +
+        " ) AS e"
+    " WHERE  c.id=:id_categoria ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -184,7 +184,7 @@ exports.getRecordParaCombo = async(req, res) => {
 
 exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 
-    let query = "SELECT cc.id AS id_cattipocategoria, c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+    let query = "SELECT cc.id AS id_cattipocategoria, c.id, c.clave, c.denominacion, fn_categorias_horasasignadas(c.id,0) AS horasprogramadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesA' AS horas " +
         ",fn_categorias_disponibles_plantillas_horas(:id_catplanteles, c.id, :id_plazas)->>'horas_disponiblesB' AS horasb " +
         " FROM categorias as c " +
@@ -223,7 +223,7 @@ exports.getCatalogoDisponibleEnPlantilla = async(req, res) => {
 
 exports.getCatalogoVigenteEnPlantilla = async(req, res) => {
 
-    let query = "SELECT DISTINCT c.id, c.clave, c.denominacion, c.horasasignadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+    let query = "SELECT DISTINCT c.id, c.clave, c.denominacion, fn_categorias_horasasignadas(c.id,0) AS horasprogramadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
         "FROM categorias as c " +
         "     inner JOIN plantillasdocsnombramiento as pdn on pdn.id_categorias=c.id " +
         "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  " +
@@ -252,6 +252,54 @@ exports.getCatalogoVigenteEnPlantilla = async(req, res) => {
     });
 
     res.status(200).send(datos);
+}
+
+exports.getEstaEnTablaHomologadas = async(req, res) => {
+
+    let query = "select fn_categoria_estaen_tablahomologada(:id_categorias)";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.id_categorias,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos[0].fn_categoria_estaen_tablahomologada.toString());
+}
+
+exports.getHorasprogramadas = async(req, res) => {
+
+    let query = "select fn_categorias_horasasignadas(:id_categorias, 0)";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.id_categorias,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos[0].fn_categorias_horasasignadas.toString());
 }
 
 exports.getCatalogoDocentes = async(req, res) => {
@@ -299,19 +347,19 @@ exports.setRecord = async(req, res) => {
         denominacion: { type: "string", min: 5 },
         nivelsalarial: { type: "string", max: 5 },
         aplicaa: { type: "number" },
-        id_cattipocategoria: { 
+        id_cattipocategoria: {
             type: "number",
             custom(value, errors) {
-                    if (value <= 0) errors.push({ type: "selection" })
+                if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
-            } 
+            }
         },
-        id_tiponomina: { 
+        id_tiponomina: {
             type: "number",
             custom(value, errors) {
-                    if (value <= 0) errors.push({ type: "selection" })
+                if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
-            } 
+            }
         },
     };
 

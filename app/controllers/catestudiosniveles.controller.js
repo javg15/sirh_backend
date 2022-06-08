@@ -1,6 +1,6 @@
 const db = require("../models");
 const mensajesValidacion = require("../config/validate.config");
-const Estudios = db.estudios;
+const Catestudiosniveles = db.catestudiosniveles;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -16,7 +16,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_estudios_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_catestudiosniveles_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             replacements: {
@@ -27,7 +27,7 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_estudios_mgr('" +
+        query = "SELECT * FROM s_catestudiosniveles_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
@@ -83,17 +83,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Estudios.findOne({
+    Catestudiosniveles.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(estudios => {
-            if (!estudios) {
-                return res.status(404).send({ message: "Estudios Not found." });
+        .then(catestudiosniveles => {
+            if (!catestudiosniveles) {
+                return res.status(404).send({ message: "Catestudiosniveles Not found." });
             }
 
-            res.status(200).send(estudios);
+            res.status(200).send(catestudiosniveles);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -102,17 +102,17 @@ exports.getRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Estudios.findAll({
+    Catestudiosniveles.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(estudios => {
-            if (!estudios) {
-                return res.status(404).send({ message: "Estudios Not found." });
+        }).then(catestudiosniveles => {
+            if (!catestudiosniveles) {
+                return res.status(404).send({ message: "Catestudiosniveles Not found." });
             }
 
-            res.status(200).send(estudios);
+            res.status(200).send(catestudiosniveles);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });

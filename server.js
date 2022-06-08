@@ -121,6 +121,10 @@ require('./app/routes/catfuentef.routes')(app);
 require('./app/routes/catlocalidades.routes')(app);
 require('./app/routes/catmunicipios.routes')(app);
 require('./app/routes/catquincena.routes')(app);
+require('./app/routes/catestudioscarreras.routes')(app);
+require('./app/routes/catestudiosniveles.routes')(app);
+require('./app/routes/catestudiosramas.routes')(app)
+require('./app/routes/catestudiostipos.routes')(app);
 require('./app/routes/catpercepciones.routes')(app);
 require('./app/routes/catestados.routes')(app);
 require('./app/routes/catbancos.routes')(app);
@@ -132,7 +136,6 @@ require('./app/routes/cattipocategoria.routes')(app);
 require('./app/routes/cattiponomina.routes')(app);
 require('./app/routes/catzonageografica.routes')(app);
 require('./app/routes/ejercicioreal.routes')(app);
-require('./app/routes/estudios.routes')(app);
 require('./app/routes/horas.routes')(app);
 require('./app/routes/ministraciones.routes')(app);
 require('./app/routes/presupuesto.routes')(app);
@@ -172,6 +175,7 @@ require('./app/routes/cattipohorasmateria.routes')(app);
 require('./app/routes/catnombramientos.routes')(app);
 require('./app/routes/permgrupos.routes')(app);
 require('./app/routes/personalexpediente.routes')(app);
+require('./app/routes/personalestudios.routes')(app);
 require('./app/routes/catdocumentos.routes')(app);
 /*app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
