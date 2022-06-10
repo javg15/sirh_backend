@@ -17,17 +17,17 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(200),
             allowNull: true
         },
-        id_catestudiostipo: {
+        id_catestudiostipos: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
         },
-        id_catestudiosrama: {
+        id_catestudiosramas: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
         },
-        id_catestudiosnivel: {
+        id_catestudiosniveles: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0

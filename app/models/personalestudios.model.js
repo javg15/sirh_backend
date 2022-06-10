@@ -68,7 +68,7 @@ module.exports = function(sequelize, DataTypes) {
         },
     }, {
         sequelize,
-        tableName: 'personal',
+        tableName: 'personalestudios',
         schema: 'public',
         //timestamps: false,
         createdAt: 'created_at',

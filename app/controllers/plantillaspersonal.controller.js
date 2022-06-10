@@ -525,7 +525,7 @@ exports.setRecord = async(req, res) => {
 
                     if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
                         query = "SELECT fn_set_plantillas_update(" + self.id + "," + req.body.record_id_catquincena + ")"; //el modo no existe, solo es para obtener un registro
-                        console.log("query:", query)
+
                         datos = await db.sequelize.query(query, {
                             plain: false,
                             raw: true,

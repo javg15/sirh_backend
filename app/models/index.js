@@ -109,5 +109,10 @@ db.permusuariosmodulos = require("../models/permusuariosmodulos.model.js")(seque
 db.catbancos = require("../models/catbancos.model.js")(sequelize, Sequelize);
 db.catdocumentos = require("../models/catdocumentos.model.js")(sequelize, Sequelize);
 db.personalexpediente = require("../models/personalexpediente.model.js")(sequelize, Sequelize);
+db.personalestudios = require("../models/personalestudios.model.js")(sequelize, Sequelize);
+db.catestudioscarreras = require("../models/catestudioscarreras.model.js")(sequelize, Sequelize);
+db.catestudiosniveles = require("../models/catestudiosniveles.model.js")(sequelize, Sequelize);
+db.catestudiosramas = require("../models/catestudiosramas.model.js")(sequelize, Sequelize);
+db.catestudiostipos = require("../models/catestudiostipos.model.js")(sequelize, Sequelize);
 
 module.exports = db;

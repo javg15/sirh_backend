@@ -14,6 +14,11 @@ module.exports = function(app) {
         controller.getCatalogo
     );
     app.post(
+        "/api/catestudioscarreras/getCatalogoSegunNivel", [authJwt.verifyToken],
+        controller.getCatalogoSegunNivel
+    );
+    
+    app.post(
         "/api/catestudioscarreras/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );

@@ -1,6 +1,8 @@
 const db = require("../models");
+const { Op } = require("sequelize");
+const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const personalestudios = db.personalestudios;
+const Personalestudios = db.personalestudios;
 
 const { QueryTypes } = require('sequelize');
 let Validator = require('fastest-validator');
@@ -103,8 +105,8 @@ exports.getAdminSub = async(req, res) => {
         query = "SELECT * FROM s_personalestudiossub_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&ordencampo=Inicio|Fin" +
-            "&ordensentido=DESC|DESC" +
+            "&ordencampo=ID" +
+            "&ordensentido=DESC" +
             "&fkey=" + params.opcionesAdicionales.fkey +
             "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
@@ -161,7 +163,7 @@ exports.getAdminSub = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    personalestudios.findOne({
+    Personalestudios.findOne({
             where: {
                 id: req.body.id
             }
@@ -180,7 +182,7 @@ exports.getRecord = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    personalestudios.findAll({
+    Personalestudios.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
@@ -199,9 +201,16 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 
+            || key.indexOf("titulado", 0) >= 0 
+            || key.indexOf("incompleta", 0) >= 0 
+            || key.indexOf("cursando", 0) >= 0 
+        ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
         }
     })
 
@@ -210,8 +219,38 @@ exports.setRecord = async(req, res) => {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string" },
-        nombreplantel: { type: "string", min: 5 },
+        id_catestudioscarreras: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_personal: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catestudiosniveles: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_catestudiosniveles_ultimo: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        titulado: { type: "number" },
+        incompleta: { type: "number" },
+        cursando: { type: "number" },
+        
     };
 
     var vres = true;
@@ -241,5 +280,48 @@ exports.setRecord = async(req, res) => {
             message: errors
         };*/
     }
-    res.status(200).send("Created");
+    //buscar si existe el registro
+    Personalestudios.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, {
+                    id: {
+                        [Op.gt]: 0
+                    }
+                }],
+            }
+        })
+        .then(personalestudios => {
+            if (!personalestudios) {
+                delete req.body.dataPack.id;
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                Personalestudios.create(
+                    req.body.dataPack
+                ).then((self) => {
+                    res.status(200).send({ message: "success", id: self.id });
+                    
+                }).catch(err => {
+                    res.status(200).send({ error: true, message: [err.errors[0].message] });
+                });
+
+            } else {
+                delete req.body.dataPack.created_at;
+                delete req.body.dataPack.updated_at;
+                req.body.dataPack.id_usuarios_r = req.userId;
+                req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
+
+                personalestudios.update(req.body.dataPack).then(async(self) => {
+                    // here self is your instance, but updated
+                    res.status(200).send({ message: "success", id: self.id });
+                });
+            }
+
+
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
 }

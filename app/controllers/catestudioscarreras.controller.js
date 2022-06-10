@@ -119,6 +119,28 @@ exports.getCatalogo = async(req, res) => {
         });
 }
 
+exports.getCatalogoSegunNivel = async(req, res) => {
+
+    Catestudioscarreras.findAll({
+            attributes: ['id', 'descripcion',['descripcion','text']],
+            where: {
+                id_catestudiosniveles: req.body.id_catestudiosniveles
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        }).then(catestudioscarreras => {
+            if (!catestudioscarreras) {
+                return res.status(404).send({ message: "Catestudioscarreras Not found." });
+            }
+
+            res.status(200).send(catestudioscarreras);
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+}
+
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0) {
