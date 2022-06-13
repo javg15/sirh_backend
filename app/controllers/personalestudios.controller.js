@@ -30,11 +30,12 @@ exports.getAdmin = async(req, res) => {
         });
     } else {
         query = "SELECT * FROM s_personalestudios_mgr('" +
-            "&modo=0&id_usuario=:id_usuario" +
+            "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
             "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir + "')";
+            "&ordensentido=" + req.body.order[0].dir +
+            "&fkey=" + req.body.opcionesAdicionales.fkey +
+            "&fkeyvalue=" + req.body.opcionesAdicionales.fkeyvalue.join(",") + "')";
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -44,6 +45,7 @@ exports.getAdmin = async(req, res) => {
 
             replacements: {
                 id_usuario: req.userId,
+                modo: req.body.opcionesAdicionales.modo,
                 start: (typeof req.body.start !== typeof undefined ? req.body.start : 0),
                 length: (typeof req.body.start !== typeof undefined ? req.body.length : 1),
 
@@ -201,10 +203,10 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0 
-            || key.indexOf("titulado", 0) >= 0 
-            || key.indexOf("incompleta", 0) >= 0 
-            || key.indexOf("cursando", 0) >= 0 
+        if (key.indexOf("id_", 0) >= 0 ||
+            key.indexOf("titulado", 0) >= 0 ||
+            key.indexOf("incompleta", 0) >= 0 ||
+            key.indexOf("cursando", 0) >= 0
         ) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
@@ -250,7 +252,7 @@ exports.setRecord = async(req, res) => {
         titulado: { type: "number" },
         incompleta: { type: "number" },
         cursando: { type: "number" },
-        
+
     };
 
     var vres = true;
@@ -302,7 +304,7 @@ exports.setRecord = async(req, res) => {
                     req.body.dataPack
                 ).then((self) => {
                     res.status(200).send({ message: "success", id: self.id });
-                    
+
                 }).catch(err => {
                     res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });

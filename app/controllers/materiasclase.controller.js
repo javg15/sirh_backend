@@ -150,17 +150,14 @@ exports.getCatalogoSegunGrupo = async(req, res) => {
     res.status(200).send(datos);
 }
 
-
-
-
 exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
-    let query = "select distinct mc.id,mc.nombre,concat(mc.nombre,' (',h.horas::text,' hrs)') as text,cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer) as horasdisponibles,mc.claveasignatura,mc.nogrupo " +
+    let query = "select distinct mc.id,mc.nombre,concat(mc.nombre,' (',h.horas::text,' hrs)') as text,cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasDisponibles' as integer) as horasdisponibles,mc.claveasignatura,mc.nogrupo " +
         "from horasclase as h " +
         "   left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "   left join materiasclase as mc on h.id_materiasclase =mc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
         "   and h.id_gruposclase =:id_gruposclase " +
-        "   and (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0)" +
+        "   and (cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0)" +
         "   and h.state IN ('A','B') " +
         "order by concat(mc.nombre,' (',h.horas::text,' hrs)') ";
 
