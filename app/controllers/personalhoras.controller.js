@@ -353,7 +353,7 @@ exports.getRecordTitularEnLicencia = async(req, res) => {
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
         if (key.indexOf("id_", 0) >= 0 ||
-            key == "horas" || key == "horaestatus" || key == "frenteagrupo") {
+            key == "cantidad" || key == "horas" || key == "horaestatus" || key == "frenteagrupo") {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
