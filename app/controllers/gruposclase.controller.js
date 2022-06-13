@@ -160,7 +160,7 @@ exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
         "from horasclase as h " +
         "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
-        "   AND (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
+        "   AND (cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN h.id_cattiposemestre=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
         "   AND (gc.tiposemestre  =:tiposemestre OR  gc.grupo='0') " +
         "   AND h.state IN ('A','B') " +
         "order by concat(gc.grupo ,'-',gc.tiposemestre) ";
@@ -197,7 +197,7 @@ exports.getCatalogoConHorasDisponiblesSegunCopia = async(req, res) => {
         "from horasclase as h " +
         "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "where h.id_catplanteles =:id_catplanteles " +
-        "   AND (cast(fn_horas_disponibles(h.id,:id_semestre,:id_cattiposemestre)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
+        "   AND (cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN h.id_cattiposemestre=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasDisponibles' as integer)>0 OR COALESCE(:id_personalhoras,0)<>0) " +
         "   AND gc.tiposemestre  =:tiposemestre " +
         "   AND h.state IN ('A','B') " +
         "   AND gc.id NOT IN ( " + //no este el grupo ya asignado a la curricula del empleado
