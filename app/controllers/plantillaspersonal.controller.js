@@ -436,8 +436,8 @@ exports.setRecord = async(req, res) => {
                 }
             })
             .then(plantillaspersonal => {
-                if (!((plantillaspersonal.id_catplantillas != req.body.dataPack.id_catplantillas)
-                        ||(plantillaspersonal.id_catplanteles != req.body.dataPack.id_catplanteles)))
+                if (!((plantillaspersonal.id_catplantillas != req.body.dataPack.id_catplantillas) ||
+                        (plantillaspersonal.id_catplanteles != req.body.dataPack.id_catplanteles)))
                     vres.push({
                         message: "La plantilla o plantel a actualizar debe ser diferente a la actual",
                         field: "id_catplantillas",
@@ -500,12 +500,9 @@ exports.setRecord = async(req, res) => {
                 Plantillaspersonal.create(
                     req.body.dataPack
                 ).then((self) => {
-                    Personal.update(
-                        { numeemp: req.body.dataPack.consecutivo.toString().padStart(5,"0") },
-                        { where: { id: req.body.dataPack.id_personal } }
-                    );
+                    Personal.update({ numeemp: req.body.dataPack.consecutivo.toString().padStart(5, "0") }, { where: { id: req.body.dataPack.id_personal } });
                     res.status(200).send({ message: "success", id: self.id });
-                    
+
                 }).catch(err => {
                     res.status(200).send({ error: true, message: [err.errors[0].message] });
                 });
@@ -518,10 +515,10 @@ exports.setRecord = async(req, res) => {
 
                 plantillaspersonal.update(req.body.dataPack).then(async(self) => {
                     //actualizar numero de empleado
-                    Personal.update(
+                    /*Personal.update(
                         { numeemp: req.body.dataPack.consecutivo.toString().padStart(5,"0") },
                         { where: { id: req.body.dataPack.id_personal } }
-                    );
+                    );*/
 
                     if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
                         query = "SELECT fn_set_plantillas_update(" + self.id + "," + req.body.record_id_catquincena + ")"; //el modo no existe, solo es para obtener un registro
