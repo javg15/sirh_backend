@@ -490,6 +490,11 @@ exports.setRecord = async(req, res) => {
             }
         })
         .then(plantillaspersonal => {
+            let numero_empleado = null;
+            if (req.body.dataPack.consecutivo)
+                numero_empleado = req.body.dataPack.consecutivo.toString().padStart(5, "0");
+
+
             if (!plantillaspersonal) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
@@ -500,7 +505,8 @@ exports.setRecord = async(req, res) => {
                 Plantillaspersonal.create(
                     req.body.dataPack
                 ).then((self) => {
-                    Personal.update({ numeemp: req.body.dataPack.consecutivo.toString().padStart(5, "0") }, { where: { id: req.body.dataPack.id_personal } });
+                    if (numero_empleado)
+                        Personal.update({ numeemp: numero_empleado.toString().padStart(5, "0") }, { where: { id: req.body.dataPack.id_personal } });
                     res.status(200).send({ message: "success", id: self.id });
 
                 }).catch(err => {
@@ -515,10 +521,8 @@ exports.setRecord = async(req, res) => {
 
                 plantillaspersonal.update(req.body.dataPack).then(async(self) => {
                     //actualizar numero de empleado
-                    /*Personal.update(
-                        { numeemp: req.body.dataPack.consecutivo.toString().padStart(5,"0") },
-                        { where: { id: req.body.dataPack.id_personal } }
-                    );*/
+                    if (numero_empleado)
+                        Personal.update({ numeemp: req.body.dataPack.consecutivo.toString().padStart(5, "0") }, { where: { id: req.body.dataPack.id_personal } });
 
                     if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
                         query = "SELECT fn_set_plantillas_update(" + self.id + "," + req.body.record_id_catquincena + ")"; //el modo no existe, solo es para obtener un registro
