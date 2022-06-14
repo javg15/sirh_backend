@@ -368,6 +368,9 @@ exports.setRecord = async(req, res) => {
                 }
             });
     }
+
+
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -452,6 +455,39 @@ exports.setRecord = async(req, res) => {
                 type: "selection"
             });
 
+        //no hay errores
+        if (vres.length == 0)
+            vres = true;
+    } else if (req.body.actionForm.toUpperCase() == "ELIMINAR") { //cambio de plantilla
+        //que no tenga documentos registrados
+        let tieneDocs = null;
+        //revisar si hay plaza con horas sueltas
+        let query = "select e->>'existe' as existe " +
+            "FROM fn_personal_tienedocs(:id,0, 0, 0) as e";
+
+        tieneDocs = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id: req.body.dataPack.id,
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+        if (tieneDocs[0]["existe"] == 1)
+            vres.push({
+                message: "La plantilla contiene doucmentos relacionados y no puede ser eliminada",
+                field: "id_catplantillas",
+                type: "selection"
+            });
         //no hay errores
         if (vres.length == 0)
             vres = true;
