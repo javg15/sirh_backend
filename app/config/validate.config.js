@@ -72,4 +72,5 @@ module.exports = {
     quincenaCalculada: "La quincena inicial ya fue calculada, por lo tanto ya no se pueden hacer modificaciones extras a la quincena de cierre",
     horasNoDisponiblesEnPlaza: "No existen horas disponibles para la plaza de jornada, seleccione una plaza de horas sueltas en la vista anterior",
     plazaHorasSueltasNoExiste: "No existe una plaza del tipo 'Horas sueltas' asignada al profesor, requerida para asignar las horas restantes",
+    quincenaSuperior: "Existe un movimiento registrado anteriormente con una quincnea de inicio mayor a la que se desea registrar",
 };

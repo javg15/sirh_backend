@@ -254,6 +254,29 @@ exports.setRecord = async(req, res) => {
         },
     });
 
+    //revisar el ultimo movimiento en la tabla
+    let ultimoRegistro = null;
+
+    query = "SELECT pdn.*,CONCAT(cq.anio,cq.quincena) AS quincena " +
+        "FROM plantillasdocsnombramiento AS pdn " +
+        " LEFT JOIN catquincena AS cq ON pdn.id_catquincena_ini=cq.id " +
+        "WHERE pdn.id_plantillaspersonal=:id_plantillaspersonal " +
+        " AND pdn.id<>:id " +
+        " AND CONCAT(cq.anio,LPAD(cq.quincena::varchar,2,'0'::varchar))>:quincena" +
+        " AND pdn.state IN('A','B') " +
+        "ORDER BY CONCAT(cq.anio,LPAD(cq.quincena::varchar,2,'0'::varchar)) DESC " +
+        "LIMIT 1";
+    ultimoRegistro = await db.sequelize.query(query, {
+        plain: false,
+        replacements: {
+            id: req.body.dataPack.id,
+            id_plantillaspersonal: req.body.dataPack.id_plantillaspersonal,
+            quincena: quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0")
+        },
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -290,7 +313,9 @@ exports.setRecord = async(req, res) => {
                         datosCatestatusplaza[0].esinterina == 1 ||
                         datosCatestatusplaza[0].conlicencia == 1
                     ) &&
-                    (value <= 0 || value==32767)) errors.push({ type: "selection" })
+                    (value <= 0 || value == 32767)) errors.push({ type: "selection" })
+
+                if (ultimoRegistro.length > 0) errors.push({ type: "quincenaSuperior" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

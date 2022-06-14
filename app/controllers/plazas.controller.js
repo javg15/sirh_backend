@@ -186,7 +186,7 @@ exports.getRecordParaCombo = async(req, res) => {
 
 exports.getHorasDisponibleSegunPlaza = async(req, res) => {
 
-    let query = "select e->>'horasprogramadas' as horasprogramadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
+    let query = "select e->>'horasprogramadas' as horasprogramadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles,e->>'horasapoyo' as horasapoyo " +
         "from json_array_elements(fn_horas_disponibles_enplaza(:id_personal, 0, :id_semestre, :id_plazas)) as e ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
