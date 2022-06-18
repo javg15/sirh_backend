@@ -23,10 +23,6 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        id_catestudiosniveles_ultimo: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
         siglasini: {
             type: DataTypes.STRING(50),
             allowNull: true
