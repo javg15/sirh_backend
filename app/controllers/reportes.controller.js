@@ -5,7 +5,9 @@ jasper = require('node-jasper')({
     reports: {
         categorias: { jasper: '../../reports/categorias.jasper' },
         plazas_listado: { jasper: '../../reports/plazas_listado.jasper' },
-        plantilla_nombramiento: { jasper: '../../reports/plantilla_nombramiento.jasper' }
+        plantilla_nombramiento: { jasper: '../../reports/plantilla_nombramiento.jasper' },
+        personal_estudios: { jasper: '../../reports/personal_estudios.jasper' },
+        personal_estudios_materia: { jasper: '../../reports/personal_estudios_materia.jasper' }
     },
     drivers: {
         pg: {
@@ -71,6 +73,44 @@ exports.getPlantillaNombramiento = async(req, res, next) => {
         //parametros
         data: {
             id_plantillasdocsnombramiento: parseInt(req.query.id_plantillasdocsnombramiento),
+        }
+    };
+    let pdf = jasper.pdf(report);
+    res.set({
+        'Content-type': 'application/pdf',
+        'Content-Length': pdf.length,
+        //'Content-Disposition': 'attachment; filename=filename.pdf'
+    });
+    res.send(pdf);
+}
+
+exports.getPersonalEstudios = async(req, res, next) => {
+    let report = {
+        report: 'personal_estudios',
+        //parametros
+        data: {
+            id_plantel: parseInt(req.query.id_catplanteles),
+            plantel: req.query.plantel,
+            id_semestre: parseInt(req.query.id_semestre),
+        }
+    };
+    let pdf = jasper.pdf(report);
+    res.set({
+        'Content-type': 'application/pdf',
+        'Content-Length': pdf.length,
+        //'Content-Disposition': 'attachment; filename=filename.pdf'
+    });
+    res.send(pdf);
+}
+
+exports.getPersonalEstudiosMateria = async(req, res, next) => {
+    let report = {
+        report: 'personal_estudios_materia',
+        //parametros
+        data: {
+            id_plantel: parseInt(req.query.id_catplanteles),
+            plantel: req.query.plantel,
+            id_semestre: parseInt(req.query.id_semestre),
         }
     };
     let pdf = jasper.pdf(report);

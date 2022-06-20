@@ -23,5 +23,11 @@ module.exports = function(app) {
     app.get("/api/reportes/plantilla_nombramiento", // [authJwt.verifyToken],
         controller.getPlantillaNombramiento
     );
+    app.get("/api/reportes/personal_estudios", // [authJwt.verifyToken],
+        controller.getPersonalEstudios
+    );
+    app.get("/api/reportes/personal_estudios_materia", // [authJwt.verifyToken],
+        controller.getPersonalEstudiosMateria
+    );
 
 };
