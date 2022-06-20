@@ -459,6 +459,7 @@ exports.setRecord = async(req, res) => {
         if (vres.length == 0)
             vres = true;
     } else if (req.body.actionForm.toUpperCase() == "ELIMINAR") { //cambio de plantilla
+        vres = Array();
         //que no tenga documentos registrados
         let tieneDocs = null;
         //revisar si hay plaza con horas sueltas
@@ -484,7 +485,7 @@ exports.setRecord = async(req, res) => {
         });
         if (tieneDocs[0]["existe"] == 1)
             vres.push({
-                message: "La plantilla contiene doucmentos relacionados y no puede ser eliminada",
+                message: "La plantilla contiene documentos relacionados y no puede ser eliminada",
                 field: "id_catplantillas",
                 type: "selection"
             });
