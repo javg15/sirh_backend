@@ -68,26 +68,26 @@
 	<title>
 		<band height="76" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="900" height="20" uuid="5ca28940-f1c7-48f5-baf7-7998352b8d63"/>
+				<reportElement x="0" y="0" width="966" height="20" uuid="5ca28940-f1c7-48f5-baf7-7998352b8d63"/>
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[COLEGIO DE BACHILLERES DEL ESTADO DE VERACRUZ]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="14" width="900" height="20" uuid="0435f026-f0c0-43de-888e-c6d62a593584"/>
+				<reportElement x="0" y="14" width="966" height="20" uuid="0435f026-f0c0-43de-888e-c6d62a593584"/>
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[ORGANISMO PUBLICO DESCENTRALIZADO]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="28" width="900" height="20" uuid="b4a8408c-2b8c-4f78-8ba0-36b9a7e90920"/>
+				<reportElement x="0" y="28" width="966" height="20" uuid="b4a8408c-2b8c-4f78-8ba0-36b9a7e90920"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[PLANTILLA DE PERSONAL ADMINISTRATIVO]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="0" y="43" width="900" height="23" uuid="b6a41f8b-ca47-4a5d-8f88-f6d1342102b1"/>
+				<reportElement x="0" y="43" width="966" height="23" uuid="b6a41f8b-ca47-4a5d-8f88-f6d1342102b1"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA["CENTRO DE RESPONSABILIDAD:" + $P{plantel}]]></textFieldExpression>
 			</textField>
