@@ -338,12 +338,44 @@ exports.setRecord = async(req, res) => {
         }
     })
 
+    /* revisar si existe la clave*/
+    query ="";
+    if(req.body.actionForm.toUpperCase() == "NUEVO" || req.body.actionForm.toUpperCase() == "EDITAR")
+        query = "SELECT count(*) AS cuenta FROM categorias WHERE clave=:clave AND id<>:id AND state='A'";
+    
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            clave: req.body.dataPack["clave"].toString().trim(),
+            id: req.body.dataPack["id"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    cuenta_registros = datos.length>0?datos[0].cuenta:0;
+    
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
         id: { type: "number" },
-        clave: { type: "string", max: 3 },
+        clave: { type: "string", max: 3,
+            custom(value, errors) {
+                if (cuenta_registros > 0) errors.push({ type: "unique" ,actual:value,field:"clave"})
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         denominacion: { type: "string", min: 5 },
         nivelsalarial: { type: "string", max: 5 },
         aplicaa: { type: "number" },
@@ -436,4 +468,5 @@ exports.setRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+        
 }

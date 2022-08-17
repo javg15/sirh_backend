@@ -595,10 +595,10 @@ exports.getCatalogoSegunBusqueda = async(req, res) => {
 
     if (req.body.query.length > 2) {
         Personal.findAll({
-                attributes: ["id", "numeemp", [db.sequelize.literal("nombre || ' ' || apellidopaterno || ' ' || apellidomaterno || ' -- ' || curp || ' -- ' || id || ' -- ' || numeemp"), "full_name"]],
+                attributes: ["id", "numeemp", [db.sequelize.literal("apellidopaterno || ' ' || apellidomaterno || ' ' || nombre || ' -- ' || curp || ' -- ' || id || ' -- ' || numeemp"), "full_name"]],
                 where: {
                     [Op.or]: [
-                        db.sequelize.where(db.sequelize.fn("concat", db.sequelize.col("nombre"), " ", db.sequelize.col("apellidopaterno"), " ", db.sequelize.col("apellidomaterno")), {
+                        db.sequelize.where(db.sequelize.fn("concat",  db.sequelize.col("apellidopaterno"), " ", db.sequelize.col("apellidomaterno"), " ", db.sequelize.col("nombre")), {
                             [Op.iLike]: '%' + req.body.query + '%'
                         }),
                         {
