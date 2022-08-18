@@ -154,13 +154,13 @@ exports.getCatalogoSegunPlantel = async(req, res) => {
 
 exports.getRecordParaCombo = async(req, res) => {
 
-    let query = "SELECT c.id, c.clave, c.denominacion, COALESCE(e.horasprogramadas,0) AS horasprogramadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
+    let query = "SELECT c.id, c.clave, c.denominacion, COALESCE(e.horasprogramadas::int,0) AS horasprogramadas, COALESCE(c.clave, '.') || ' - ' || COALESCE(c.denominacion, '.') AS text " +
         " FROM categorias as c " +
-        " LEFT JOIN ( " +
+        " INNER JOIN ( " +
         "SELECT e->>'horasprogramadas' as horasprogramadas,e->>'cantidad' as asignadas,e->>'disponibles' as horasdisponibles " +
         "FROM json_array_elements(fn_horas_disponibles_encategoria( :id_plantel, :id_semestre, :id_categoria)) as e " +
-        " ) AS e"
-    " WHERE  c.id=:id_categoria ";
+        " ) AS e ON c.id=:id_categoria";
+    
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -169,6 +169,8 @@ exports.getRecordParaCombo = async(req, res) => {
 
         replacements: {
             id_categoria: req.body.id_categoria,
+            id_plantel: 0,
+            id_semestre: 0
         },
         // If plain is true, then sequelize will only return the first
         // record of the result set. In case of false it will return all records.
