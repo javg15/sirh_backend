@@ -1,5 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     return sequelize.define('modulos', {
+ 
         icode: {
             type: DataTypes.STRING(10),
             allowNull: false,
@@ -104,7 +105,7 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         sequelize,
         tableName: 'modulos',
-        schema: 'public',
+        schema: 'adm',
         //timestamps: false
 
         createdAt: 'created_at',

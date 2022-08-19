@@ -1,5 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('usuarios', {
+        
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -62,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         tableName: 'usuarios',
-        schema: 'public',
+        schema: 'adm',
         //timestamps: false
 
         createdAt: 'created_at',

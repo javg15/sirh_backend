@@ -1,5 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     return sequelize.define('searchcampos', {
+        
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -52,7 +53,7 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         sequelize,
         tableName: 'searchcampos',
-        schema: 'public',
+        schema: 'adm',
         //timestamps: false
 
         createdAt: 'created_at',

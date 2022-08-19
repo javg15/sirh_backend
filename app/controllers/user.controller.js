@@ -24,7 +24,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_usuarios_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM adm.s_usuarios_mgr('&sistema=plazas&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             replacements: {
@@ -35,8 +35,8 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_usuarios_mgr('" +
-            "&modo=0&id_usuario=:id_usuario" +
+        query = "SELECT * FROM adm.s_usuarios_mgr('" +
+            "&sistema=plazas&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
             "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
@@ -130,7 +130,7 @@ exports.getRecord = async(req, res) => {
 exports.getRecordUsuariosZonas = async(req, res) => {
     let query = "select c.id,c.descripcion as text " +
         "from catzonageografica as c " +
-        "inner join usuarios_zonas as uz on c.id=uz.id_catzonageografica " +
+        "inner join adm.usuarios_zonas as uz on c.id=uz.id_catzonageografica " +
         "where uz.id_usuarios=:id_usuarios  ";
 
     datos = await db.sequelize.query(query, {
@@ -172,7 +172,7 @@ exports.getRecordUsuariosZonas = async(req, res) => {
 }
 
 exports.getMenu = async(req, res) => {
-    let query = "select fn_menu_usuario(:id_usuarios,0) as menu";
+    let query = "select adm.fn_menu_usuario(:id_usuarios,0,'plazas') as menu";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -199,7 +199,7 @@ exports.getTreePermisos = async(req, res) => {
     let datos = "",
         query = "";
 
-    query = "SELECT fn_permisosusuario_seleccion(:id_usuario,0) AS treejson";
+    query = "SELECT adm.fn_permisosusuario_seleccion(:id_usuario,0,'plazas') AS treejson";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

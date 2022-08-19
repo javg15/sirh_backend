@@ -296,7 +296,7 @@ exports.setRecord2 = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
     //obtener las zonas permitidas
-    let query = "select aa->>'zonasgeograficas' AS zonas from fn_permisos_usuario(:id_usuario,'')as aa";
+    let query = "select aa->>'zonasgeograficas' AS zonas from adm.fn_permisos_usuario(:id_usuario,'')as aa";
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

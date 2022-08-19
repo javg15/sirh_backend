@@ -21,7 +21,7 @@ exports.getAdmin = async(req, res) => {
         query = "";
 
     if (req.body.solocabeceras == 1) {
-        query = "SELECT * FROM s_permgrupos_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM adm.s_permgrupos_mgr('&sistema=plazas&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             replacements: {
@@ -32,8 +32,8 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_permgrupos_mgr('" +
-            "&modo=0&id_usuario=:id_usuario" +
+        query = "SELECT * FROM adm.s_permgrupos_mgr('" +
+            "&sistema=plazas&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor +
             "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
@@ -135,7 +135,7 @@ exports.getTreePermisos = async(req, res) => {
     let datos = "",
     query = "";
 
-    query = "SELECT fn_permisosgrupo_seleccion(:id_grupos,0) AS treejson";
+    query = "SELECT adm.fn_permisosgrupo_seleccion(:id_grupos,0,'plazas') AS treejson";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

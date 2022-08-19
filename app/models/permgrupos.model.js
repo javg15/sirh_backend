@@ -1,5 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     return sequelize.define('permgrupos', {
+       
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -37,7 +38,7 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         sequelize,
         tableName: 'permgrupos',
-        schema: 'public',
+        schema: 'adm',
         //timestamps: false
 
         createdAt: 'created_at',

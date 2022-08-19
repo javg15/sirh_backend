@@ -6,8 +6,8 @@ exports.getSearchcampos = async(req, res) => {
 
     const query = "SELECT s.id,s.etiqueta as idesc,s.orden,s.edicion " +
         ",case when s.edicion=1 then fn_search_valores(UPPER(:modulo),s.campo,:id_usuario) else '' end as valores " +
-        "FROM searchcampos as s " +
-        "LEFT JOIN modulos AS m ON s.id_modulos=m.id " +
+        "FROM adm.searchcampos as s " +
+        "LEFT JOIN adm.modulos AS m ON s.id_modulos=m.id " +
         "WHERE s.state='A' AND upper(m.ruta)=UPPER(:modulo) " +
         "ORDER BY s.orden";
 
@@ -42,8 +42,8 @@ exports.getSearchcampos = async(req, res) => {
 exports.getSearchoperadores = async(req, res) => {
 
     const query = "SELECT so.id,so.etiqueta as idesc,so.orden " +
-        "FROM searchoperador AS so " +
-        "    INNER JOIN searchcampos AS sc ON so.tipo =sc.tipo " +
+        "FROM adm.searchoperador AS so " +
+        "    INNER JOIN adm.searchcampos AS sc ON so.tipo =sc.tipo " +
         "WHERE so.state='A' AND sc.id=:id_campo " +
         "ORDER BY so.orden,so.etiqueta";
 
