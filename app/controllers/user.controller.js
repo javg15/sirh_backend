@@ -173,7 +173,7 @@ exports.getRecordUsuariosZonas = async(req, res) => {
 
 exports.getMenu = async(req, res) => {
     let query = "select adm.fn_menu_usuario(:id_usuarios,0,'plazas') as menu";
-
+    
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
