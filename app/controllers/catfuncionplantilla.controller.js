@@ -107,8 +107,10 @@ exports.getCatalogo = async(req, res) => {
         'from catfuncionplantilla as cp ' +
         '    left join catpuestotipo as ct on cp.id_catpuestotipo =ct.id ' +
         '    left join catplantillas as cpl on ct.id_catplantillas =cpl.id  ' +
-        '    left join plantillaspersonal as pl on cpl.id=pl.id_catplantillas and pl.id_catplanteles::integer between ct.clavelimiteinf::integer and ct.clavelimitesup::integer ' +
+        '    left join plantillaspersonal as pl on cpl.id=pl.id_catplantillas  ' +
         '    left join personal as p on pl.id_personal =p.id and p.sexo =cp.sexo  ' +
+        '    left join catplanteles as cpt on pl.id_catplanteles =cpt.id ' +
+        '         and cpt.clave::integer between ct.clavelimiteinf::integer and ct.clavelimitesup::integer ' +
         'where pl.id=:id_plantillaspersonal ' +
         '    and p.id is not null ' +
         '   and ct.id is not null';
