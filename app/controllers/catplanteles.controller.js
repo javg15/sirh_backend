@@ -317,7 +317,7 @@ exports.getCatalogo = async(req, res) => {
     });
     query = 'select id, descripcion, ubicacion, clave, tipoplantel, clave || \' - \' || ubicacion AS "text" ' +
         'FROM catplanteles ' +
-        'WHERE id_catzonageografica IN(' + datos[0].zonas + ') ' +
+        'WHERE id_catzonageografica IN(' + datos[0].zonas + ') AND state IN (\'A\') ' +
         'ORDER BY clave ';
     //    + " --AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767  or COALESCE(pdn.id_catquincena_fin,0) = 0 )  "    
     datos = await db.sequelize.query(query, {
