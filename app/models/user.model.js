@@ -39,10 +39,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
-        id_permgrupos: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
+
         id_usuarios_r: {
             type: DataTypes.INTEGER,
             allowNull: true
