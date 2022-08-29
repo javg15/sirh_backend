@@ -2,7 +2,7 @@
 
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('categoriaspercepciones', {
+    return sequelize.define('catpercepcionescategorias', {
         id: {
             autoIncrement: true,
             type: DataTypes.INTEGER,
@@ -57,8 +57,8 @@ module.exports = function(sequelize, DataTypes) {
         }
     }, {
         sequelize,
-        tableName: 'categoriaspercepciones',
-        schema: 'public',
+        tableName: 'catpercepcionescategorias',
+        schema: 'nomina',
         //timestamps: false,
         createdAt: 'created_at',
         updatedAt: 'updated_at',

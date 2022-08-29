@@ -10,11 +10,6 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(100),
             allowNull: true
         },
-
-        codigo: {
-            type: DataTypes.STRING(100),
-            allowNull: true
-        },
         denominacion: {
             type: DataTypes.STRING(75),
             allowNull: true
