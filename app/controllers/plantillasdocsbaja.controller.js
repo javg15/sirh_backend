@@ -229,7 +229,7 @@ exports.setRecord = async(req, res) => {
                     req.body.dataPack
                 ).then((self) => {
                     //Actualizar la plaza
-                    query = "SELECT fn_set_plazas_estatus(:id_plantillasdocsnombramiento_afectador,:id_plantillaspersonal)"; //el modo no existe, solo es para obtener un registro
+                    query = "SELECT fn_set_plazas_estatus(:id_plantillasdocsnombramiento_afectador,:id_plantillaspersonal)"; 
 
                     datos = db.sequelize.query(query, {
                         plain: false,

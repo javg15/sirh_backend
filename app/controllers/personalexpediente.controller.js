@@ -34,8 +34,6 @@ exports.getAdmin = async(req, res) => {
         query = "SELECT * FROM s_personalexpediente_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
-            "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-            "&ordensentido=" + req.body.order[0].dir +
             //"&state=" + params.opcionesAdicionales.state +
             "&fkey=" + params.opcionesAdicionales.fkey +
             "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";

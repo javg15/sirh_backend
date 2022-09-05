@@ -232,7 +232,7 @@ exports.getCatalogoVigenteEnPlantilla = async(req, res) => {
         "WHERE  a.id=:id_catplantillas " +
         " AND (COALESCE(pdn.id_catquincena_fin,32767) = 32767 " +
         "     or COALESCE(pdn.id_catquincena_fin,0) = 0 " +
-        "     or fn_nombramiento_estaactiva(:id_catplantillas, pdn.id) = 1 " +
+        "     or fn_nombramiento_estaactiva(pdn.id) = 1 " +
         ")  " +
         " AND pdn.state in ('A','B') ";
     datos = await db.sequelize.query(query, {

@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/categoriaspercepciones.controller");
+const controller = require("../controllers/catpercepcionescategorias.controller");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,23 +10,23 @@ module.exports = function(app) {
         next();
     });
     app.post(
-        "/api/categoriaspercepciones/getCatalogo", [authJwt.verifyToken],
+        "/api/catpercepcionescategorias/getCatalogo", [authJwt.verifyToken],
         controller.getCatalogo
     );
     app.post(
-        "/api/categoriaspercepciones/getAdmin", [authJwt.verifyToken],
+        "/api/catpercepcionescategorias/getAdmin", [authJwt.verifyToken],
         controller.getAdmin
     );
     app.post(
-        "/api/categoriaspercepciones/getRecord", [authJwt.verifyToken],
+        "/api/catpercepcionescategorias/getRecord", [authJwt.verifyToken],
         controller.getRecord
     );
     app.post(
-        "/api/categoriaspercepciones/getRecordSegunCategoria", [authJwt.verifyToken],
+        "/api/catpercepcionescategorias/getRecordSegunCategoria", [authJwt.verifyToken],
         controller.getRecordSegunCategoria
     );
     app.post(
-        "/api/categoriaspercepciones/setRecord", [authJwt.verifyToken],
+        "/api/catpercepcionescategorias/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
 };

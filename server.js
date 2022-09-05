@@ -113,7 +113,7 @@ require('./app/routes/catestatusplaza.routes')(app);
 require('./app/routes/categorias.routes')(app);
 require('./app/routes/categoriastabular.routes')(app);
 require('./app/routes/categoriasdetalle.routes')(app);
-require('./app/routes/categoriaspercepciones.routes')(app);
+require('./app/routes/catpercepcionescategorias.routes')(app);
 require('./app/routes/catplanteles.routes')(app);
 require('./app/routes/catzonaeconomica.routes')(app);
 require('./app/routes/catcentrostrabajo.routes')(app);

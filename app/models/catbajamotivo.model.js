@@ -52,7 +52,11 @@ module.exports = function(sequelize, DataTypes) {
     textoetiquetabaja: {
       type: DataTypes.STRING(100),
       allowNull: true
-    }
+    },
+    tipobaja: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
   }, {
     sequelize,
     tableName: 'catbajamotivo',

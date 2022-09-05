@@ -2,7 +2,7 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
 const mensajesValidacion = require("../config/validate.config");
-const Categoriaspercepciones = db.categoriaspercepciones;
+const Catpercepcionescategorias = db.catpercepcionescategorias;
 const Catquincena = db.catquincena;
 var moment = require('moment');
 
@@ -23,7 +23,7 @@ exports.getAdmin = async(req, res) => {
     if (req.body.solocabeceras == 1) {
         params = req.body;
 
-        query = "SELECT * FROM s_categoriaspercepciones_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
+        query = "SELECT * FROM s_catpercepcionescategorias_mgr('&modo=10&id_usuario=:id_usuario')"; //el modo no existe, solo es para obtener un registro
 
         datos = await db.sequelize.query(query, {
             replacements: {
@@ -34,9 +34,12 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
-        query = "SELECT * FROM s_categoriaspercepciones_mgr('" +
+
+        query = "SELECT * FROM s_catpercepcionescategorias_mgr('" +
             "&modo=:modo&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
+            "&ordencampo=Quin_Fin|Clave_Perc" +
+            "&ordensentido=DESC|ASC" + 
             "&fkey=" + params.opcionesAdicionales.fkey +
             "&fkeyvalue=:fkeyvalue')";
 
@@ -92,17 +95,17 @@ exports.getAdmin = async(req, res) => {
 
 exports.getRecord = async(req, res) => {
 
-    Categoriaspercepciones.findOne({
+    Catpercepcionescategorias.findOne({
             where: {
                 id: req.body.id
             }
         })
-        .then(categoriaspercepciones => {
-            if (!categoriaspercepciones) {
-                return res.status(404).send({ message: "Categoriaspercepciones Not found." });
+        .then(catpercepcionescategorias => {
+            if (!catpercepcionescategorias) {
+                return res.status(404).send({ message: "Catpercepcionescategorias Not found." });
             }
 
-            res.status(200).send(categoriaspercepciones);
+            res.status(200).send(catpercepcionescategorias);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -111,7 +114,7 @@ exports.getRecord = async(req, res) => {
 
 exports.getRecordSegunCategoria = async(req, res) => {
 
-    Categoriaspercepciones.findAll({
+    Catpercepcionescategorias.findAll({
             limit: 1,
             where: {
                 id_categorias: req.body.id_categorias
@@ -120,12 +123,12 @@ exports.getRecordSegunCategoria = async(req, res) => {
                 ['created_at', 'DESC']
             ]
         })
-        .then(categoriaspercepciones => {
-            if (!categoriaspercepciones) {
-                return res.status(404).send({ message: "Categoriaspercepciones Not found." });
+        .then(catpercepcionescategorias => {
+            if (!catpercepcionescategorias) {
+                return res.status(404).send({ message: "Catpercepcionescategorias Not found." });
             }
 
-            res.status(200).send(categoriaspercepciones);
+            res.status(200).send(catpercepcionescategorias);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -134,17 +137,17 @@ exports.getRecordSegunCategoria = async(req, res) => {
 
 exports.getCatalogo = async(req, res) => {
 
-    Categoriaspercepciones.findAll({
+    Catpercepcionescategorias.findAll({
             attributes: ['id', 'descripcion'],
             order: [
                 ['descripcion', 'ASC'],
             ]
-        }).then(categoriaspercepciones => {
-            if (!categoriaspercepciones) {
-                return res.status(404).send({ message: "Categoriaspercepciones Not found." });
+        }).then(catpercepcionescategorias => {
+            if (!catpercepcionescategorias) {
+                return res.status(404).send({ message: "Catpercepcionescategorias Not found." });
             }
 
-            res.status(200).send(categoriaspercepciones);
+            res.status(200).send(catpercepcionescategorias);
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -175,6 +178,41 @@ exports.setRecord = async(req, res) => {
             id: req.body.dataPack['id_catquincena_fin']
         },
     });
+
+    //revisar si ya existe la percepcion segun la categoriadetalle
+    let query = "SELECT count(*) as cuenta " +
+         "FROM nomina.catpercepcionescategorias as c  " +
+         "    LEFT JOIN catquincena AS q ON c.id_catquincena_ini=q.id  " +
+         "    LEFT JOIN catquincena AS q2 ON c.id_catquincena_fin=q2.id  " +
+         "WHERE c.id_categoriasdetalle=:id_categoriasdetalle " +
+		 "	AND c.id_catpercepciones=:id_catpercepciones " +
+         "  AND c.id<>:id " +
+		 "	AND fn_getfecha_segunquincena(:id_catquincena_ini)->>'quincenatotal'  " +
+		 "		between fn_getfecha_segunquincena(q.id)->>'quincenatotal' " +
+		 "			and fn_getfecha_segunquincena(q2.id)->>'quincenatotal' " +
+		 "	AND c.state in('A','B')";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id: req.body.dataPack['id'],
+            id_catquincena_ini: req.body.dataPack['id_catquincena_ini'],
+            id_categoriasdetalle: req.body.dataPack['id_categoriasdetalle'],
+            id_catpercepciones: req.body.dataPack['id_catpercepciones']
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    const existePercepcion = datos;
 
     /* customer validator shema */
     const dataVSchema = {
@@ -220,8 +258,8 @@ exports.setRecord = async(req, res) => {
         id_catpercepciones: {
             type: "number",
             custom(value, errors) {
-                if (value == 0)
-                    errors.push({ type: "required" })
+                if (value == 0) errors.push({ type: "required" })
+                if(existePercepcion.length>0 && existePercepcion[0].cuenta>0) errors.push({ type: "uniqueRecord" })
                 return value;
             },
         },
@@ -278,7 +316,7 @@ exports.setRecord = async(req, res) => {
     }
 
     //buscar si existe el registro
-    Categoriaspercepciones.findOne({
+    Catpercepcionescategorias.findOne({
             where: {
                 [Op.and]: [{ id: req.body.dataPack.id }, {
                     id: {
@@ -287,15 +325,15 @@ exports.setRecord = async(req, res) => {
                 }],
             }
         })
-        .then(categoriaspercepciones => {
-            if (!categoriaspercepciones) {
+        .then(catpercepcionescategorias => {
+            if (!catpercepcionescategorias) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                Categoriaspercepciones.create(
+                Catpercepcionescategorias.create(
                     req.body.dataPack
                 ).then((self) => {
                     // here self is your instance, but updated
@@ -309,7 +347,7 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                categoriaspercepciones.update(req.body.dataPack).then((self) => {
+                catpercepcionescategorias.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });

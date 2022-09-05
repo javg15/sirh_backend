@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         importe: {
-            type: DataTypes.DECIMAL(19, 4),
+            type: DataTypes.DECIMAL(15, 2),
             allowNull: true
         },
         fecha_inicio: {

@@ -207,7 +207,7 @@ exports.setRecord = async(req, res) => {
     //obtener datos de catestatusplaza
     let datosCatestatusplaza = null;
 
-    query = "SELECT * FROM catestatusplaza WHERE id=:id_catestatusplaza"; //el modo no existe, solo es para obtener un registro
+    query = "SELECT * FROM catestatusplaza WHERE id=:id_catestatusplaza"; 
 
     datosCatestatusplaza = await db.sequelize.query(query, {
         plain: false,

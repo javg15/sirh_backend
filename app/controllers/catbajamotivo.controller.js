@@ -106,7 +106,7 @@ exports.getRecord = async(req, res) => {
 exports.getCatalogo = async(req, res) => {
 
     Catbajamotivo.findAll({
-            attributes: ['id', 'descripcion'],
+            attributes: ['id', 'descripcion','tipobaja',],
             order: [
                 ['descripcion', 'ASC'],
             ]

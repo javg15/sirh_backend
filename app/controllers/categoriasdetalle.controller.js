@@ -248,7 +248,7 @@ exports.setRecord = async(req, res) => {
                 delete req.body.dataPack.updated_at;
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
-console.log("req.body.dataPack=>",req.body.dataPack)
+
                 Categoriasdetalle.create(
                     req.body.dataPack
                 ).then((self) => {

@@ -51,10 +51,10 @@ module.exports = function(app) {
         "/api/plazas/getHistorial", [authJwt.verifyToken],
         controller.getHistorial
     );
-    app.post(
+    /*app.post(
         "/api/plazas/getBaseClave", [authJwt.verifyToken],
         controller.getBaseClave
-    );
+    );*/
     app.post(
         "/api/plazas/getNombramientosVigentes", [authJwt.verifyToken],
         controller.getNombramientosVigentes
