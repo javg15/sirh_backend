@@ -218,6 +218,36 @@ exports.setRecord = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
+    /**
+     * revisar si existen otras plantillas con nombramientos activos
+     */
+     let cuentaNombramientosActivosEnOtraPlantilla = null;
+
+     query = "with personal_tmp as( " +
+        "SELECT id_personal " +
+        "   FROM plantillaspersonal " +
+        "WHERE id=:id_plantillaspersonal " +
+        ") " +
+        "SELECT COUNT(*) as cuenta  " +
+        "FROM plantillasdocsnombramiento as pn " +
+        "    LEFT JOIN plantillaspersonal as pp on pn.id_plantillaspersonal = pp.id " +
+        "    LEFT JOIN personal_tmp as p on p.id_personal =pp.id_personal   " +
+        "WHERE pp.id<>:id_plantillaspersonal " +
+        "    AND pn.state IN('A','B') " +
+        "    AND p.id_personal IS NOT NULL " +
+        "    AND fn_nombramiento_estaactiva(pn.id,'')=1; "
+        ;
+
+    cuentaNombramientosActivosEnOtraPlantilla = await db.sequelize.query(query, {
+         plain: false,
+         replacements: {
+            id_plantillaspersonal: req.body.dataPack.id_plantillaspersonal,
+         },
+         raw: true,
+         type: QueryTypes.SELECT
+     });
+     
+
     /* obtener si la categoria define horas */
     let varAsignarHoras = false;
     await Categoriasdetalle.findAll({
@@ -285,7 +315,7 @@ exports.setRecord = async(req, res) => {
         id_catestatusplaza: {
             type: "number",
             custom(value, errors) {
-
+                if(cuentaNombramientosActivosEnOtraPlantilla[0].cuenta>0) errors.push({ type: "nombramientoOtraPlantilla" })
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
@@ -464,7 +494,7 @@ exports.setRecord = async(req, res) => {
             message: errors
         };*/
     }
-
+/*
     //buscar si existe el registro
     Plantillasdocsnombramiento.findOne({
             where: {
@@ -534,4 +564,5 @@ exports.setRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+        */
 }

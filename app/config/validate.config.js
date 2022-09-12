@@ -73,4 +73,5 @@ module.exports = {
     horasNoDisponiblesEnPlaza: "No existen horas disponibles para la plaza de jornada, seleccione una plaza de horas sueltas en la vista anterior",
     plazaHorasSueltasNoExiste: "No existe una plaza del tipo 'Horas sueltas' asignada al profesor, requerida para asignar las horas restantes",
     quincenaSuperior: "Existe un movimiento registrado anteriormente con una quincnea de inicio mayor a la que se desea registrar",
+    nombramientoOtraPlantilla: "Existe un nombramiento activo en otra plantilla asignada al mismo empleado",
 };
