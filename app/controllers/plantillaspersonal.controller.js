@@ -338,7 +338,8 @@ exports.setRecord = async(req, res) => {
                         [Op.not]: [
                             { id: req.body.dataPack.id }
                         ]
-                    }
+                    },
+                    { permitemasdeuna: 0 }, //permite en mas de una plantilla? no=0,sí=1
                 ],
             }
         })
