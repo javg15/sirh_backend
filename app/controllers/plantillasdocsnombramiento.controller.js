@@ -233,6 +233,7 @@ exports.setRecord = async(req, res) => {
         "    LEFT JOIN plantillaspersonal as pp on pn.id_plantillaspersonal = pp.id " +
         "    LEFT JOIN personal_tmp as p on p.id_personal =pp.id_personal   " +
         "WHERE pp.id<>:id_plantillaspersonal " +
+        "    AND pp.permitemasdeuna=0 " +
         "    AND pn.state IN('A','B') " +
         "    AND p.id_personal IS NOT NULL " +
         "    AND fn_nombramiento_estaactiva(pn.id,'')=1; "
