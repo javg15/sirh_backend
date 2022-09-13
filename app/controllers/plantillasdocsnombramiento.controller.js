@@ -495,7 +495,7 @@ exports.setRecord = async(req, res) => {
             message: errors
         };*/
     }
-/*
+
     //buscar si existe el registro
     Plantillasdocsnombramiento.findOne({
             where: {
@@ -565,5 +565,5 @@ exports.setRecord = async(req, res) => {
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
-        */
+        
 }
