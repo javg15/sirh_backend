@@ -61,9 +61,15 @@ module.exports = function(app) {
     );
 
     app.post(
+        "/api/plazas/getTitularPlaza", [authJwt.verifyToken],
+        controller.getTitularPlaza
+    );
+    
+    app.post(
         "/api/plazas/getRecordParaCombo", [authJwt.verifyToken],
         controller.getRecordParaCombo
     );
+    
     app.post(
         "/api/plazas/getHorasDisponibleSegunPlaza", [authJwt.verifyToken],
         controller.getHorasDisponibleSegunPlaza
