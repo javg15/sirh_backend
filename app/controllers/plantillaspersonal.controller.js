@@ -420,7 +420,8 @@ exports.setRecord = async(req, res) => {
     if (req.body.actionForm.toUpperCase() == "NUEVO" ||
         req.body.actionForm.toUpperCase() == "EDITAR") {
         vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
-    } else if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
+    } 
+    /*else if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
         vres = Array();
         if (parseInt(req.body.record_id_catquincena) <= 0)
             vres.push({
@@ -459,7 +460,8 @@ exports.setRecord = async(req, res) => {
         //no hay errores
         if (vres.length == 0)
             vres = true;
-    } else if (req.body.actionForm.toUpperCase() == "ELIMINAR") { //cambio de plantilla
+    } */
+    else if (req.body.actionForm.toUpperCase() == "ELIMINAR") { //cambio de plantilla
         vres = Array();
         //que no tenga documentos registrados
         let tieneDocs = null;
@@ -562,7 +564,7 @@ exports.setRecord = async(req, res) => {
                     if (numero_empleado)
                         Personal.update({ numeemp: req.body.dataPack.consecutivo.toString().padStart(5, "0") }, { where: { id: req.body.dataPack.id_personal } });
 
-                    if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
+                    /*if (req.body.actionForm.toUpperCase() == "ACTUALIZAR") { //cambio de plantilla
                         query = "SELECT fn_set_plantillas_update(" + self.id + "," + req.body.record_id_catquincena + ")"; //el modo no existe, solo es para obtener un registro
 
                         datos = await db.sequelize.query(query, {
@@ -570,7 +572,7 @@ exports.setRecord = async(req, res) => {
                             raw: true,
                             type: QueryTypes.SELECT
                         });
-                    }
+                    }*/
                     // here self is your instance, but updated
                     res.status(200).send({ message: "success", id: self.id });
                 });
