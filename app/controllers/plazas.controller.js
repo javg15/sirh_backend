@@ -182,7 +182,7 @@ exports.getNombramientosBase = async(req, res) => {
 exports.getTitularPlaza = async(req, res) => {
     let query = "SELECT pe.* "
             +"FROM plazas as p "
-            +"    left join plantillasdocsnombramiento as pn on p.id_plantillasdocsnombramiento_actual  =pn.id  "
+            +"    left join plantillasdocsnombramiento as pn on p.id_plantillasdocsnombramiento_titular  =pn.id  "
             +"    left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  "
             +"    left join personal as pe on pp.id_personal =pe.id  "
             +"WHERE p.id=:id_plazas  "

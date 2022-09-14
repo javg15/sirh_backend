@@ -285,18 +285,46 @@ exports.setRecord = async(req, res) => {
         },
     });
 
-    //revisar el ultimo movimiento en la tabla
-    let ultimoRegistro = null;
+    //revisar el ultimo movimiento en la tabla con quincena mayor a la que se quiere registrar
+    let ultimoRegistroMayorQuincena = null;
 
-    query = "SELECT pdn.*,CONCAT(cq.anio,cq.quincena) AS quincena " +
+    query = "SELECT pdn.*,CONCAT(cq.anio,cq.quincena) AS quincena,ce.esnombramiento,fn_nombramiento_estaactiva(pdn.id,'') as estaactivo,pp.permitevariosnombramientos " +
         "FROM plantillasdocsnombramiento AS pdn " +
         " LEFT JOIN catquincena AS cq ON pdn.id_catquincena_ini=cq.id " +
+        " LEFT JOIN catestatusplaza AS ce ON pdn.id_catestatusplaza=ce.id " +
+        " LEFT JOIN plantillaspersonal AS pp ON pdn.id_plantillaspersonal=pp.id " +
         "WHERE pdn.id_plantillaspersonal=:id_plantillaspersonal " +
         " AND pdn.id<>:id " +
         " AND CONCAT(cq.anio,LPAD(cq.quincena::varchar,2,'0'::varchar))>:quincena" +
         " AND pdn.state IN('A','B') " +
         "ORDER BY CONCAT(cq.anio,LPAD(cq.quincena::varchar,2,'0'::varchar)) DESC " +
         "LIMIT 1";
+    
+    ultimoRegistroMayorQuincena = await db.sequelize.query(query, {
+        plain: false,
+        replacements: {
+            id: req.body.dataPack.id,
+            id_plantillaspersonal: req.body.dataPack.id_plantillaspersonal,
+            quincena: quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0")
+        },
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    //revisar el ultimo movimiento en la tabla con quincena mayor a la que se quiere registrar
+    let ultimoRegistro = null;
+
+    query = "SELECT pdn.*,CONCAT(cq.anio,cq.quincena) AS quincena,ce.esnombramiento,fn_nombramiento_estaactiva(pdn.id,'') as estaactivo,pp.permitevariosnombramientos " +
+        "FROM plantillasdocsnombramiento AS pdn " +
+        " LEFT JOIN catquincena AS cq ON pdn.id_catquincena_ini=cq.id " +
+        " LEFT JOIN catestatusplaza AS ce ON pdn.id_catestatusplaza=ce.id " +
+        " LEFT JOIN plantillaspersonal AS pp ON pdn.id_plantillaspersonal=pp.id " +
+        "WHERE pdn.id_plantillaspersonal=:id_plantillaspersonal " +
+        " AND pdn.id<>:id " +
+        " AND pdn.state IN('A','B') " +
+        "ORDER BY CONCAT(cq.anio,LPAD(cq.quincena::varchar,2,'0'::varchar)) DESC " +
+        "LIMIT 1";
+    
     ultimoRegistro = await db.sequelize.query(query, {
         plain: false,
         replacements: {
@@ -318,6 +346,10 @@ exports.setRecord = async(req, res) => {
             custom(value, errors) {
                 if(cuentaNombramientosActivosEnOtraPlantilla[0].cuenta>0) errors.push({ type: "nombramientoOtraPlantilla" })
                 if (value <= 0) errors.push({ type: "selection" })
+                if (ultimoRegistro.length > 0 
+                        && ultimoRegistro[0].esnombramiento==1
+                        && ultimoRegistro[0].estaactivo==1
+                        && ultimoRegistro[0].permitevariosnombramientos==0) errors.push({ type: "ultimoRegistroNombramiento" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
@@ -346,7 +378,7 @@ exports.setRecord = async(req, res) => {
                     ) &&
                     (value <= 0 || value == 32767)) errors.push({ type: "selection" })
 
-                if (ultimoRegistro.length > 0) errors.push({ type: "quincenaSuperior" })
+                if (ultimoRegistroMayorQuincena.length > 0) errors.push({ type: "quincenaSuperior" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

@@ -59,7 +59,12 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
-        }
+        },
+        permitevariosnombramientos:{
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
     }, {
         sequelize,
         tableName: 'plantillaspersonal',
