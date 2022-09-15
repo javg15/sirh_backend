@@ -311,7 +311,7 @@ exports.setRecord = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
-    //revisar el ultimo movimiento en la tabla con quincena mayor a la que se quiere registrar
+    //revisar el ultimo movimiento en la tabla para revisar que no se registren nombramientos
     let ultimoRegistro = null;
 
     query = "SELECT pdn.*,CONCAT(cq.anio,cq.quincena) AS quincena,ce.esnombramiento,fn_nombramiento_estaactiva(pdn.id,'') as estaactivo,pp.permitevariosnombramientos " +
@@ -349,7 +349,8 @@ exports.setRecord = async(req, res) => {
                 if (ultimoRegistro.length > 0 
                         && ultimoRegistro[0].esnombramiento==1
                         && ultimoRegistro[0].estaactivo==1
-                        && ultimoRegistro[0].permitevariosnombramientos==0) errors.push({ type: "ultimoRegistroNombramiento" })
+                        && ultimoRegistro[0].permitevariosnombramientos==0
+                        && datosCatestatusplaza.esnombramiento==1) errors.push({ type: "ultimoRegistroNombramiento" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
