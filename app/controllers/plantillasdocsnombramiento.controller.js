@@ -429,7 +429,7 @@ exports.setRecord = async(req, res) => {
             type: "number",
             optional: (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 0 ? true : false),
             custom(value, errors) {
-                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 1) {
+                if (datosCatestatusplaza.length > 0 && datosCatestatusplaza[0].esinterina == 1 && datosCatestatusplaza[0].contitular==1) {
                     if (value <= 0) errors.push({ type: "selection" })
                 }
                 return value; // Sanitize: remove all special chars except numbers
