@@ -221,7 +221,7 @@ exports.setRecord = async(req, res) => {
     /**
      * revisar si existen otras plantillas con nombramientos activos
      */
-     let cuentaNombramientosActivosEnOtraPlantilla = null;
+     let cuentaNombramientosActivosEnOtraPlantilla = 0;
 
      query = "with personal_tmp as( " +
         "SELECT id_personal " +
@@ -232,8 +232,10 @@ exports.setRecord = async(req, res) => {
         "FROM plantillasdocsnombramiento as pn " +
         "    LEFT JOIN plantillaspersonal as pp on pn.id_plantillaspersonal = pp.id " +
         "    LEFT JOIN personal_tmp as p on p.id_personal =pp.id_personal   " +
+        "    LEFT JOIN catestatusplaza as ce on pn.id_catestatusplaza =ce.id " +
         "WHERE pp.id<>:id_plantillaspersonal " +
         "    AND pp.permitemasdeuna=0 " +
+        "    AND ce.esnombramiento =1 " +
         "    AND pn.state IN('A','B') " +
         "    AND p.id_personal IS NOT NULL " +
         "    AND fn_nombramiento_estaactiva(pn.id,'')=1; "
@@ -248,7 +250,6 @@ exports.setRecord = async(req, res) => {
          type: QueryTypes.SELECT
      });
      
-
     /* obtener si la categoria define horas */
     let varAsignarHoras = false;
     await Categoriasdetalle.findAll({
