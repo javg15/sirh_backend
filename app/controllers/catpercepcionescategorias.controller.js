@@ -187,9 +187,9 @@ exports.setRecord = async(req, res) => {
          "WHERE c.id_categoriasdetalle=:id_categoriasdetalle " +
 		 "	AND c.id_catpercepciones=:id_catpercepciones " +
          "  AND c.id<>:id " +
-		 "	AND fn_getfecha_segunquincena(:id_catquincena_ini)->>'quincenatotal'  " +
-		 "		between fn_getfecha_segunquincena(q.id)->>'quincenatotal' " +
-		 "			and fn_getfecha_segunquincena(q2.id)->>'quincenatotal' " +
+		 "	AND fn_getquincena_segunid(:id_catquincena_ini)  " +
+		 "		between fn_getquincena_segunid(q.id) " +
+		 "			and fn_getquincena_segunid(q2.id) " +
 		 "	AND c.state in('A','B')";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
