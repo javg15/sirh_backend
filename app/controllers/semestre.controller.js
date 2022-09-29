@@ -36,13 +36,20 @@ exports.getAdmin = async(req, res) => {
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor;
 
-        if (req.body.draw == 1) {
-            query += "&ordencampo=Tipo" +
-                "&ordensentido=DESC')";
-        } else {
-            query += "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-                "&ordensentido=" + req.body.order[0].dir + "')";
-        }
+            if(req.body.order.length>0){
+                let ordencampo="",ordensentido="";
+                for(let i=0; i<req.body.order.length;i++){
+                    ordencampo += "|" + req.body.columns[req.body.order[i].column].data;
+                    ordensentido += "|" + req.body.order[i].dir;
+                }
+                query += "&ordencampo=" + ordencampo.substring(1)
+                        + "&ordensentido=" + ordensentido.substring(1) + "')";
+            }
+            else{
+                query += "&ordencampo=Tipo" +
+                    "&ordensentido=DESC')";
+            }
+
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
             // Will get called for every SQL query that gets sent
@@ -150,7 +157,7 @@ exports.getCatalogo = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0 || key.indexOf("anio", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 || key.indexOf("actual", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
         }
@@ -159,10 +166,11 @@ exports.setRecord = async(req, res) => {
     query = "select * " +
         "from semestre as a " +
         "where anio=:anio " +
-        "    and tipo=:tipo ";
-    "    and id_catquincena_ini=:id_catquincena_ini ";
-    "    and id_catquincena_fin=:id_catquincena_fin ";
-    "    and state  IN('A','B')";
+        "    and tipo=:tipo " +
+        "    and id_catquincena_ini=:id_catquincena_ini " +
+        "    and id_catquincena_fin=:id_catquincena_fin " +
+        "    and id<>:id " +
+        "    and state  IN('A','B')";
     datosUnique = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -170,6 +178,7 @@ exports.setRecord = async(req, res) => {
         logging: console.log,
 
         replacements: {
+            id:req.body.dataPack.id,
             anio: req.body.dataPack["anio"],
             tipo: req.body.dataPack["tipo"],
             id_catquincena_ini: req.body.dataPack["id_catquincena_ini"],
@@ -184,11 +193,44 @@ exports.setRecord = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
+    /**
+     * existe semestre activo?
+     */    
+     query = "select * " +
+     "from semestre as a " +
+     "where actual=1 " +
+        "    and id<>:id " +
+        "    and state  IN('A','B')";
+    hayActual = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id:req.body.dataPack.id
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
-
-        id: { type: "number" },
+        
+        id: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                if (hayActual.length > 0 && req.body.dataPack["actual"]==1) errors.push({ type: "registroEstatus", actual:"Activo" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         anio: {
             type: "number",
             custom(value, errors) {

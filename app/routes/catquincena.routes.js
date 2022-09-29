@@ -37,6 +37,10 @@ module.exports = function(app) {
         "/api/catquincena/getQuincenaActiva", [authJwt.verifyToken],
         controller.getQuincenaActiva
     );
+    app.post(
+        "/api/catquincena/getMaxAdicional", [authJwt.verifyToken],
+        controller.getMaxAdicional
+    );
 
     app.post(
         "/api/catquincena/setRecord", [authJwt.verifyToken],

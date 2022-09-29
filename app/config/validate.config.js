@@ -75,4 +75,6 @@ module.exports = {
     quincenaSuperior: "Existe un movimiento registrado anteriormente con una quincnea de inicio mayor a la que se desea registrar",
     nombramientoOtraPlantilla: "Existe un nombramiento activo en otra plantilla asignada al mismo empleado",
     ultimoRegistroNombramiento: "No se puede tener mas de un nombramiento activo en la misma plantilla",
+    registroEstatus: "Solo puede existir un registro '{actual}'",
+
 };

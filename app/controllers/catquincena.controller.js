@@ -33,19 +33,25 @@ exports.getAdmin = async(req, res) => {
             type: QueryTypes.SELECT
         });
     } else {
+
         query = "SELECT * FROM s_catquincena_mgr('" +
             "&modo=0&id_usuario=:id_usuario" +
             "&inicio=:start&largo=:length" +
             "&scampo=" + req.body.opcionesAdicionales.datosBusqueda.campo + "&soperador=" + req.body.opcionesAdicionales.datosBusqueda.operador + "&sdato=" + req.body.opcionesAdicionales.datosBusqueda.valor;
 
-        if (req.body.columns[req.body.order[0].column].data == 'id') {
-            query += "&ordencampo=Semestre|Quincena" +
-                "&ordensentido=DESC|DESC')";
-        } else {
-            query += "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
-                "&ordensentido=" + req.body.order[0].dir + "')";
-        }
-
+            if(req.body.order.length>0){
+                let ordencampo="",ordensentido="";
+                for(let i=0; i<req.body.order.length;i++){
+                    ordencampo += "|" + req.body.columns[req.body.order[i].column].data;
+                    ordensentido += "|" + req.body.order[i].dir;
+                }
+                query += "&ordencampo=" + ordencampo.substring(1)
+                        + "&ordensentido=" + ordensentido.substring(1) + "')";
+            }
+            else{
+                query += "&ordencampo=Semestre|Quincena" +
+                    "&ordensentido=DESC|DESC')";
+            }
 
         datos = await db.sequelize.query(query, {
             // A function (or false) for logging your queries
@@ -138,6 +144,34 @@ exports.getQuincenaActiva = async(req, res) => {
             res.status(500).send({ message: err.message });
         });
 }
+
+exports.getMaxAdicional = async(req, res) => {
+    Catquincena.findOne({
+        where: {
+            [Op.and]: [{
+                    anio:req.body.anio
+                }, {
+                    quincena:req.body.quincena
+                },
+                { state: "A" },
+            ],
+        },
+        order: [
+            ['adicional', 'desc'],
+        ]
+    })
+    .then(catquincena => {
+        if (!catquincena) {
+            return res.status(404).send({ message: "Catquincena Not found." });
+        }
+
+        res.status(200).send(catquincena);
+    })
+    .catch(err => {
+        res.status(500).send({ message: err.message });
+    });
+}
+
 
 exports.getCatalogo = async(req, res) => {
     let query = "select c.id,concat(anio, lpad(c.quincena::text,2,0::text)) as text,c.anio,c.quincena " +
@@ -277,9 +311,10 @@ exports.setRecord = async(req, res) => {
     query = "select * " +
         "from catquincena as a " +
         "where anio=:anio " +
-        "    and quincena=:quincena ";
-    "    and bimestre=:bimestre ";
-    "    and state  IN('A','B')";
+        "    and quincena=:quincena " +
+        "    and bimestre=:bimestre " +
+        "    and id<>:id " +
+        "    and state  IN('A','B')";
     datosUnique = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -287,6 +322,7 @@ exports.setRecord = async(req, res) => {
         logging: console.log,
 
         replacements: {
+            id:req.body.dataPack.id,
             anio: req.body.dataPack["anio"],
             quincena: req.body.dataPack["quincena"],
             bimestre: req.body.dataPack["bimestre"],
@@ -300,11 +336,72 @@ exports.setRecord = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
+    /**
+     * existe quincena LISTA PARA CALCULO?
+     */    
+     query = "select * " +
+     "from catquincena as a " +
+     "where id_catestatusquincena=2 " +
+        "    and id<>:id " +
+        "    and state  IN('A','B')";
+    hayListParaCalculo = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id:req.body.dataPack.id
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    /**
+     * existe quincena ABIERTA PARA CAPTURA?
+     */    
+     query = "select * " +
+     "from catquincena as a " +
+     "where id_catestatusquincena=1 " +
+        "    and id<>:id " +
+        "    and state  IN('A','B')";
+    hayAbiertaCaptura = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id:req.body.dataPack.id
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
 
-        id: { type: "number" },
+        id: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                if (hayAbiertaCaptura.length > 0 && req.body.dataPack["id_catestatusquincena"]==1) errors.push({ type: "registroEstatus", actual:"Abierta para captura" })
+                if (hayListParaCalculo.length > 0 && req.body.dataPack["id_catestatusquincena"]==2) errors.push({ type: "registroEstatus", actual:"Lista para calculo" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
         anio: {
             type: "number",
             custom(value, errors) {
