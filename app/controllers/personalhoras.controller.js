@@ -368,7 +368,7 @@ exports.setRecord = async(req, res) => {
         //revisar si hay plaza con horas sueltas
         let query =
             "WITH tabla_json(arr) AS ( " +
-            "    VALUES (fn_nombramientos_vigentes(:id_personal,:id_semestre)) " +
+            "    VALUES (fn_nombramientos_vigentes(:id_personal,:id_semestre,0)) " +
             ") " +
             ", tabla_elements(elem) AS ( " +
             "    SELECT json_array_elements(arr) FROM tabla_json " +
@@ -406,6 +406,53 @@ exports.setRecord = async(req, res) => {
             type: QueryTypes.SELECT
         });
     }
+
+    let horasDisponiblesJornada = [{"horasdisponibles":0}];
+    //Obtener la cantidad de horas de la plaza de jornada
+    //para saber si estan incompletas y ya se desean registrar horas sueltas
+        
+    //suma de horas de jornada
+    let query =
+        "WITH tabla_json(arr) AS ( " +
+        "    VALUES (fn_nombramientos_vigentes(:id_personal,:id_semestre,0)) " +
+        ") " +
+        ", tabla_elements(elem) AS ( " +
+        "    SELECT json_array_elements(arr) FROM tabla_json " +
+        ") " +
+        "select p.*,fn_horas_disponibles_enplaza(pp.id_personal, COALESCE(pn.id_catplanteles_aplicacion, pn.id_catplanteles), p.id)->>'disponibles' AS horasdisponibles " +
+        "from plazas as p " +
+        " left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas " +
+        " left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  " +
+        " inner join tabla_elements AS s ON s.elem->>'id_plaza'=p.id::varchar" +
+        " left join categorias as c on p.id_categorias =c.id " +
+        "where pp.id_personal = :id_personal " +
+        " and c.clave between '140' and '167' " + //plaza de horas de jornada
+        " and COALESCE(c.horasasignadas,0)>0 " + 
+        " and p.id<>:id_plazas " + //que no sea la plaza de la cual se quiere registrar
+        " and pp.state in ('A','B') " +
+        " and p.state in ('A') " +
+        " and pn.state in ('A') ";
+
+    horasDisponiblesJornada = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_personal: req.body.dataPack.id_personal,
+            id_plazas: req.body.dataPack.id_plazas,
+            id_semestre: req.body.dataPack.id_semestre,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
 
     //obtener la quincena activa
     const quincenaActiva = await Catquincena.findOne({
@@ -447,7 +494,10 @@ exports.setRecord = async(req, res) => {
                 { state: "A" },
             ],
         }
-    })
+    });
+
+
+
 
     /* customer validator shema */
     const dataVSchema = {
@@ -554,6 +604,7 @@ exports.setRecord = async(req, res) => {
                 if (value <= 0) errors.push({ type: "selection" })
                 if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && req.body.cantidadHaciaHorasSueltas > 0) errors.push({ type: "horasNoDisponiblesEnPlaza" })
                 if (req.body.dataPack["horassueltas"] == 0 && req.body.asignarHorasRestantes == 1 && plazasHorasSueltas.length == 0 && req.body.cantidadHaciaHorasSueltas > 0) errors.push({ type: "plazaHorasSueltasNoExiste" })
+                if (horasDisponiblesJornada.length>0 && horasDisponiblesJornada[0].horasdisponibles>0) errors.push({ type: "horasNoDisponiblesEnPlazaJornada" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

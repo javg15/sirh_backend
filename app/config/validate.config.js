@@ -71,6 +71,7 @@ module.exports = {
     uniqueRecord: "El registro ya existe en la Base de Datos",
     quincenaCalculada: "La quincena inicial ya fue calculada, por lo tanto ya no se pueden hacer modificaciones extras a la quincena de cierre",
     horasNoDisponiblesEnPlaza: "No existen horas disponibles para la plaza de jornada, seleccione una plaza de horas sueltas en la vista anterior",
+    horasNoDisponiblesEnPlazaJornada: "Aun existen plazas de jornada con horas disponibles. Debe llenar la plaza con horas de jornada según su categoría para despues continuar con las plazas de horas sueltas",
     plazaHorasSueltasNoExiste: "No existe una plaza del tipo 'Horas sueltas' asignada al profesor, requerida para asignar las horas restantes",
     quincenaSuperior: "Existe un movimiento registrado anteriormente con una quincnea de inicio mayor a la que se desea registrar",
     nombramientoOtraPlantilla: "Existe un nombramiento activo en otra plantilla asignada al mismo empleado",

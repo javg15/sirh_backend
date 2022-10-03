@@ -17,4 +17,9 @@ module.exports = function(app) {
         "/api/shared/getSearchoperadores", [authJwt.verifyToken],
         controller.getSearchoperadores
     );
+    app.post(
+        "/api/shared/getTracking", [authJwt.verifyToken],
+        controller.getTracking
+    );
+    
 };

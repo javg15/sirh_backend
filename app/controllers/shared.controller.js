@@ -73,3 +73,32 @@ exports.getSearchoperadores = async(req, res) => {
     //return res.status(200).json(data);
     // res.status(500).send({ message: err.message });
 }
+exports.getTracking = async(req, res) => {
+
+    const query = "SELECT t.id,t.contenido,t.fecha,u.username AS usuario,fn_idesc_personal(p.id) AS Empleado " +
+        "FROM " + req.body.tabla + " AS t " +
+        "   LEFT JOIN adm.usuarios AS u ON u.id=t.id_usuarios_r " +
+        "   LEFT JOIN personal AS p ON p.id_usuarios_sistema=u.id " +
+        "WHERE id_tabla=:id_tabla " +
+        "ORDER BY fecha DESC ";
+
+    const datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_tabla: req.body.id_record,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos);
+}
