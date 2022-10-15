@@ -169,7 +169,7 @@ exports.getAdminSub = async(req, res) => {
 
 exports.getAdminSubResumen = async(req, res) => {
     params = req.body;
-    query = "SELECT * FROM fn_horas_cuenta_resumen(:id_personal,:id_catplanteles,:id_gruposclase,:id_materiasclase,:id_catestatushora,:id_semestre,:id_plaza)"; //el modo no existe, solo es para obtener un registro
+    query = "SELECT * FROM fn_horas_cuenta_resumen(:id_personal,:id_catplanteles,:id_catestatushora,:id_semestre,:id_plaza)"; //el modo no existe, solo es para obtener un registro
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -181,8 +181,6 @@ exports.getAdminSubResumen = async(req, res) => {
             id_personal: params.id_personal,
             id_semestre: params.id_semestre,
             id_catplanteles: 0,
-            id_gruposclase: 0,
-            id_materiasclase: 0,
             id_catestatushora: 0,
             id_plaza: params.id_plaza,
 
@@ -251,14 +249,205 @@ exports.getHorasDisponibleSegunDescarga = async(req, res) => {
     res.status(200).send(datos);
 }
 
+exports.getHistorialMateria = async(req, res) => {
+    let datos = "",
+        query = "",
+        params = req.body.dataTablesParameters;
+
+    if (params.solocabeceras == 1) {
+        query = "select * from srep_personalhoras_materias_historial('&modo=10')"; //el modo no existe, solo es para obtener un registro
+
+        datos = await db.sequelize.query(query, {
+            replacements: {
+                id_usuario: req.userId,
+            },
+            plain: false,
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    } else {
+        query = "select * from srep_personalhoras_materias_historial('&modo=0&id_materiasclase=:id_materiasclase&id_semestre=:id_semestre&id_personal=:id_personal')";
+
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_materiasclase: params.opcionesAdicionales.id_materiasclase,
+                id_semestre: params.opcionesAdicionales.id_semestre,
+                id_personal: params.opcionesAdicionales.id_personal,
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
+
+    var columnNames = (datos.length > 0 ? Object.keys(datos[0]).map(function(key) {
+        return key;
+    }) : []);
+    var quitarKeys = false;
+
+    for (var i = 0; i < columnNames.length; i++) {
+        if (columnNames[i] == "total_count") quitarKeys = true;
+        if (quitarKeys)
+            columnNames.splice(i);
+    }
+
+    respuesta = {
+            draw: params.opcionesAdicionales.raw,
+            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            data: datos,
+            columnNames: columnNames
+        }
+        //console.log(JSON.stringify(respuesta));
+    res.status(200).send(respuesta);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+}
+
+exports.getHistorialGrupo = async(req, res) => {
+    let datos = "",
+        query = "",
+        params = req.body.dataTablesParameters;
+
+    if (params.solocabeceras == 1) {
+        query = "select * from srep_personalhoras_grupos_historial('&modo=10')"; //el modo no existe, solo es para obtener un registro
+
+        datos = await db.sequelize.query(query, {
+            replacements: {
+                id_usuario: req.userId,
+            },
+            plain: false,
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    } else {
+        query = "select * from srep_personalhoras_grupos_historial('&modo=0&id_gruposclase=:id_gruposclase&id_semestre=:id_semestre')";
+
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_gruposclase: parseInt(params.opcionesAdicionales.id_gruposclase),
+                id_semestre: params.opcionesAdicionales.id_semestre,
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
+
+    var columnNames = (datos.length > 0 ? Object.keys(datos[0]).map(function(key) {
+        return key;
+    }) : []);
+    var quitarKeys = false;
+
+    for (var i = 0; i < columnNames.length; i++) {
+        if (columnNames[i] == "total_count") quitarKeys = true;
+        if (quitarKeys)
+            columnNames.splice(i);
+    }
+
+    respuesta = {
+            draw: params.opcionesAdicionales.raw,
+            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            data: datos,
+            columnNames: columnNames
+        }
+        //console.log(JSON.stringify(respuesta));
+    res.status(200).send(respuesta);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+}
+
+exports.getHistorialDocente = async(req, res) => {
+    let datos = "",
+        query = "",
+        params = req.body.dataTablesParameters;
+
+    if (params.solocabeceras == 1) {
+        query = "select * from srep_personalhoras_docentes_historial('&modo=10')"; //el modo no existe, solo es para obtener un registro
+
+        datos = await db.sequelize.query(query, {
+            replacements: {
+                id_usuario: req.userId,
+            },
+            plain: false,
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    } else {
+        query = "select * from srep_personalhoras_docentes_historial('&modo=0&id_personal=:id_personal&id_semestre=:id_semestre')";
+
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_personal: parseInt(params.opcionesAdicionales.id_personal),
+                id_semestre: params.opcionesAdicionales.id_semestre,
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+    }
+
+    var columnNames = (datos.length > 0 ? Object.keys(datos[0]).map(function(key) {
+        return key;
+    }) : []);
+    var quitarKeys = false;
+
+    for (var i = 0; i < columnNames.length; i++) {
+        if (columnNames[i] == "total_count") quitarKeys = true;
+        if (quitarKeys)
+            columnNames.splice(i);
+    }
+
+    respuesta = {
+            draw: params.opcionesAdicionales.raw,
+            recordsTotal: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            recordsFiltered: (datos.length > 0 ? parseInt(datos[0].total_count) : 0),
+            data: datos,
+            columnNames: columnNames
+        }
+        //console.log(JSON.stringify(respuesta));
+    res.status(200).send(respuesta);
+    //return res.status(200).json(data);
+    // res.status(500).send({ message: err.message });
+}
+
 exports.getCatalogoMateriasDescargadas = async(req, res) => {
     let horasDisp = (req.body.modo == "nuevo" ? "' - ',fn_horas_disponibles_segundescarga(p.id)->>'disponibles',' hrs. disp'" : "")
     let whereHorasDisp = (req.body.modo == "nuevo" ? " AND (fn_horas_disponibles_segundescarga(p.id)->>'disponibles')::int>0 " : "")
 
     let query = "select p.id, concat(m.nombre ,' - ',g.grupo,' - ', p.cantidad ,' hrs.'" + horasDisp + ") as text " +
         "from personalhoras as p " +
-        "    left join materiasclase as m on p.id_materiasclase =m.id " +
-        "    left join gruposclase as g on p.id_gruposclase =g.id " +
+        "    left join horasclase as hc on p.id_horasclase =hc.id " +
+        "    left join materiasclase as m on hc.id_materiasclase =m.id " +
+        "    left join gruposclase as g on hc.id_gruposclase =g.id " +
         "where (p.id_personal =:id_personal or :id_personal=0) " +
         "   and (p.id_catplanteles =:id_catplanteles or :id_catplanteles=0) " +
         "   and (p.id_semestre = :id_semestre or :id_semestre=0) " +
@@ -316,13 +505,10 @@ exports.getRecordTitularEnLicencia = async(req, res) => {
     let query = "select p.id as id_personalhoras,pe.id, pe.rfc ,pe.numeemp ,fn_idesc_personal(pe.id) as nombre " +
         "from personalhoras as p  " +
         "    left join personal as pe on p.id_personal =pe.id " +
-        "WHERE p.id_catplanteles=:id_catplanteles    " +
-        "AND p.id_gruposclase=:id_gruposclase " +
-        "AND p.id_materiasclase=:id_materiasclase " +
-        "AND p.id_catestatushora =5  " //--en licencia
-        +
-        "AND p.id_semestre =:id_semestre " +
-        "AND p.state IN ('A','B') ";
+        "WHERE p.id_horasclase=:id_horasclase " +
+        "   AND p.id_catestatushora =5  " +//--en licencia
+        "   AND p.id_semestre =:id_semestre " +
+        "   AND p.state IN ('A','B') ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -331,9 +517,7 @@ exports.getRecordTitularEnLicencia = async(req, res) => {
         logging: console.log,
 
         replacements: {
-            id_catplanteles: req.body.id_catplanteles,
-            id_gruposclase: req.body.id_gruposclase,
-            id_materiasclase: req.body.id_materiasclase,
+            id_horasclase: req.body.id_horasclase,
             id_semestre: req.body.id_semestre,
         },
 
@@ -419,7 +603,7 @@ exports.setRecord = async(req, res) => {
         ", tabla_elements(elem) AS ( " +
         "    SELECT json_array_elements(arr) FROM tabla_json " +
         ") " +
-        "select p.*,fn_horas_disponibles_enplaza(pp.id_personal, COALESCE(pn.id_catplanteles_aplicacion, pn.id_catplanteles), p.id)->>'disponibles' AS horasdisponibles " +
+        "select p.*,fn_horas_disponibles_enplaza(pp.id_personal, COALESCE(pn.id_catplanteles_aplicacion, pn.id_catplanteles), :id_semestre, p.id)->>'disponibles' AS horasdisponibles " +
         "from plazas as p " +
         " left join plantillasdocsnombramiento as pn on p.id=pn.id_plazas " +
         " left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  " +
@@ -486,9 +670,10 @@ exports.setRecord = async(req, res) => {
     const personalhorasExiste = await Personalhoras.findOne({
         where: {
             [Op.and]: [{ id_semestre: req.body.dataPack.id_semestre },
-                { id_catplanteles: req.body.dataPack.id_catplanteles },
+                /*{ id_catplanteles: req.body.dataPack.id_catplanteles },
                 { id_gruposclase: req.body.dataPack.id_gruposclase },
-                { id_materiasclase: req.body.dataPack.id_materiasclase },
+                { id_materiasclase: req.body.dataPack.id_materiasclase },*/
+                { id_horasclase: req.body.dataPack.id_horasclase },
                 { id_catestatushora: req.body.dataPack.id_catestatushora },
                 { id_cattipohorasdocente: req.body.dataPack.id_cattipohorasdocente },
                 { state: "A" },
@@ -555,6 +740,13 @@ exports.setRecord = async(req, res) => {
             }
         },
         id_materiasclase: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        id_horasclase: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
@@ -702,8 +894,9 @@ exports.setRecord = async(req, res) => {
                     delete req.body.dataPack.id_catestatushora;
                     delete req.body.dataPack.id_catnombramientos;
                     delete req.body.dataPack.cantidad;
-                    delete req.body.dataPack.id_gruposclase;
+                    delete req.body.dataPack.id_horasclase;
                     delete req.body.dataPack.id_materiasclase;
+                    delete req.body.dataPack.id_gruposclase;
                     delete req.body.dataPack.id_catquincena_ini;
                     delete req.body.dataPack.id_cattipohorasdocente;
                 }

@@ -25,6 +25,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        id_horasclase: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         cantidad: {
             type: DataTypes.INTEGER,
             allowNull: true

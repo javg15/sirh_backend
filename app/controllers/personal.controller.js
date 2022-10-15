@@ -142,6 +142,27 @@ exports.getRecordSegunCURP = async(req, res) => {
         });
 }
 
+exports.getNombre=async (req,res)=>{
+    Personal.findOne({
+        attributes: ["id", "numeemp", [db.sequelize.literal("apellidopaterno || ' ' || apellidomaterno || ' ' || nombre || ' -- ' || numeemp"), "full_name"]],
+        where: {
+            id:req.body.id_personal
+        },
+        order: [
+            ['nombre', 'ASC'],
+        ]
+    }).then(personal => {
+        if (!personal) {
+            return res.status(404).send({ message: "Personal Not found." });
+        }
+
+        res.status(200).send(personal);
+    })
+    .catch(err => {
+        res.status(500).send({ message: err.message });
+    });
+}
+
 exports.getRecordAntiguedad = async(req, res) => {
     let datos = "",
         query = "";

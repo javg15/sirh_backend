@@ -75,7 +75,7 @@ exports.getSearchoperadores = async(req, res) => {
 }
 exports.getTracking = async(req, res) => {
 
-    const query = "SELECT t.id,t.contenido,t.fecha,u.username AS usuario,fn_idesc_personal(p.id) AS Empleado " +
+    const query = "SELECT t.id,t.contenido,t.fecha,coalesce(u.username,'') AS usuario,coalesce(fn_idesc_personal(p.id),'') AS Empleado " +
         "FROM " + req.body.tabla + " AS t " +
         "   LEFT JOIN adm.usuarios AS u ON u.id=t.id_usuarios_r " +
         "   LEFT JOIN personal AS p ON p.id_usuarios_sistema=u.id " +

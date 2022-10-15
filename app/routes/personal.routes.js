@@ -29,8 +29,10 @@ module.exports = function(app) {
         "/api/personal/getAntiguedadEnQuincenas", [authJwt.verifyToken],
         controller.getAntiguedadEnQuincenas
     );
-
-
+    app.post(
+        "/api/personal/getNombre", [authJwt.verifyToken],
+        controller.getNombre
+    );
 
     app.post(
         "/api/personal/setRecord", [authJwt.verifyToken],

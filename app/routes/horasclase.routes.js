@@ -22,6 +22,11 @@ module.exports = function(app) {
         controller.getRecord
     );
     app.post(
+        "/api/horasclase/getClave", [authJwt.verifyToken],
+        controller.getClave
+    );
+    
+    app.post(
         "/api/horasclase/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );

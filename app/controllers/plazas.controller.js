@@ -216,7 +216,7 @@ exports.getRecordParaCombo = async(req, res) => {
         "fn_categoria_eshomologada(id_categorias)->>'eshomologada' AS eshomologada," +
         "fn_plazas_datos(id)->>'categoria' AS categoria, " +
         "fn_horas_disponibles_enplaza(0,0,0,id)->0->>'horasprogramadas' AS horas_programadas " +
-        " FROM plazas" +
+        " FROM plazas " +
         " WHERE  id=:id_plazas ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -448,7 +448,9 @@ exports.getHistorial = async(req, res) => {
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
-        if (key.indexOf("id_", 0) >= 0 || key.indexOf("horas", 0) >= 0) {
+        if (key.indexOf("id_", 0) >= 0 
+            || key.indexOf("horas", 0) >= 0
+            || key.indexOf("consecutivo", 0) >= 0) {
             if (req.body.dataPack[key] != '')
                 req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
             if (isNaN(req.body.dataPack[key]))
@@ -583,6 +585,18 @@ exports.setRecord = async(req, res) => {
         horasAcumuladasB = datos[0].horasAcumuladasB;
     }
 
+    //existe registro
+    const registroExiste = await Plazas.findOne({
+        where: {
+            [Op.and]: [{ id_categorias: req.body.dataPack.id_categorias },
+                { consecutivo: req.body.dataPack.consecutivo },
+                { id_catplanteles: req.body.dataPack.id_catplanteles },
+                { id_categoriasdetalle: req.body.dataPack.id_categoriasdetalle },
+                { [Op.or]: [{state: "A" },{state: "I" }]}
+            ],
+        }
+    });
+
     /* customer validator shema */
     const dataVSchema = {
         /*first_name: { type: "string", min: 1, max: 50, pattern: namePattern },*/
@@ -593,7 +607,7 @@ exports.setRecord = async(req, res) => {
             custom(value, errors) {
                 //al ser edición , entonces, se considera una plaza disponible más
                 if (req.body.dataPack["id"] > 0) totalplazasdisponibles++;
-
+                if (registroExiste) errors.push({ type: "uniqueRecord" })
                 /*if (totalplazasautorizadas <= 0) errors.push({ type: "totalplazasautorizadas", actual: datos[0].fn_plazas_disponibles.totalplazasautorizadas })
                 if (totalautorizadasalplantel <= 0) errors.push({ type: "totalautorizadasalplantel", actual: datos[0].fn_plazas_disponibles.totalautorizadasalplantel })
                 if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })*/
@@ -637,6 +651,13 @@ exports.setRecord = async(req, res) => {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
+                return value; // Sanitize: remove all special chars except numbers
+            }
+        },
+        consecutivo: {
+            type: "number",
+            custom(value, errors) {
+                if (value <= 0) errors.push({ type: "required" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },

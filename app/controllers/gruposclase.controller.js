@@ -193,7 +193,7 @@ exports.getCatalogoConHorasDisponiblesSegunPlantel = async(req, res) => {
 
 exports.getCatalogoConHorasDisponiblesSegunCopia = async(req, res) => {
     //:id_personalhoras<>0 es edición
-    let query = "select distinct gc.id,concat(gc.grupo ,'-',gc.tiposemestre) as text " +
+    let query = "select distinct gc.id,concat(gc.grupo ,'-',gc.tiposemestre) as text  " +
         "from horasclase as h " +
         "    left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "where h.id_catplanteles =:id_catplanteles " +

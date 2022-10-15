@@ -40,12 +40,27 @@ module.exports = function(app) {
         controller.getCatalogoMateriasDescargadas
     );
 
-
     app.post(
         "/api/personalhoras/getRecordTitularEnLicencia", [authJwt.verifyToken],
         controller.getRecordTitularEnLicencia
     );
 
+    app.post(
+        "/api/personalhoras/getHistorialMateria", [authJwt.verifyToken],
+        controller.getHistorialMateria
+    );
+
+    app.post(
+        "/api/personalhoras/getHistorialGrupo", [authJwt.verifyToken],
+        controller.getHistorialGrupo
+    );
+
+    app.post(
+        "/api/personalhoras/getHistorialDocente", [authJwt.verifyToken],
+        controller.getHistorialDocente
+    );
+    
+    
     app.post(
         "/api/personalhoras/setRecord", [authJwt.verifyToken],
         controller.setRecord
