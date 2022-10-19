@@ -258,7 +258,7 @@ exports.getCatalogoVigenteEnPlantilla = async(req, res) => {
 
 exports.getEstaEnTablaHomologadas = async(req, res) => {
 
-    let query = "select fn_categoria_estaen_tablahomologada(:id_categorias)";
+    let query = "select fn_categoria_eshomologada(:id_categorias)->>'eshomologada' as eshomologada; ";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
@@ -277,7 +277,7 @@ exports.getEstaEnTablaHomologadas = async(req, res) => {
         type: QueryTypes.SELECT
     });
 
-    res.status(200).send(datos[0].fn_categoria_estaen_tablahomologada.toString());
+    res.status(200).send(datos[0].eshomologada);
 }
 
 exports.getHorasprogramadas = async(req, res) => {

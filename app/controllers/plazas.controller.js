@@ -491,14 +491,14 @@ exports.setRecord = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-    totalplazasautorizadas = datos[0].fn_plazas_disponibles.totalplazasautorizadas;
-    totalplazasdisponibles = datos[0].fn_plazas_disponibles.totalplazasdisponibles;
-    totalautorizadasalplantel = datos[0].fn_plazas_disponibles.totalautorizadasalplantel;
+    totalplazasautorizadas = datos[0].fn_plazas_disponibles.totalautorizadaszona;
+    totalplazasdisponibles = datos[0].fn_plazas_disponibles.totaldisponibleszona;
+    totalautorizadasalplantel = datos[0].fn_plazas_disponibles.totalautorizadasplantel;
 
     /*************
      * horas AB
      */
-    query = "SELECT *,fn_categoria_estaen_tablahomologada(id) AS estaen_homologada FROM categorias " +
+    query = "SELECT *,fn_categoria_eshomologada(id)->>'eshomologada' AS eshomologada FROM categorias " +
         "WHERE id=:id_categorias";
 
     datos = await db.sequelize.query(query, {
@@ -518,7 +518,7 @@ exports.setRecord = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-    if (datos[0].id_cattipocategoria == 2 && datos[0].estaen_homologada >= 1 && datos[0].state == 'A')
+    if (datos[0].id_cattipocategoria == 2 && datos[0].eshomologada == "true" && datos[0].state == 'A')
         varHorasAB = true;
 
     /*************
@@ -592,6 +592,11 @@ exports.setRecord = async(req, res) => {
                 { consecutivo: req.body.dataPack.consecutivo },
                 { id_catplanteles: req.body.dataPack.id_catplanteles },
                 { id_categoriasdetalle: req.body.dataPack.id_categoriasdetalle },
+                {
+                    [Op.not]: [
+                        { id: req.body.dataPack.id }
+                    ]
+                },
                 { [Op.or]: [{state: "A" },{state: "I" }]}
             ],
         }

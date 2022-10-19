@@ -41,10 +41,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        id_catestatusplaza: {
+        /*id_catestatusplaza: {
             type: DataTypes.INTEGER,
             allowNull: true
-        },
+        },*/
         statussicodes: {
             type: DataTypes.INTEGER,
             allowNull: true
