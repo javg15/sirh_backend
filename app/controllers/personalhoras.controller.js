@@ -1,3 +1,6 @@
+const sql = require('mssql')
+const config = require("../config/db.config.js");
+
 const db = require("../models");
 const { Op } = require("sequelize");
 const mensajesValidacion = require("../config/validate.config");
@@ -533,6 +536,151 @@ exports.getRecordTitularEnLicencia = async(req, res) => {
     res.status(200).send(datos);
 }
 
+exports.setUpdateIdServer=async(req,res)=>{
+    if(req.body.actionForm.toUpperCase() == "NUEVO"){
+        //buscar si existe el registro
+        Personalhoras.findOne({
+            where: {
+                [Op.and]: [{ id: req.body.dataPack.id }, 
+                ],
+            }
+        })
+        .then(personalhoras => {
+            personalhoras.update({id_horas_sql:req.body.datosSQL.IdHoraCreada}).then((self) => {
+                // here self is your instance, but updated
+                res.status(200).send({ message: "success", id: self.id });
+            });
+        })
+        .catch(err => {
+            res.status(500).send({ message: err.message });
+        });
+    }
+    res.status(200).send({ message: "success", id: 0 });
+}
+
+exports.setRecordSQLServer=async(req,res)=>{
+    Object.keys(req.body.dataPack).forEach(function(key) {
+        if (key.indexOf("id_", 0) >= 0 ||
+            key == "cantidad" || key == "horas" || key == "horaestatus" || key == "frenteagrupo") {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+        }
+        if (typeof req.body.dataPack[key] == 'number' && isNaN(parseFloat(req.body.dataPack[key]))) {
+            req.body.dataPack[key] = null;
+        }
+    })
+    req.body.dataPack['id_catquincena_ini'] = req.body.dataPack['id_catquincena_ini'] == 0 ? 32767 : req.body.dataPack['id_catquincena_ini']
+    req.body.dataPack['id_catquincena_fin'] = req.body.dataPack['id_catquincena_fin'] == 0 ? 32767 : req.body.dataPack['id_catquincena_fin']
+
+    try {
+        // make sure that any items are correctly URL encoded in the connection string
+        let pool=await sql.connect(config.sqlserver)
+        //const result = await sql.query`select * from Quincenas where [IdQuincena] = 5211`
+        //.query('select * from mytable where id = @input_parameter')
+        let datos=req.body.dataPack;
+        let TipoOperacion=0;
+        if(req.body.actionForm.toUpperCase() == "NUEVO"){
+            TipoOperacion=1;
+        }
+        else if(req.body.actionForm.toUpperCase() == "EDITAR"){
+            TipoOperacion=0;
+        }
+        
+        
+        //obtener datos anexos
+        let prms = null;
+
+        query = "SELECT CONCAT(pt.rfc,COALESCE(pt.homoclave,'')) AS rfcemp, " +
+            "   COALESCE(ph.id_horas_sql,0) AS id_horas_sql, " +
+            "   fn_getfecha_segunquincena(:quin_ini)->>'inicio' AS fechini,  " +
+            "   fn_getfecha_segunquincena(:quin_fin)->>'fin' AS fechfin,  " +
+            "   COALESCE(pz.id_plazas_sql,0) AS id_plazas_sql " +
+            "FROM personalhoras AS ph " +
+            "   LEFT JOIN personal AS pt ON ph.id_personal_titular=pt.id " +
+            "   LEFT JOIN personal AS p ON ph.id_personal=p.id " +
+            "   LEFT JOIN plantillaspersonal AS pp ON p.id=pp.id_personal AND pp.state in('A') " +
+            "   LEFT JOIN plazasnombramientos AS pz ON ph.id_plazas =pz.id_plazas " +
+            "                        AND pz.id_plantillaspersonal =pp.id " +
+            "WHERE ph.id=:id " ;
+        
+        prms = await db.sequelize.query(query, {
+            plain: false,
+            replacements: {
+                id: req.body.dataPack.id,
+                quin_ini: req.body.dataPack.id_catquincena_ini,
+                quin_fin: req.body.dataPack.id_catquincena_fin,
+            },
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+        prms=prms[0];
+
+        let result1 = await pool.request()
+            .input('IdHora', sql.Int, (TipoOperacion == 0 ? prms.id_horas_sql : null))
+            .input('TipoOperacion', sql.TinyInt, TipoOperacion)
+            .input('IdPlaza', sql.Int, prms.id_plazas_sql)
+            .input('IdPlantel', sql.SmallInt, datos.id_catplanteles_aplicacion)
+            .input('IdMateria', sql.SmallInt, datos.id_materiasclase)
+            .input('IdGrupo', sql.TinyInt, datos.id_gruposclase)
+            .input('IdTipoHora', sql.TinyInt, datos.id_cattipohorasdocente)
+            .input('IdNombramiento', sql.TinyInt, datos.id_catnombramientos)
+            .input('IdTipoNomina', sql.TinyInt, 1)//no se captura
+            .input('IdSemestre', sql.SmallInt, datos.id_semestre)
+            .input('IdEstatusHora', sql.TinyInt, datos.id_catestatushora)
+            .input('Horas', sql.TinyInt, (datos.cantidad==0 ? null : datos.cantidad))
+            .input('IdQuincenaIni', sql.SmallInt, datos.id_catquincena_ini)
+            .input('IdQuincenaFin', sql.SmallInt,  datos.id_catquincena_fin)
+            .input('FchIni', sql.DateTime, prms.fechini)
+            .input('FchFin', sql.DateTime, prms.fechfin)
+            .input('AsociarInterinas', sql.Bit, (datos.id_catnombramientos==2 ? 1 : 0))//no se captura
+            .input('IdMotivoHoraInterina', sql.TinyInt, 1)//no se captura
+            .input('RFCEmp', sql.VarChar(13), prms.rfcemp)
+            .input('SoloModifQnaFin', sql.Bit, 1 )//no se captura
+        .output('IdHoraCreada', sql.Int);
+        //console.dir(result1)
+
+        result1.execute('SP_IoUHoras');//mo0dificar el SP en producción, ver comentarios con la palabra: JAVG
+        
+
+        // Stored procedure
+        if(result1.returnValue==0)
+            res.status(200).send({ message: "success", result: result1.output });
+        else{ 
+            if(result1.err)
+                res.status(200).send({ message: "error", result: result1.err});
+            else
+                res.status(200).send({ message: "success"});
+        }
+    } catch (err) {
+        console.log("err=>",err)
+        res.status(200).send({ error: true, message: err });
+    }
+
+
+
+/**
+ * dETERMINAR SI HAY CADENAS
+ * 
+ */
+ /*Public Function AgregaMovs(ByVal pIdCadena As Integer, ByVal pIdPlaza As Integer, ByVal pLogin As String, ByVal pTipoMov As String, ByVal ArregloAuditoria() As String) As Boolean
+ Try
+     Dim Prms As SqlParameter() = {New SqlParameter("@IdCadena", SqlDbType.Int), _
+                                 New SqlParameter("@IdPlaza", SqlDbType.Int), _
+                                 New SqlParameter("@IdUsuario", SqlDbType.SmallInt), _
+                                 New SqlParameter("@TipoMov", SqlDbType.NVarChar, 1)}
+     Dim oUsr As New Usuario
+     Dim drUsr As DataRow
+
+     drUsr = oUsr.ObtenerPorLogin(pLogin)
+     oUsr.Login = pLogin
+
+     Prms(0).Value = pIdCadena
+     Prms(1).Value = pIdPlaza
+     Prms(2).Value = CShort(drUsr("IdUsuario"))
+     Prms(3).Value = pTipoMov
+
+     Return _DataCOBAEV.RunProc("SP_ICadenaPlaza", Prms, DataCOBAEV.BD.Nomina, ArregloAuditoria)*/
+}
 
 exports.setRecord = async(req, res) => {
     Object.keys(req.body.dataPack).forEach(function(key) {
@@ -676,6 +824,11 @@ exports.setRecord = async(req, res) => {
                 { id_horasclase: req.body.dataPack.id_horasclase },
                 { id_catestatushora: req.body.dataPack.id_catestatushora },
                 { id_cattipohorasdocente: req.body.dataPack.id_cattipohorasdocente },
+                {
+                    [Op.not]: [
+                        { id: req.body.dataPack.id }
+                    ]
+                },
                 { state: "A" },
             ],
         }
@@ -838,7 +991,6 @@ exports.setRecord = async(req, res) => {
         };*/
     }
 
-
     //buscar si existe el registro
     Personalhoras.findOne({
             where: {
@@ -851,14 +1003,14 @@ exports.setRecord = async(req, res) => {
                 ],
             }
         })
-        .then(personalhoras => {
+        .then(async personalhoras => {
             let pasa = true;
-
+            let id_generado=0;
             if (!personalhoras) {
                 //si es diferente el resultado, entonces, significa que hay disponibilidad de horas en la plaza de jornada
                 // o si la plaza es de horas sueltas
-                if ((req.body.dataPack["horassueltas"] == 0 && req.body.cantidadHaciaHorasSueltas != req.body.dataPack.cantidad) ||
-                    req.body.dataPack["horassueltas"] == 1
+                if ((req.body.dataPack["horassueltas"] == 0 && req.body.cantidadHaciaHorasSueltas != req.body.dataPack.cantidad) 
+                    || req.body.dataPack["horassueltas"] == 1
                 ) {
                     delete req.body.dataPack.id;
                     delete req.body.dataPack.created_at;
@@ -871,21 +1023,32 @@ exports.setRecord = async(req, res) => {
                         req.body.dataPack.cantidad -= req.body.cantidadHaciaHorasSueltas
                     }
 
-                    Personalhoras.create(
+                    await Personalhoras.create(
                         req.body.dataPack
                     ).then((self) => {
+                        console.log("self.id=>",self.id)
                         // here self is your instance, but updated
                         //res.status(200).send({ message: "success", id: self.id });
-                        req.body.dataPack.id = self.id
+                        id_generado = self.id
                     }).catch(err => {
                         pasa = false
-                        res.status(200).send({ error: true, message: [err.errors[0].message] });
+                        res.status(200).send({ error: true, message: [err.parent.error] });
                     });
                 }
             } else {
-                //Si la quincena inicial es mayor a la quincena activa
+                const quincenaInicialOrigen = await Catquincena.findOne({
+                    where: {
+                        id: personalhoras.id_catquincena_ini
+                    },
+                });
+
+                //Si la quincena inicial es menor a la quincena activa, solo se pueden actualizar algunos datos
                 if (quincenaInicial.anio.toString() + quincenaInicial.quincena.toString().padStart(2, "0") <
                     quincenaActiva.anio.toString() + quincenaActiva.quincena.toString().padStart(2, "0") &&
+                    //siempre y cuando tambien la quincena origen sea menor
+                    quincenaInicialOrigen.anio.toString() + quincenaInicialOrigen.quincena.toString().padStart(2, "0") <
+                    quincenaActiva.anio.toString() + quincenaActiva.quincena.toString().padStart(2, "0") &&
+
                     req.body.actionForm.toUpperCase() == "EDITAR") {
                     //como prevención solo dejar la quincena final para la actualización    
                     delete req.body.dataPack.id_personal;
@@ -906,10 +1069,10 @@ exports.setRecord = async(req, res) => {
                 req.body.dataPack.id_usuarios_r = req.userId;
                 req.body.dataPack.state = globales.GetStatusSegunAccion(req.body.actionForm);
 
-                personalhoras.update(req.body.dataPack).then((self) => {
+                await personalhoras.update(req.body.dataPack).then((self) => {
                     // here self is your instance, but updated
                     //res.status(200).send({ message: "success", id: self.id });
-                    req.body.dataPack.id = self.id
+                    id_generado = self.id
                 });
 
             }
@@ -933,13 +1096,13 @@ exports.setRecord = async(req, res) => {
                         dataPackHoraSuelta
                     ).then((self) => {
                         // retornar el id del registro de hora de jornada
-                        res.status(200).send({ message: "success", id: req.body.dataPack.id });
+                        res.status(200).send({ message: "success", id: id_generado });
                     }).catch(err => {
                         pasa = false
                         res.status(200).send({ error: true, message: [err.errors[0].message] });
                     });
                 } else
-                    res.status(200).send({ message: "success", id: req.body.dataPack.id });
+                    res.status(200).send({ message: "success", id: id_generado });
             }
 
 

@@ -22,4 +22,9 @@ module.exports = function(app) {
         "/api/plantillasdocsbaja/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+
+    app.post(
+        "/api/plantillasdocsbaja/setRecordSQLServer", [authJwt.verifyToken],
+        controller.setRecordSQLServer
+    );
 };

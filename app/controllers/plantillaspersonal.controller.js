@@ -400,7 +400,7 @@ exports.setRecord = async(req, res) => {
             }
         },
         consecutivo: { type: "number" },
-        fechaingreso: {
+        /*fechaingreso: {
             type: "string",
             custom(value, errors) {
                 let dateIni = new Date(value)
@@ -413,7 +413,7 @@ exports.setRecord = async(req, res) => {
                     errors.push({ type: "date" })
                 return value;
             },
-        },
+        },*/
     };
 
     var vres = true;
@@ -465,7 +465,7 @@ exports.setRecord = async(req, res) => {
         vres = Array();
         //que no tenga documentos registrados
         let tieneDocs = null;
-        //revisar si hay plaza con horas sueltas
+        //revisar si tiene documentos asociados
         let query = "select e->>'existe' as existe " +
             "FROM fn_personal_tienedocs(:id,0, 0, 0) as e";
 

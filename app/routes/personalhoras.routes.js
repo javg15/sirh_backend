@@ -60,9 +60,18 @@ module.exports = function(app) {
         controller.getHistorialDocente
     );
     
-    
     app.post(
         "/api/personalhoras/setRecord", [authJwt.verifyToken],
         controller.setRecord
+    );
+
+    app.post(
+        "/api/personalhoras/setRecordSQLServer", [authJwt.verifyToken],
+        controller.setRecordSQLServer
+    );
+    
+    app.post(
+        "/api/personalhoras/setUpdateIdServer", [authJwt.verifyToken],
+        controller.setUpdateIdServer
     );
 };

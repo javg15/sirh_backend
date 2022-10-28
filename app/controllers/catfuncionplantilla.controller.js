@@ -113,7 +113,9 @@ exports.getCatalogo = async(req, res) => {
         '         and cpt.clave::integer between ct.clavelimiteinf::integer and ct.clavelimitesup::integer ' +
         'where pl.id=:id_plantillaspersonal ' +
         '    and p.id is not null ' +
-        '   and ct.id is not null';
+        '   and ct.id is not null ' +
+        'ORDER BY cp.puesto'
+        ;
 
     const datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries

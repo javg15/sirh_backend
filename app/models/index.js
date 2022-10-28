@@ -114,5 +114,6 @@ db.catestudioscarreras = require("../models/catestudioscarreras.model.js")(seque
 db.catestudiosniveles = require("../models/catestudiosniveles.model.js")(sequelize, Sequelize);
 db.catestudiosramas = require("../models/catestudiosramas.model.js")(sequelize, Sequelize);
 db.catestudiostipos = require("../models/catestudiostipos.model.js")(sequelize, Sequelize);
+db.plazasnombramientos = require("../models/plazasnombramientos.model.js")(sequelize, Sequelize);
 
 module.exports = db;

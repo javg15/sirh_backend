@@ -496,7 +496,7 @@ exports.setRecord = async(req, res) => {
     totalautorizadasalplantel = datos[0].fn_plazas_disponibles.totalautorizadasplantel;
 
     /*************
-     * horas AB
+     * es homologada
      */
     query = "SELECT *,fn_categoria_eshomologada(id)->>'eshomologada' AS eshomologada FROM categorias " +
         "WHERE id=:id_categorias";
@@ -585,11 +585,58 @@ exports.setRecord = async(req, res) => {
         horasAcumuladasB = datos[0].horasAcumuladasB;
     }
 
+    /*************
+     * nombramientos activos
+     */
+
+    query = "SELECT * FROM fn_plazas_disponibles(" +
+        ":id_categorias," +
+        ":id_catplanteles)";
+
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_categorias: req.body.dataPack["id_categorias"],
+            id_catplanteles: req.body.dataPack["id_catplanteles"],
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+    totalplazasautorizadas = datos[0].fn_plazas_disponibles.totalautorizadaszona;
+    totalplazasdisponibles = datos[0].fn_plazas_disponibles.totaldisponibleszona;
+    totalautorizadasalplantel = datos[0].fn_plazas_disponibles.totalautorizadasplantel;
+    
     //existe registro
     const registroExiste = await Plazas.findOne({
         where: {
             [Op.and]: [{ id_categorias: req.body.dataPack.id_categorias },
                 { consecutivo: req.body.dataPack.consecutivo },
+                { id_catplanteles: req.body.dataPack.id_catplanteles },
+                { id_categoriasdetalle: req.body.dataPack.id_categoriasdetalle },
+                {
+                    [Op.not]: [
+                        { id: req.body.dataPack.id }
+                    ]
+                },
+                { [Op.or]: [{state: "A" },{state: "I" }]}
+            ],
+        }
+    });
+
+    //si la plaza es homologada, entonces, no puede haber mas de una plaza
+    //por plantel y categoria
+    const registroExisteHomologada = await Plazas.findOne({
+        where: {
+            [Op.and]: [{ id_categorias: req.body.dataPack.id_categorias },
                 { id_catplanteles: req.body.dataPack.id_catplanteles },
                 { id_categoriasdetalle: req.body.dataPack.id_categoriasdetalle },
                 {
@@ -613,6 +660,7 @@ exports.setRecord = async(req, res) => {
                 //al ser edición , entonces, se considera una plaza disponible más
                 if (req.body.dataPack["id"] > 0) totalplazasdisponibles++;
                 if (registroExiste) errors.push({ type: "uniqueRecord" })
+                if (varHorasAB && registroExisteHomologada) errors.push({ type: "uniqueRecord" })
                 /*if (totalplazasautorizadas <= 0) errors.push({ type: "totalplazasautorizadas", actual: datos[0].fn_plazas_disponibles.totalplazasautorizadas })
                 if (totalautorizadasalplantel <= 0) errors.push({ type: "totalautorizadasalplantel", actual: datos[0].fn_plazas_disponibles.totalautorizadasalplantel })
                 if (totalplazasdisponibles <= 0) errors.push({ type: "totalplazasdisponibles", actual: datos[0].fn_plazas_disponibles.totalplazasdisponibles })*/
@@ -693,7 +741,52 @@ exports.setRecord = async(req, res) => {
         },*/
     };
 
+    var vres = true;
+    if (req.body.actionForm.toUpperCase() == "NUEVO" ||
+        req.body.actionForm.toUpperCase() == "EDITAR") {
+        vres = await dataValidator.validate(req.body.dataPack, dataVSchema);
+    } 
+    else if (req.body.actionForm.toUpperCase() == "DESACTIVAR") { //cambio de plantilla
+        vres = Array();
+        //que no tenga documentos registrados
+        let tieneNombramientos = null;
+        //revisar que no tenga nombramientos activos
+        let query = "select count(*) as cuenta from plantillasdocsnombramiento as pdn "
+                + "where (COALESCE(pdn.id_catquincena_fin,32767) = 32767  "
+                + "            or COALESCE(pdn.id_catquincena_fin,0) = 0  "
+                + "            or fn_catquincena_activa() BETWEEN fn_getquincena_segunid(pdn.id_catquincena_ini) AND fn_getquincena_segunid(pdn.id_catquincena_fin) "
+                + "        ) "
+                + "        AND pdn.state in ('A','B') "
+                + "        AND fn_nombramiento_estaactiva(pdn.id,'')=1 --en caso de ser nombramiento "
+                + "and pdn.id_plazas = :id_plazas";
 
+        tieneNombramientos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id_plazas: req.body.dataPack.id_plazas,
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
+        if (tieneNombramientos["cuenta"] > 0)
+            vres.push({
+                message: "La plaza contiene documentos relacionados y no puede ser eliminada",
+                field: "id_catplanteles",
+                type: "selection"
+            });
+        //no hay errores
+        if (vres.length == 0)
+            vres = true;
+    }
 
     var vres = true;
     if (req.body.actionForm.toUpperCase() == "NUEVO" ||
@@ -830,10 +923,13 @@ exports.getCatalogoDisponibleSegunCategoria = async(req, res) => {
 
 exports.getCatalogoVigenteSegunCategoria = async(req, res) => {
 
-    let query = "SELECT DISTINCT c.id, fn_plaza_clave(c.id) as text,c.id_categorias " +
+    let query = "SELECT DISTINCT c.id, fn_plaza_clave(c.id) as text,c.id_categorias,pdn.id AS id_pdn " +
         "FROM plazas as c " +
         "    inner JOIN plantillasdocsnombramiento as pdn on pdn.id_plazas=c.id " +
         "     inner JOIN  plantillaspersonal AS a on a.id=pdn.id_plantillaspersonal  " +
+        "   INNER JOIN plazasnombramientos AS pzn ON pdn.id_plazas=pzn.id_plazas " +
+        "               AND pdn.id_plantillaspersonal=pzn.id_plantillaspersonal " +
+        "               AND pdn.id=pzn.id_plantillasdocsnombramiento_vigente " +
         "WHERE  a.id=:id_plantillaspersonal " +
         " AND pdn.state in ('A','B') " +
         " and c.id_categorias =:id_categorias ";

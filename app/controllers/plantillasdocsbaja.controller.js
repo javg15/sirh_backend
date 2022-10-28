@@ -1,3 +1,6 @@
+const sql = require('mssql')
+const config = require("../config/db.config.js");
+
 const db = require("../models");
 const { Op } = require("sequelize");
 const globales = require("../config/global.config");
@@ -113,6 +116,99 @@ exports.getRecord = async(req, res) => {
         });
 }
 
+exports.setRecordSQLServer=async(req,res)=>{
+    Object.keys(req.body.dataPack).forEach(function(key) {
+        if (key.indexOf("id_", 0) >= 0) {
+            if (req.body.dataPack[key] != '')
+                req.body.dataPack[key] = parseInt(req.body.dataPack[key]);
+            if (isNaN(req.body.dataPack[key]))
+                req.body.dataPack[key] = 0;
+        }
+    });
+    req.body.dataPack['id_catquincena_ini'] = req.body.dataPack['id_catquincena_ini'] == 0 ? 32767 : req.body.dataPack['id_catquincena_ini']
+    req.body.dataPack['id_catquincena_fin'] = req.body.dataPack['id_catquincena_fin'] == 0 ? 32767 : req.body.dataPack['id_catquincena_fin']
+
+    try {
+        // make sure that any items are correctly URL encoded in the connection string
+        let pool=await sql.connect(config.sqlserver)
+        //const result = await sql.query`select * from Quincenas where [IdQuincena] = 5211`
+        //.query('select * from mytable where id = @input_parameter')
+        let datos=req.body.dataPack;
+        let TipoOperacion=2;
+        if(req.body.actionForm.toUpperCase() == "NUEVO"){
+        
+            //obtener datos anexos
+            let prms = null;
+
+            query = "SELECT pzn.id_plazas_sql AS id_plazas_sql, " +
+                " COALESCE(pdn_origen.id_catquincena_ini,0) AS id_catquincena_ini_origen " +
+                "FROM plantillasdocsnombramiento AS pdn " +
+                "   LEFT JOIN plazasnombramientos AS pzn ON pdn.id_plazas=pzn.id_plazas " +
+                "               AND pdn.id_plantillaspersonal=pzn.id_plantillaspersonal " +
+                "   LEFT JOIN plantillasdocsnombramiento AS pdn_origen on pdn_origen.id=:id_origen " +
+                "WHERE pdn.id=:id " ;
+            
+            prms = await db.sequelize.query(query, {
+                plain: false,
+                replacements: {
+                    id: req.body.dataPack.id,
+                    id_origen: req.body.id_pdn,
+                },
+                raw: true,
+                type: QueryTypes.SELECT
+            });
+            prms=prms[0];
+
+            let result1 = await pool.request()
+                .input('IdPlaza', sql.Int, prms.id_plazas_sql)
+                .input('IdQnaVigIni', sql.SmallInt, prms.id_catquincena_ini_origen)
+                .input('IdQnaVigFin', sql.SmallInt,  datos.id_catquincena_ini)
+                .input('TipoOperacion', sql.TinyInt, TipoOperacion)
+                .input('IdMotGralBaja', sql.TinyInt, (datos.id_catbajamotivo>38 ? 25 : datos.id_catbajamotivo))
+                .input('FechaInicio', sql.DateTime, null)
+                .input('FechaFin', sql.DateTime, null)
+                .input('FechaFinLSGS', sql.DateTime, null)
+            .execute('SP_IoUPlazasHistoria');
+            console.dir(result1)
+
+            if(result1.returnValue==0)
+                res.status(200).send({ message: "success"});
+            else
+                res.status(200).send({ message: "error"});
+        }
+        else
+            res.status(200).send({ message: "success" });
+        
+    } catch (err) {
+        console.log("err=>",err)
+        res.status(200).send({ error: true, message: err });
+    }
+
+
+
+/**
+ * dETERMINAR SI HAY CADENAS
+ * 
+ */
+ /*Public Function AgregaMovs(ByVal pIdCadena As Integer, ByVal pIdPlaza As Integer, ByVal pLogin As String, ByVal pTipoMov As String, ByVal ArregloAuditoria() As String) As Boolean
+ Try
+     Dim Prms As SqlParameter() = {New SqlParameter("@IdCadena", SqlDbType.Int), _
+                                 New SqlParameter("@IdPlaza", SqlDbType.Int), _
+                                 New SqlParameter("@IdUsuario", SqlDbType.SmallInt), _
+                                 New SqlParameter("@TipoMov", SqlDbType.NVarChar, 1)}
+     Dim oUsr As New Usuario
+     Dim drUsr As DataRow
+
+     drUsr = oUsr.ObtenerPorLogin(pLogin)
+     oUsr.Login = pLogin
+
+     Prms(0).Value = pIdCadena
+     Prms(1).Value = pIdPlaza
+     Prms(2).Value = CShort(drUsr("IdUsuario"))
+     Prms(3).Value = pTipoMov
+
+     Return _DataCOBAEV.RunProc("SP_ICadenaPlaza", Prms, DataCOBAEV.BD.Nomina, ArregloAuditoria)*/
+}
 
 exports.setRecord = async(req, res) => {
 

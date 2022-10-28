@@ -34,4 +34,15 @@ module.exports = function(app) {
         "/api/plantillasdocsnombramiento/setRecord", [authJwt.verifyToken],
         controller.setRecord
     );
+
+    app.post(
+        "/api/plantillasdocsnombramiento/setRecordSQLServer", [authJwt.verifyToken],
+        controller.setRecordSQLServer
+    );
+    
+    app.post(
+        "/api/plantillasdocsnombramiento/setUpdateIdServer", [authJwt.verifyToken],
+        controller.setUpdateIdServer
+    );
+    
 };

@@ -122,7 +122,7 @@ exports.getCatalogo = async(req, res) => {
 }
 
 exports.getCatalogoSegunMateria = async(req, res) => {
-    let query = "select fn_tipohoradocentes_get(:id_materiasclase) ";
+    let query = "select fn_tipohoradocentes_get(:id_materiasclase,:id_categorias) ";
 
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
@@ -132,6 +132,7 @@ exports.getCatalogoSegunMateria = async(req, res) => {
 
         replacements: {
             id_materiasclase: req.body.id_materiasclase,
+            id_categorias: req.body.id_categorias,
         },
 
         // If plain is true, then sequelize will only return the first
