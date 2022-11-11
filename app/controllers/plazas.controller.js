@@ -767,7 +767,7 @@ exports.setRecord = async(req, res) => {
             logging: console.log,
 
             replacements: {
-                id_plazas: req.body.dataPack.id_plazas,
+                id_plazas: req.body.dataPack.id,
             },
             // If plain is true, then sequelize will only return the first
             // record of the result set. In case of false it will return all records.

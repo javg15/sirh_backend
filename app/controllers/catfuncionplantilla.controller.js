@@ -103,7 +103,7 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
-    const query = 'select cp.id,cp.puesto AS "text" ' +
+    const query = 'select cp.id,concat(cp.clave,\' - \', cp.puesto) AS "text" ' +
         'from catfuncionplantilla as cp ' +
         '    left join catpuestotipo as ct on cp.id_catpuestotipo =ct.id ' +
         '    left join catplantillas as cpl on ct.id_catplantillas =cpl.id  ' +

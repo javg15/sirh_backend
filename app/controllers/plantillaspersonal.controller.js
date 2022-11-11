@@ -38,10 +38,35 @@ exports.getAdmin = async(req, res) => {
             raw: true,
             type: QueryTypes.SELECT
         });
+    }else if(params.opcionesAdicionales.modo && params.opcionesAdicionales.modo==1){
+        query = "SELECT * FROM s_plantillaspersonal_mgr('" +
+            "&modo=:modo&id_usuario=:id_usuario&id=:id" +
+            "&fkey=" + params.opcionesAdicionales.fkey +
+            "&fkeyvalue=" + params.opcionesAdicionales.fkeyvalue.join(",") + "')";
+
+        datos = await db.sequelize.query(query, {
+            // A function (or false) for logging your queries
+            // Will get called for every SQL query that gets sent
+            // to the server.
+            logging: console.log,
+
+            replacements: {
+                id:params.opcionesAdicionales.id,
+                id_usuario: req.userId,
+                modo: params.opcionesAdicionales.modo,
+            },
+            // If plain is true, then sequelize will only return the first
+            // record of the result set. In case of false it will return all records.
+            plain: false,
+
+            // Set this to true if you don't have a model definition for your query.
+            raw: true,
+            type: QueryTypes.SELECT
+        });
     } else {
 
         query = "SELECT * FROM s_plantillaspersonal_mgr('" +
-            "&modo=:modo&id_usuario=:id_usuario" +
+            "&modo=:modo&id_usuario=:id_usuario&id=:id" +
             "&inicio=:start&largo=:length" +
             "&ordencampo=" + req.body.columns[req.body.order[0].column].data +
             "&ordensentido=" + req.body.order[0].dir +
@@ -55,6 +80,7 @@ exports.getAdmin = async(req, res) => {
             logging: console.log,
 
             replacements: {
+                id:params.opcionesAdicionales.id,
                 id_usuario: req.userId,
                 modo: params.opcionesAdicionales.modo,
 
