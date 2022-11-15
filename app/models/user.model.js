@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        tokenrecuperar: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: 'usuarios',

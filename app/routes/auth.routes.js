@@ -22,4 +22,7 @@ module.exports = function(app) {
 
 
     app.post("/api/auth/signin", controller.signin);
+
+    app.post("/api/auth/recoverpass", controller.recoverpass);
+    app.post("/api/auth/generarpass", controller.generarpass);
 };
