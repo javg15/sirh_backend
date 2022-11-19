@@ -6,7 +6,7 @@
 	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="555"/>
 	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="431"/>
 	<property name="com.jaspersoft.studio.report.description" value=""/>
-	<style name="AltBackgrd" fontName="DejaVu Sans" fontSize="10">
+	<style name="AltBackgrd" fontName="Arial" fontSize="10">
 		<conditionalStyle>
 			<conditionExpression><![CDATA[$V{REPORT_COUNT}.intValue() % 2 == 0]]></conditionExpression>
 			<style mode="Opaque" backcolor="#EAEAEA"/>

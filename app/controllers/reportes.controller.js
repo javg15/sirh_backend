@@ -85,6 +85,7 @@ exports.getPlantillaNombramiento = async(req, res, next) => {
 }
 
 exports.getPersonalEstudios = async(req, res, next) => {
+    console.log("req=>",req.body)
     let report = {
         report: 'personal_estudios',
         //parametros

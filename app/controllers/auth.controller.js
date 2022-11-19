@@ -48,7 +48,7 @@ exports.signin = (req, res) => {
                 }
 
                 var token = jwt.sign({ id: user.id }, config.secret, {
-                    expiresIn: 900 // 900=25min 3600=1 hr, 60=1 min
+                    expiresIn: 3600 // 900=25min 3600=1 hr, 60=1 min
                 });
 
                 var authorities = [];
@@ -103,8 +103,6 @@ exports.recoverpass = async(req, res) => {
                         expiresIn: 900 // 900=25min 3600=1 hr, 60=1 min
                     });
                     user.update({tokenrecuperar:token});
-                    console.log("user=>",user)
-                    console.log("token=>",token)
                     //enviar correo
                     const transporter = nodemailer.createTransport({
                         service:'gmail',
