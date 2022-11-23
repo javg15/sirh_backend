@@ -12,6 +12,9 @@ module.exports = function(app) {
         next();
     });
 
+    app.post("/api/reportes/getMenuReportes", [authJwt.verifyToken],
+        controller.getMenuReportes
+    );
     app.get("/api/reportes/categorias", // [authJwt.verifyToken],
         controller.getCategorias
     );

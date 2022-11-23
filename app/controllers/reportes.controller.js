@@ -1,3 +1,6 @@
+const db = require("../models");
+const { Op } = require("sequelize");
+const { QueryTypes } = require('sequelize');
 const config = require("../config/db.config.js");
 
 jasper = require('node-jasper')({
@@ -122,3 +125,27 @@ exports.getPersonalEstudiosMateria = async(req, res, next) => {
     });
     res.send(pdf);
 }
+
+exports.getMenuReportes = async(req, res) => {
+    //id 70->reportes
+    let query = "select adm.fn_menu_reportes(:id_usuarios,70,'plazas') as menu";
+    datos = await db.sequelize.query(query, {
+        // A function (or false) for logging your queries
+        // Will get called for every SQL query that gets sent
+        // to the server.
+        logging: console.log,
+
+        replacements: {
+            id_usuarios: req.body.id,
+        },
+        // If plain is true, then sequelize will only return the first
+        // record of the result set. In case of false it will return all records.
+        plain: false,
+
+        // Set this to true if you don't have a model definition for your query.
+        raw: true,
+        type: QueryTypes.SELECT
+    });
+
+    res.status(200).send(datos[0].menu);
+};
