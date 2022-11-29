@@ -3,10 +3,16 @@ const { Op } = require("sequelize");
 const { QueryTypes } = require('sequelize');
 const config = require("../config/db.config.js");
 
+var request = require("request");
+var fs = require("fs");
+
 jasper = require('node-jasper')({
     path: '../../lib/jasperreports-6.16.0',
     reports: {
         categorias: { jasper: '../../reports/categorias.jasper' },
+        //categorias: { jasper: '../../lib/jasperreports-6.16.0/demo/samples/fonts/reports/FontsReport.jasper' },
+        //categorias: { jasper: '../../lib/jasperreports-6.16.0/demo/samples/alterdesign/reports/AlterDesignReport.jrxml'},
+        
         plazas_listado: { jasper: '../../reports/plazas_listado.jasper' },
         plantilla_nombramiento: { jasper: '../../reports/plantilla_nombramiento.jasper' },
         personal_estudios: { jasper: '../../reports/personal_estudios.jasper' },
@@ -33,7 +39,7 @@ jasper = require('node-jasper')({
 });
 
 exports.getCategorias = async(req, res, next) => {
-    let report = {
+    /*let report = {
         report: 'categorias',
         //parametros
         data: {
@@ -46,7 +52,61 @@ exports.getCategorias = async(req, res, next) => {
         'Content-Length': pdf.length,
         //'Content-Disposition': 'attachment; filename=filename.pdf'
     });
-    res.send(pdf);
+    res.send(pdf);*/
+    /*let url="http://20.58.11.140:8081/jasperserver/rest_v2/reports/reports/interactive/TableReport.pdf";
+    request(url)
+        .auth("jasperadmin", "jasperadmin", false)
+        .pipe(fs.createWriteStream("myfile.pdf"));
+*/
+
+    let resThat=res;
+
+    request.post({
+            url: "http://20.58.11.140:8081/jasperserver/rest_v2/login", 
+            qs: {j_username: "jasperadmin", j_password: "jasperadmin"}
+        },
+        function(err, res, body) {
+            if(err) {
+                return console.error(err);
+            }
+            else{
+                var cookie = res.headers['set-cookie']
+
+                request({
+                        url:"http://20.58.11.140:8081/jasperserver/rest_v2/reports/reports/interactive/TableReport.pdf",
+                        method: "GET",
+                        /*body: 
+                        { 
+                            parameters: { id_ze: '1'} 
+                        },*/
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Cookie': cookie,
+                        },
+                        //json: true
+                    },
+                    function (error, res, body1) {
+
+                        if (!error) {
+                            console.log("res=>",res.body)
+                            resThat.set({
+                                'Content-type': 'application/pdf',
+                            });
+                            //res.pipe(resThat)
+                            resThat.send(res.body);
+
+                            //console.log(body1);
+                        }
+                        else{
+                            console.log("Error=>",error);
+                            console.log("response=>",res.statusCode);
+                            
+                        }
+                })
+            }
+        }
+    );
 }
 
 exports.getPlazasListado = async(req, res, next) => {

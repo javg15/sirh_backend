@@ -151,7 +151,13 @@ exports.getCatalogoSegunGrupo = async(req, res) => {
 }
 
 exports.getCatalogoConHorasDisponiblesSegunGrupo = async(req, res) => {
-    let query = "select distinct mc.id,mc.nombre,concat(mc.nombre,' (',h.horas::text,' hrs)') as text,cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasDisponibles' as integer) as horasdisponibles,mc.claveasignatura,mc.nogrupo, h.id as id_horasclase " +
+    
+    let query = "select distinct mc.id,mc.nombre,concat(mc.nombre,' (',h.horas::text,' hrs)') as text"+
+        ",cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasDisponibles' as integer) as horasdisponibles"+
+        ",cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'horasInterinas' as integer) as horasinterinas"+
+        ",cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'id_catquincena_ini' as integer) as id_catquincena_ini"+
+        ",cast(fn_horas_disponibles(h.id,:id_semestre,CASE WHEN :id_gruposclase=62 THEN 0 ELSE :id_cattiposemestre END)->>'id_catquincena_fin' as integer) as id_catquincena_fin"+
+        ",mc.claveasignatura,mc.nogrupo, h.id as id_horasclase " +
         "from horasclase as h " +
         "   left join gruposclase as gc on h.id_gruposclase =gc.id " +
         "   left join materiasclase as mc on h.id_materiasclase =mc.id " +
@@ -294,6 +300,8 @@ exports.setRecord = async(req, res) => {
         })
         .then(materiasclase => {
             delete req.body.dataPack.horasdisponibles; //temporal
+            delete req.body.dataPack.horasinterinas; //temporal
+            
             if (!materiasclase) {
                 delete req.body.dataPack.id;
                 delete req.body.dataPack.created_at;

@@ -530,7 +530,7 @@ exports.getCatalogo = async(req, res) => {
 
 exports.getRecordTitularEnLicencia = async(req, res) => {
     //:id_personalhoras<>0 es edición
-    let query = "select p.id as id_personalhoras,pe.id, pe.rfc ,pe.numeemp ,fn_idesc_personal(pe.id) as nombre " +
+    let query = "select p.id as id_personalhoras,pe.* " +
         "from personalhoras as p  " +
         "    left join personal as pe on p.id_personal =pe.id " +
         "WHERE p.id_horasclase=:id_horasclase " +
@@ -600,17 +600,6 @@ exports.setRecordSQLServer=async(req,res)=>{
     try {
         // make sure that any items are correctly URL encoded in the connection string
         let pool=await sql.connect(config.sqlserver)
-        //const result = await sql.query`select * from Quincenas where [IdQuincena] = 5211`
-        //.query('select * from mytable where id = @input_parameter')
-        let datos=req.body.dataPack;
-        let TipoOperacion=0;
-        if(req.body.actionForm.toUpperCase() == "NUEVO"){
-            TipoOperacion=1;
-        }
-        else if(req.body.actionForm.toUpperCase() == "EDITAR"){
-            TipoOperacion=0;
-        }
-        
         
         //obtener datos anexos
         let prms = null;
@@ -626,6 +615,7 @@ exports.setRecordSQLServer=async(req,res)=>{
             "   LEFT JOIN plantillaspersonal AS pp ON p.id=pp.id_personal AND pp.state in('A') " +
             "   LEFT JOIN plazasnombramientos AS pz ON ph.id_plazas =pz.id_plazas " +
             "                        AND pz.id_plantillaspersonal =pp.id " +
+            "   LEFT JOIN catnombramientos AS cn ON ph.id_catnombramientos=cn.id " +
             "WHERE ph.id=:id " ;
         
         prms = await db.sequelize.query(query, {
@@ -640,33 +630,54 @@ exports.setRecordSQLServer=async(req,res)=>{
         });
         prms=prms[0];
 
-        let result1 = await pool.request()
-            .input('IdHora', sql.Int, (TipoOperacion == 0 ? prms.id_horas_sql : null))
-            .input('TipoOperacion', sql.TinyInt, TipoOperacion)
-            .input('IdPlaza', sql.Int, prms.id_plazas_sql)
-            .input('IdPlantel', sql.SmallInt, datos.id_catplanteles_aplicacion)
-            .input('IdMateria', sql.SmallInt, datos.id_materiasclase)
-            .input('IdGrupo', sql.TinyInt, datos.id_gruposclase)
-            .input('IdTipoHora', sql.TinyInt, datos.id_cattipohorasdocente)
-            .input('IdNombramiento', sql.TinyInt, datos.id_catnombramientos)
-            .input('IdTipoNomina', sql.TinyInt, 1)//no se captura
-            .input('IdSemestre', sql.SmallInt, datos.id_semestre)
-            .input('IdEstatusHora', sql.TinyInt, datos.id_catestatushora)
-            .input('Horas', sql.TinyInt, (datos.cantidad==0 ? null : datos.cantidad))
-            .input('IdQuincenaIni', sql.SmallInt, datos.id_catquincena_ini)
-            .input('IdQuincenaFin', sql.SmallInt,  datos.id_catquincena_fin)
-            .input('FchIni', sql.DateTime, prms.fechini)
-            .input('FchFin', sql.DateTime, prms.fechfin)
-            .input('AsociarInterinas', sql.Bit, (datos.id_catnombramientos==2 ? 1 : 0))//no se captura
-            .input('IdMotivoHoraInterina', sql.TinyInt, 1)//no se captura
-            .input('RFCEmp', sql.VarChar(13), prms.rfcemp)
-            .input('SoloModifQnaFin', sql.Bit, 1 )//no se captura
-        .output('IdHoraCreada', sql.Int);
-        //console.dir(result1)
+        let datos=req.body.dataPack;
+        let TipoOperacion=0;
+        let SoloModifQnaFin=1;
 
-        result1.execute('SP_IoUHoras');//mo0dificar el SP en producción, ver comentarios con la palabra: JAVG
+        if(req.body.actionForm.toUpperCase() == "NUEVO" || req.body.actionForm.toUpperCase() == "EDITAR"){
+
+            if(req.body.actionForm.toUpperCase() == "NUEVO"){
+                TipoOperacion=1;
+            }
+            else if(req.body.actionForm.toUpperCase() == "EDITAR"){
+                TipoOperacion=0;
+            }
+
+            let result1 = await pool.request()
+                .input('IdHora', sql.Int, (TipoOperacion == 0 ? prms.id_horas_sql : null))
+                .input('TipoOperacion', sql.TinyInt, TipoOperacion)
+                .input('IdPlaza', sql.Int, prms.id_plazas_sql)
+                .input('IdPlantel', sql.SmallInt, datos.id_catplanteles_aplicacion)
+                .input('IdMateria', sql.SmallInt, datos.id_materiasclase)
+                .input('IdGrupo', sql.TinyInt, datos.id_gruposclase)
+                .input('IdTipoHora', sql.TinyInt, datos.id_cattipohorasdocente)
+                .input('IdNombramiento', sql.TinyInt, datos.id_catnombramientos)
+                .input('IdTipoNomina', sql.TinyInt, 1)//no se captura
+                .input('IdSemestre', sql.SmallInt, datos.id_semestre)
+                .input('IdEstatusHora', sql.TinyInt, datos.id_catestatushora)
+                .input('Horas', sql.TinyInt, (datos.cantidad==0 ? null : datos.cantidad))
+                .input('IdQuincenaIni', sql.SmallInt, datos.id_catquincena_ini)
+                .input('IdQuincenaFin', sql.SmallInt,  datos.id_catquincena_fin)
+                .input('FchIni', sql.DateTime, prms.fechini)
+                .input('FchFin', sql.DateTime, prms.fechfin)
+                .input('AsociarInterinas', sql.Bit, (datos.id_catnombramientos==2 ? 1 : 0))//no se captura
+                .input('IdMotivoHoraInterina', sql.TinyInt, 1)//no se captura
+                .input('RFCEmp', sql.VarChar(13), prms.rfcemp)
+                .input('SoloModifQnaFin', sql.Bit, SoloModifQnaFin )//no se captura
+            .output('IdHoraCreada', sql.Int);
+            //console.dir(result1)
+
+            result1.execute('SP_IoUHoras');//mo0dificar el SP en producción, ver comentarios con la palabra: JAVG
+        }
+        else if(req.body.actionForm.toUpperCase() == "ELIMINAR"){
+            let result1 = await pool.request()
+            .input('IdHora', sql.Int, prms.id_horas_sql)
+            .input('EsInterina', sql.Bit, 0) //no está en la tabla de horas anexas, cisco, descarga,etc
+
+            result1.execute('SP_DHorasPorId');//mo0dificar el SP en producción, ver comentarios con la palabra: JAVG
+        }
         
-
+        //SP_IHoraInterina //agregar hora interina de semestre anterior
         // Stored procedure
         if(result1.returnValue==0)
             res.status(200).send({ message: "success", result: result1.output });
@@ -846,6 +857,7 @@ exports.setRecord = async(req, res) => {
                 /*{ id_catplanteles: req.body.dataPack.id_catplanteles },
                 { id_gruposclase: req.body.dataPack.id_gruposclase },
                 { id_materiasclase: req.body.dataPack.id_materiasclase },*/
+                { id_catnombramientos: req.body.dataPack.id_catnombramientos },
                 { id_horasclase: req.body.dataPack.id_horasclase },
                 { id_catestatushora: req.body.dataPack.id_catestatushora },
                 { id_cattipohorasdocente: req.body.dataPack.id_cattipohorasdocente },
@@ -1051,10 +1063,25 @@ exports.setRecord = async(req, res) => {
                     await Personalhoras.create(
                         req.body.dataPack
                     ).then((self) => {
-                        console.log("self.id=>",self.id)
-                        // here self is your instance, but updated
-                        //res.status(200).send({ message: "success", id: self.id });
                         id_generado = self.id
+
+                        //Actualizar el registro origen, en el caso de que la operación provenga directo del licenciamiento
+                        /*query = "SELECT fn_set_personalhoras_estatus(:id_personalhoras_afectador)"; //el modo no existe, solo es para obtener un registro
+
+                        datos = db.sequelize.query(query, {
+                            plain: false,
+                            replacements: {
+                                id_personalhoras_afectador: self.id,
+                            },
+                            raw: true,
+                            type: QueryTypes.SELECT
+                        });
+                        
+                        /*
+                        this.setRecordSQLServer=async(req,res)=>{
+                            Object.keys(req.body.dataPack).forEach(function(key) {
+                            })
+                        };*/
                     }).catch(err => {
                         pasa = false
                         res.status(200).send({ error: true, message: [err.parent.error] });
