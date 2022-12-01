@@ -44,6 +44,7 @@ db.sequelize = sequelize;
 //historial de plazas segun sistema de nomina
 db.sequelizeNomina = sequelizeNomina;
 
+db.refreshToken = require("./refreshtoken.model.js")(sequelize, Sequelize);
 db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.usuarios_zonas = require("../models/usuarios_zonas.model.js")(sequelize, Sequelize);
 db.catestatusplaza = require("../models/catestatusplaza.model.js")(sequelize, Sequelize);

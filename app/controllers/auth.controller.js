@@ -1,7 +1,9 @@
 const db = require("../models");
+const { user: User, role: Role, refreshToken: RefreshToken, personal:Personal  } = db;
 const config = require("../config/auth.config");
-const User = db.user;
+/*const User = db.user;
 const Personal = db.personal;
+const RefreshToken= db.refreshToken;*/
 const nodemailer = require("nodemailer");
 
 const Op = db.Sequelize.Op;
@@ -30,45 +32,92 @@ exports.signin = (req, res) => {
                 username: req.body.username,
             }
         })
-        .then(user => {
+        .then(async user => {
             if (!user) {
-                return res.status(200).send({error:false, message: "El usuario en combinación con el token no existen" });
+                return res.status(404).send({error:false, message: "El usuario en combinación con el token no existen" });
             }
-            else{
-                var passwordIsValid = bcrypt.compareSync(
-                    req.body.password,
-                    user.pass
-                );
+            
+            var passwordIsValid = bcrypt.compareSync(
+                req.body.password,
+                user.pass
+            );
 
-                if (!passwordIsValid) {
-                    return res.status(401).send({
-                        accessToken: null,
-                        message: "Contraseña inválida!"
-                    });
-                }
-
-                var token = jwt.sign({ id: user.id }, config.secret, {
-                    expiresIn: 3600 // 900=25min 3600=1 hr, 60=1 min
-                });
-
-                var authorities = [];
-                /*for (let i = 0; i < roles.length; i++) {
-                    authorities.push("ROLE_" + roles[i].name.toUpperCase());
-                }*/
-                res.status(200).send({
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    roles: authorities,
-                    accessToken: token
+            if (!passwordIsValid) {
+                return res.status(401).send({
+                    accessToken: null,
+                    message: "Contraseña inválida!"
                 });
             }
+
+            const token = jwt.sign({ id: user.id }, config.secret, {
+                expiresIn: config.jwtExpiration
+                });
+
+            /*var token = jwt.sign({ id: user.id }, config.secret, {
+                expiresIn: 60 // 900=25min 3600=1 hr, 60=1 min, 86400=1 día
+            });*/
+
+            let refreshTokenObj = await RefreshToken.createToken(user);
+
+            var authorities = [];
+            /*for (let i = 0; i < roles.length; i++) {
+                authorities.push("ROLE_" + roles[i].name.toUpperCase());
+            }*/
+            res.status(200).send({
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                roles: authorities,
+                accessToken: token,
+                refreshToken: refreshTokenObj,
+            });
+            
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
 };
 
+exports.refreshToken = async (req, res) => {
+    const { refreshToken: requestToken } = req.body;
+  
+    if (requestToken == null) {
+      return res.status(403).json({ message: "Refresh Token is required!" });
+    }
+  
+    try {
+      let refreshToken = await RefreshToken.findOne({ where: { token: requestToken } });
+  
+      console.log(refreshToken)
+  
+      if (!refreshToken) {
+        res.status(403).json({ message: "Refresh token is not in database!" });
+        return;
+      }
+  
+      if (RefreshToken.verifyExpiration(refreshToken)) {
+        RefreshToken.destroy({ where: { id: refreshToken.id } });
+        
+        res.status(403).json({
+          message: "Refresh token was expired. Please make a new signin request",
+        });
+        return;
+      }
+  
+      const user = await refreshToken.getUser();
+      let newAccessToken = jwt.sign({ id: user.id }, config.secret, {
+        expiresIn: config.jwtExpiration,
+      });
+  
+      return res.status(200).json({
+        accessToken: newAccessToken,
+        refreshToken: refreshToken.token,
+      });
+    } catch (err) {
+      return res.status(500).send({ message: err });
+    }
+  };
+  
 exports.recoverpass = async(req, res) => {
 
     User.findOne({

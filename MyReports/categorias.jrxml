@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="categorias" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="91e6fb9f-a08a-4579-b8fa-3228e72afac5">
+	<request operationName="runReport" locale="es_MX">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="controlplazas"/>
 	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="555"/>
@@ -284,19 +285,19 @@
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[$F{total_horas}]]></textFieldExpression>
 			</textField>
-			<textField pattern="¤#,##0.###;¤(-#,##0.###)">
+			<textField pattern="$#,##0.###;$(-#,##0.###)">
 				<reportElement x="323" y="0" width="110" height="18" uuid="e9c43225-ada8-4f09-b54d-d940cdc82f79">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="0c18958f-7c4f-4ec3-bb6b-060cb78537af"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[$F{sueldo_base}]]></textFieldExpression>
 			</textField>
-			<textField pattern="¤#,##0.###;¤(-#,##0.###)">
+			<textField pattern="$#,##0.###;$(-#,##0.###)">
 				<reportElement x="433" y="0" width="60" height="18" uuid="b9db7157-deda-438b-b16b-dada67400cfa"/>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[$F{total_plazas}*$F{sueldo_base}]]></textFieldExpression>
 			</textField>
-			<textField pattern="¤#,##0.###;¤(-#,##0.###)">
+			<textField pattern="$#,##0.###;$(-#,##0.###)">
 				<reportElement x="493" y="0" width="60" height="18" uuid="c28546af-3a42-443a-a9eb-04ace4d2dcb2"/>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[$F{total_plazas}*$F{sueldo_base}*12]]></textFieldExpression>

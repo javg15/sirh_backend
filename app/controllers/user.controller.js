@@ -534,3 +534,7 @@ exports.updatePermisos = async(id_usuario) => {
         });
     }
 }
+
+exports.getUser = async(req, res) => {
+    res.json({ msg: 'Verify' });
+}

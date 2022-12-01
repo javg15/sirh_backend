@@ -39,4 +39,9 @@ module.exports = function(app) {
         "/api/user/setPerfil", [authJwt.verifyToken],
         controller.setPerfil
     );
+
+    app.get(
+        "/api/user", [authJwt.verifyToken],
+        controller.getUser
+    );
 };

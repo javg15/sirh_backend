@@ -518,7 +518,7 @@ exports.setRecord = async(req, res) => {
         raw: true,
         type: QueryTypes.SELECT
     });
-    if (datos[0].id_cattipocategoria == 2 && datos[0].eshomologada == "true" && datos[0].state == 'A')
+    if (req.body.dataPack["id_categorias"]>0 && datos[0].id_cattipocategoria == 2 && datos[0].eshomologada == "true" && datos[0].state == 'A')
         varHorasAB = true;
 
     /*************

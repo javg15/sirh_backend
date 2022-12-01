@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const { QueryTypes } = require('sequelize');
 const config = require("../config/db.config.js");
 
+const { v4: uuidv4 } = require("uuid");
 var request = require("request");
 var fs = require("fs");
 
@@ -59,9 +60,26 @@ exports.getCategorias = async(req, res, next) => {
         .pipe(fs.createWriteStream("myfile.pdf"));
 */
 
-    let resThat=res;
-
-    request.post({
+    var filename = './tmp/' + uuidv4() + '.pdf'
+    let params="id_ze=" + parseInt(req.query.id_ze);
+    var req=request({
+            url:'http://20.58.11.140:8081/jasperserver/rest_v2/reports/reports/rechum/Categorias_Listado.pdf?' + params
+        })
+        .auth(config.USER_JAS, config.PASSWORD_JAS, false)
+        .pipe(fs.createWriteStream(filename))
+    
+    req.on('finish', function () { 
+        if (fs.existsSync(filename)) {
+            res.download(filename) 
+            setTimeout(() => {
+                fs.unlinkSync(filename);
+              }, "5000")
+            
+          }
+        
+    });
+    //resThat.send("myfile2.pdf")
+    /*request.post({
             url: "http://20.58.11.140:8081/jasperserver/rest_v2/login", 
             qs: {j_username: "jasperadmin", j_password: "jasperadmin"}
         },
@@ -71,14 +89,28 @@ exports.getCategorias = async(req, res, next) => {
             }
             else{
                 var cookie = res.headers['set-cookie']
+                request.get({url:"http://20.58.11.140:8081/jasperserver/rest_v2/reports/reports/interactive/TableReport.pdf"
+                        ,headers:{
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Cookie': cookie,
+                        }},function(error, res, body1){
 
-                request({
+                            console.log(res.statusCode) // 200
+                            console.log(res.headers['content-type']) // 'image/png'
+                            console.log(res.body) // 200
+                            resThat.contentType("application/pdf")
+                            resThat.send(res.body);
+
+                        }).end()
+                
+                /*request({
                         url:"http://20.58.11.140:8081/jasperserver/rest_v2/reports/reports/interactive/TableReport.pdf",
                         method: "GET",
                         /*body: 
                         { 
                             parameters: { id_ze: '1'} 
-                        },*/
+                        },*
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
@@ -89,12 +121,16 @@ exports.getCategorias = async(req, res, next) => {
                     function (error, res, body1) {
 
                         if (!error) {
-                            console.log("res=>",res.body)
-                            resThat.set({
-                                'Content-type': 'application/pdf',
-                            });
+                            
+
+                            /*resThat.setHeader('Content-Length', res.body.length);
+                            resThat.setHeader('Content-Type', 'application/pdf');
+                            resThat.setHeader('Content-Disposition', 'attachment; filename=quote.pdf');*
+                            //file.pipe(res);
+                            //res.pipe(resThat);
+
                             //res.pipe(resThat)
-                            resThat.send(res.body);
+                            //resThat.send(res.body);
 
                             //console.log(body1);
                         }
@@ -103,10 +139,10 @@ exports.getCategorias = async(req, res, next) => {
                             console.log("response=>",res.statusCode);
                             
                         }
-                })
+                })*
             }
         }
-    );
+    );*/
 }
 
 exports.getPlazasListado = async(req, res, next) => {
