@@ -700,13 +700,13 @@ exports.setRecord = async(req, res) => {
         },
         /*id_catplantelescobro: { type: "number" },
         id_catzonageografica: { type: "number" },*/
-        id_catestatusplaza: {
+        /*id_catestatusplaza: {
             type: "number",
             custom(value, errors) {
                 if (value <= 0) errors.push({ type: "selection" })
                 return value; // Sanitize: remove all special chars except numbers
             }
-        },
+        },*/
         consecutivo: {
             type: "number",
             custom(value, errors) {
