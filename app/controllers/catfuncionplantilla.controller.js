@@ -103,7 +103,7 @@ exports.getRecord = async(req, res) => {
 }
 
 exports.getCatalogo = async(req, res) => {
-    const query = 'select cp.id,concat(cp.clave,\' - \', cp.puesto) AS "text" ' +
+    const query = 'select distinct cp.id,concat(cp.clave,\' - \', cp.puesto) AS "text",cp.puesto ' +
         'from catfuncionplantilla as cp ' +
         '    left join catpuestotipo as ct on cp.id_catpuestotipo =ct.id ' +
         '    left join catplantillas as cpl on ct.id_catplantillas =cpl.id  ' +
@@ -111,7 +111,7 @@ exports.getCatalogo = async(req, res) => {
         '    left join personal as p on pl.id_personal =p.id and (p.sexo =cp.sexo or cp.sexo=3)  ' +
         '    left join catplanteles as cpt on pl.id_catplanteles =cpt.id ' +
         '         and cpt.clave::integer between ct.clavelimiteinf::integer and ct.clavelimitesup::integer ' +
-        'where pl.id=:id_plantillaspersonal ' +
+        'where (pl.id=:id_plantillaspersonal or :id_plantillaspersonal=0) ' +
         '    and p.id is not null ' +
         '   and ct.id is not null ' +
         'ORDER BY cp.puesto'

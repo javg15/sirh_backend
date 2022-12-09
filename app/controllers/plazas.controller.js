@@ -182,13 +182,14 @@ exports.getNombramientosBase = async(req, res) => {
 exports.getTitularPlaza = async(req, res) => {
     let query = "SELECT pe.* "
             +"FROM plazas as p "
-            +"    left join plantillasdocsnombramiento as pn on p.id_plantillasdocsnombramiento_titular  =pn.id  "
-            +"    left join plantillaspersonal as pp on pn.id_plantillaspersonal =pp.id  "
-            +"    left join personal as pe on pp.id_personal =pe.id  "
+            +"    left join plazasnombramientos as pzn on p.id=pzn.id_plazas  "
+            +"    left join plantillasdocsnombramiento as pn on pzn.id_plantillasdocsnombramiento_vigente=pn.id "
+            +"    left join personal as pe on pn.id_personal_titular =pe.id "
             +"WHERE p.id=:id_plazas  "
-            +"    and pp.state in('A','B')  "
             +"    and pn.state in('A','B')  "
-            +"    and pe.state is not null";
+            +"    and pe.state is not null "
+            +"ORDER BY pn.id_catquincena_fin DESC "
+            +"limit 1";
     datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
         // Will get called for every SQL query that gets sent
