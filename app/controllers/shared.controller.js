@@ -9,7 +9,7 @@ exports.getSearchcampos = async(req, res) => {
         "FROM adm.searchcampos as s " +
         "LEFT JOIN adm.modulos AS m ON s.id_modulos=m.id " +
         "WHERE s.state='A' AND upper(m.ruta)=UPPER(:modulo) " +
-        "ORDER BY s.orden";
+        "ORDER BY s.etiqueta";
 
     const datos = await db.sequelize.query(query, {
         // A function (or false) for logging your queries
