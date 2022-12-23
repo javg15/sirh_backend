@@ -278,7 +278,7 @@ exports.setRecordSQLServer=async(req,res)=>{
             "   coalesce(ps.id_catsindicato,3) AS idsindicato, " + 
             " CONCAT(pt.rfc,COALESCE(pt.homoclave,'')) AS rfcemptitular, " +
             " pp.id_catplantillas AS idempfuncion, " +
-            " ce.id_catbajamotivo AS id_catbajamotivo, " +
+            " ce.id_catbajamotivo_sql AS id_catbajamotivo_sql, " +
             " COALESCE(pzn.id_plazas_sql,0) AS id_plazas_sql, " +
             " COALESCE(pdn_origen.id_catquincena_ini,0) AS id_catquincena_ini_origen " +
             "FROM plantillasdocsnombramiento AS pdn " +
@@ -312,11 +312,19 @@ exports.setRecordSQLServer=async(req,res)=>{
                 .input('IdQnaVigIni', sql.SmallInt, prms.id_catquincena_ini_origen)
                 .input('IdQnaVigFin', sql.SmallInt,  datos.id_catquincena_ini)
                 .input('TipoOperacion', sql.TinyInt, TipoOperacion)
-                .input('IdMotGralBaja', sql.TinyInt, prms.id_catbajamotivo)//no se captura
+                .input('IdMotGralBaja', sql.TinyInt, prms.id_catbajamotivo_sql)//no se captura
                 .input('FechaInicio', sql.DateTime, null)
                 .input('FechaFin', sql.DateTime, null)
                 .input('FechaFinLSGS', sql.DateTime, null)
             .execute('SP_IoUPlazasHistoria');
+            console.log('IdPlaza',  prms.id_plazas_sql)
+            console.log('IdQnaVigIni',  prms.id_catquincena_ini_origen)
+            console.log('IdQnaVigFin',   datos.id_catquincena_ini)
+            console.log('TipoOperacion',  TipoOperacion)
+            console.log('IdMotGralBaja',  prms.id_catbajamotivo_sql)//no se captura
+            console.log('FechaInicio',  null)
+            console.log('FechaFin',  null)
+            console.log('FechaFinLSGS',  null)
             console.dir(result1)
 
             if(result1.returnValue==0)
@@ -346,7 +354,7 @@ exports.setRecordSQLServer=async(req,res)=>{
                 .input('RFCEmpTitular', sql.VarChar(13),  (prms.rfcemptitular == "" ? prms.rfcemptitular : null))
                 .input('IdFuncionPri', sql.SmallInt, datos.id_catfuncionprimaria)
                 .input('IdFuncionSec', sql.TinyInt, datos.id_catfuncionsecundaria)
-                .input('IdMotGralBaja', sql.TinyInt, (TipoOperacion == 2 ? prms.id_catbajamotivo : 25))//no se captura
+                .input('IdMotGralBaja', sql.TinyInt, (TipoOperacion == 2 ? prms.id_catbajamotivo_sql : 25))//no se captura
                 .input('TratarComoBase', sql.Bit, 0)//no se captura
             .output('IdPlazaCreada', sql.Int)
                 .input('IdTipoSemestre', sql.TinyInt, datos.id_cattiposemestre)
@@ -586,7 +594,7 @@ exports.setRecord = async(req, res) => {
                     ) &&
                     (value <= 0 || value == 32767)) errors.push({ type: "selection" })
 
-                if (ultimoRegistroMayorQuincena.length > 0) errors.push({ type: "quincenaSuperior" })
+                //if (ultimoRegistroMayorQuincena.length > 0) errors.push({ type: "quincenaSuperior" })
                 return value; // Sanitize: remove all special chars except numbers
             }
         },
